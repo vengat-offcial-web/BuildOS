@@ -1,4 +1,5 @@
 import './Css/navbar.css'
+import profile from './assets/profile.png'
 function Nav(){
     return(<header>
 
@@ -10,11 +11,10 @@ function Nav(){
             <button>Notification</button>
 
             <div className="profile-container">
-                <p>Profile</p>
-                <img src="" alt="profile" />
+                <img src={profile} alt="profile" />
             <div className="user-info">
-                    <p>Name</p>
-                    <p>Role</p>
+                    <p>VENGADESSH V</p>
+                    <p>Owner of  PVM Constructions</p>
             </div>
             </div>
         </div>
