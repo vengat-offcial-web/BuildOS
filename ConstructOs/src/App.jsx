@@ -1,13 +1,18 @@
 
 import './App.css'
+import Nav from './Navbar'
 import Side from './Sidebar'
 
 function App() {
   return (
-    <>
-      <Side/>
-    </>
+<div className='App-Container'>
+    <Side/>
+    <Login/>
+  <main>
+    <Nav/>
+  </main>
+</div>
   )
 }
 
-export default App
+export default App;

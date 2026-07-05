@@ -2,7 +2,8 @@ import "./Css/sidebar.css"
 function Side(){
     return(
     <aside>
-        <div className="logo">Logo Section
+        <div className="logo">
+            <p>Logo Section</p>
            <h2>ConstructionOS</h2>
         </div>
         <nav className="menu">
@@ -21,4 +22,4 @@ function Side(){
 );
 }
 
-export default Side
+export default Side;

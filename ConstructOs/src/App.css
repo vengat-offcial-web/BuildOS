@@ -11,3 +11,10 @@ body{
 #root{
     display:flex;
 }
+.App-Container {
+  display: flex;
+}
+
+main {
+  flex: 1; 
+}
