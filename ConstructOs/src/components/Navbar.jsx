@@ -1,5 +1,5 @@
-import './Css/navbar.css'
-import profile from './assets/profile.png'
+import '../Css/navbar.css'
+import profile from '../assets/profile.png'
 function Nav(){
     return(<header>
 

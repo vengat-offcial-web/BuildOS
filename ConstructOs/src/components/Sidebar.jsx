@@ -1,4 +1,4 @@
-import "./Css/sidebar.css"
+import "../Css/sidebar.css"
 function Side(){
     return(
     <aside>

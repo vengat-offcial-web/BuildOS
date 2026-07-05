@@ -1,8 +1,8 @@
 
 import './App.css'
 
-import Nav from './Navbar'
-import Side from './Sidebar'
+import Nav from './components/Navbar'
+import Side from './components/Sidebar'
 
 function App() {
   return (
