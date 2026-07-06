@@ -10,14 +10,14 @@ function Nav(){
         <div className="right-sec">
             <button>Notification</button>
 
-            <div className="profile-container">
+          <div className="profile-container">
                 <img src={profile} alt="profile" />
-            <div className="user-info">
+              <div className="user-info">
                     <p>VENGADESSH V</p>
                     <p>Owner of  PVM Constructions</p>
-            </div>
-            </div>
-        </div>
+              </div>
+           </div>
+       </div>
 
     </header>);
 }
