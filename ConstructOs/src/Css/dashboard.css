@@ -14,3 +14,68 @@
     font-size: 18px;
     color: rgba(0, 0, 0, 0.894);
 }
+/* Table CSS */
+.table-container{
+    padding:20px;
+}
+
+.table-title{
+    font-size:32px;
+    font-weight:700;
+    color:#111827;
+    margin-bottom:18px;
+}
+
+.table-box{
+    background:#fff;
+    border-radius:12px;
+    overflow-x:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
+}
+
+thead{
+    background:#f8fafc;
+}
+
+th{
+    text-align:left;
+    padding:16px 20px;
+    font-size:16px;
+    font-weight:600;
+    color:#111827;
+    border-bottom:1px solid #e5e7eb;
+}
+
+td{
+    padding:16px 20px;
+    font-size:15px;
+    color:#374151;
+    border-bottom:1px solid #f1f5f9;
+}
+
+tbody tr:hover{
+    background:#f9fafb;
+}
+
+tbody tr:last-child td{
+    border-bottom:none;
+}
+
+@media(max-width:768px){
+
+    .table-title{
+        font-size:26px;
+    }
+
+    th,
+    td{
+        padding:14px 16px;
+    }
+
+}
