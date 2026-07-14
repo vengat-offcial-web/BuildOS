@@ -6,6 +6,7 @@ import Nav from './components/Navbar';
 import Side from './components/Sidebar';
 import Table from './components/Table';
 import Projects from './Pages/Projects';
+import Workers from './Pages/Workers';
 
 
 function App() {
@@ -18,8 +19,9 @@ function App() {
     <Dashboard/> 
     <Dashboardcards/>
     <Table/> */}
-    <Projects/>
-  </main>
+    {/* <Projects/> */}
+    <Workers/>
+   </main>
 </div>
   );
 }
