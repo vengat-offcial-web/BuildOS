@@ -7,6 +7,7 @@ import Side from './components/Sidebar';
 import Table from './components/Table';
 import Projects from './Pages/Projects';
 import Workers from './Pages/Workers';
+import Materials from './Pages/Materials';
 
 
 function App() {
@@ -20,7 +21,8 @@ function App() {
     <Dashboardcards/>
     <Table/> */}
     {/* <Projects/> */}
-    <Workers/>
+    {/* <Workers/> */}
+    <Materials/>
    </main>
 </div>
   );
