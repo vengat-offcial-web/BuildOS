@@ -8,6 +8,11 @@ import Table from './components/Table';
 import Projects from './Pages/Projects';
 import Workers from './Pages/Workers';
 import Materials from './Pages/Materials';
+import Machines from './Pages/Machines';
+import Tasks from './Pages/Tasks';
+import Report from './Pages/Reports';
+import Settings from './Pages/Settings';
+
 
 
 function App() {
@@ -16,13 +21,18 @@ function App() {
     <Side/>
     
   <main>
-   {/* <Nav/>
+    {/* <Nav/>
     <Dashboard/> 
     <Dashboardcards/>
-    <Table/> */}
+    <Table/>  */}
     {/* <Projects/> */}
     {/* <Workers/> */}
-    <Materials/>
+    {/* <Materials/> */}
+    {/* <Machines/> */}
+    {/* <Tasks/> */}
+     {/* <Report/> */}
+     <Settings/>
+     
    </main>
 </div>
   );

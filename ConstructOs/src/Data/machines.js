@@ -3,97 +3,99 @@ const obj4 =[{
     Type:"Excavator",
     Site:"Chennai",
     Operator:"Ravi",
-    Status:"Active",
+    Condition:"Running",
     Action:"View"
 },{
     MachineName:"Tata Crane",
     Type:"Crane",
     Site:"Coimbatore",
     Operator:"Mani",
-    Status:"Active",
+    Condition:"Running",
     Action:"View"
 },{
     MachineName:"CAT 320",
     Type:"Excavator",
     Site:"Madurai",
     Operator:"Suresh",
-    Status:"Maintenance",
+    Condition:"Maintenance",
     Action:"View"
 },{
     MachineName:"Ashok Leyland",
     Type:"Dumper",
     Site:"Trichy",
     Operator:"Karthick",
-    Status:"Active",
+    Condition:"Running",
     Action:"View"
 },{
     MachineName:"Komatstu D65",
     Type:"Bulldozer",
     Site:"Salem",
     Operator:"Praveen",
-    Status:"Available",
+    Condition:"Idle",
     Action:"View"
 },{
     MachineName:"Volvo SD110",
     Type:"Roller",
     Site:"Erode",
     Operator:"Vignesh",
-    Status:"Acive",
+    Condition:"Running",
     Action:"View"
 },{
     MachineName:"Ajax Mixer",
     Type:"Concrete Mixer",
     Site:"Hosur",
     Operator:"Arun",
-    Status:"Active",
+    Condition:"Running",
     Action:"View"
 },{
     MachineName:"Schwing Pump",
     Type:"Concrete Pump",
     Site:"Chennai",
     Operator:"Saravanan",
-    Status:"Maintenance",
+    Condition:"Fuel Due",
     Action:"View"
 },{
     MachineName:"Tata Hitachi",
     Type:"Excavator",
     Site:"Tiruppur",
     Operator:"Dinesh",
-    Status:"Active",
+    Condition:"Running",
     Action:"View"
 },{
     MachineName:"CAT Loader",
     Type:"Loader",
     Site:"Thoothukudi",
     Operator:"Ajith",
-    Status:"Available",
+    Condition:"Idle",
     Action:"View"
 },{
     MachineName:"JLG Lift",
     Type:"Boom Lift",
     Site:"Vellore",
     Operator:"Gokul",
-    Status:"Active",
+    Condition:"Maintenance",
     Action:"View"
 },{
     MachineName:"Hyundai HX220",
     Type:"Excavator",
     Site:"Chengalpattu",
     Operator:"Mohan",
-    Status:"Active",
+    Condition:"Running",
     Action:"View"
 },{
     MachineName:"Mahindra Tractor",
     Type:"Tractor",
     Site:"Kanchipuram",
     Operator:"Ramesh",
-    Status:"Maintenance",
+    Condition:"Running",
     Action:"View"
 },{
     MachineName:"Bobcat S650",
     Type:"Skid Steer Loader",
     Site:"Madurai",
     Operator:"Bharath",
-    Status:"Avtive",
+    Condition:"Fuel Due",
     Action:"View"
 }]
+
+export default obj4;
