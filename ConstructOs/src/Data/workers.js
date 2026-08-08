@@ -2,105 +2,105 @@ const obj2 = [{
     Name:"Ravi Kumar",
     Role:"Site Engineer",
     Site:"Chennai",
-    Phone:"9876543210",
+    Phone:"98765 52210",
     Status:"Active",
     Action:"View"
 },{
     Name:"Mani ",
     Role:"Supervisor",
     Site:"Coimbatore",
-    Phone:"9876543211",
+    Phone:"98765 43211",
     Status:"Active",
     Action:"View"
 },{
     Name:"Suresh",
     Role:"Mason",
     Site:"Trichy",
-    Phone:"9876543212",
+    Phone:"98765 27112",
     Status:"Leave",
     Action:"View"
 },{
     Name:"Karthik",
     Role:"Electrician",
     Site:"Salem",
-    Phone:"9876543213",
+    Phone:"98765 71213",
     Status:"Active",
     Action:"View"
 },{
     Name:"Praveen",
     Role:"Plumber",
     Site:"Erode",
-    Phone:"9876543214",
+    Phone:"98765 90214",
     Status:"Inactive",
     Action:"View"
 },{
     Name:"Vignesh",   
     Role:"Carpenter",
     Site:"Hosur",
-    Phone:"9876543215",
+    Phone:"98765 45215",
     Status:"Active",
     Action:"View"
 },{
     Name:"Arun",   
     Role:"Welder",
     Site:"Karur",
-    Phone:"9876543216",
+    Phone:"98765 30216",
     Status:"Active",
     Action:"View"
 },{
     Name:"Saravanan",   
     Role:"Foreman",
     Site:"Chennai",
-    Phone:"9876543217",
+    Phone:"98765 21217",
     Status:"Leave",
     Action:"View"
 },{
     Name:"Dinesh",   
     Role:"Helper",
     Site:"Tiruppur",
-    Phone:"9876543218",
+    Phone:"98765 13218",
     Status:"Active",
     Action:"View"
 },{
     Name:"Ajith",   
     Role:"Painter",
     Site:"Thoothukudi",
-    Phone:"9876543220",
+    Phone:"98765 51220",
     Status:"Inactive",
     Action:"View"
 },{
     Name:"Gokul",   
     Role:"Crane Operator",
     Site:"Vellore",
-    Phone:"9876543221",
+    Phone:"98765 61221",
     Status:"Active",
     Action:"View"
 },{
     Name:"Mohan",   
     Role:"Steel Fixer",
     Site:"Chengalpattu",
-    Phone:"9876543222",
+    Phone:"98765 80222",
     Status:"Active",
     Action:"View"
 },{
     Name:"Ramesh",   
     Role:"Safety Officer",
     Site:"Kanchipuram",
-    Phone:"9876543223",
+    Phone:"98765 12223",
     Status:"Active",
     Action:"View"
 },{
     Name:"Bharath",   
     Role:"Concrete Worker",
     Site:"Madurai ",
-    Phone:"9876543224",
+    Phone:"98765 54224",
     Status:"Leave",
     Action:"View"
 },{
     Name:"Hari",   
     Role:"Surveyor",
     Site:"Tirunelveli ",
-    Phone:"9876543219",
+    Phone:"98765 78219",
     Status:"Active",
     Action:"View"
 }]

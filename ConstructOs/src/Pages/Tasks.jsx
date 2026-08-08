@@ -1,5 +1,5 @@
-import Task from "../Data/Task";
-import TaskTable from "../Data/TaskTable";
+import Task from "../data/Task";
+import TaskTable from "../data/TaskTable";
 import "../Css/task.css";
 
 function Tasks() {

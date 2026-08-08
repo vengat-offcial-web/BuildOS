@@ -1,4 +1,4 @@
-import obj2 from "../Data/workers";
+import obj2 from "../data/workers";
 import DashboardCard from "../components/DashboardCard";
 import '../Css/workers.css'
 import { useState } from "react";

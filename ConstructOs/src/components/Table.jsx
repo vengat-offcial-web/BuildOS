@@ -1,58 +1,104 @@
-import Dashboard from "../Pages/Dashboard.jsx"
+import Dashboard from "../pages/Dashboard.jsx"
+import "../Css/table.css"
+function Table() {
 
-function Table(){
+  const projects = [
+    {
+      project: "Mall Build",
+      site: "Chennai",
+      status: "Ongoing",
+      progress: "80%"
+    },
+    {
+      project: "Hospital",
+      site: "Madurai",
+      status: "Completed",
+      progress: "100%"
+    },
+    {
+      project: "Bridge",
+      site: "Coimbatore",
+      status: "Ongoing",
+      progress: "65%"
+    },
+    {
+      project: "Apartment",
+      site: "Trichy",
+      status: "Pending",
+      progress: "35%"
+    },
+    {
+      project: "School",
+      site: "Salem",
+      status: "Completed",
+      progress: "100%"
+    },
+    {
+      project: "IT Park",
+      site: "Chennai",
+      status: "Ongoing",
+      progress: "72%"
+    },
+    {
+      project: "Shopping Complex",
+      site: "Erode",
+      status: "Pending",
+      progress: "28%"
+    },
+    {
+      project: "Factory",
+      site: "Hosur",
+      status: "Ongoing",
+      progress: "55%"
+    },
+    {
+      project: "Office Tower",
+      site: "Bangalore",
+      status: "Completed",
+      progress: "100%"
+    },
+    {
+      project: "Metro Station",
+      site: "Chennai",
+      status: "Ongoing",
+      progress: "61%"
+    }
+  ];
 
-    const arr= [{
-    d1:"Mall Build",
-    d2:"Chennai" ,
-    d3: "Ongoing",
-    d4:"70%"
-   },
-   {
-    d1:"Villa A",
-    d2:"Coimbatore",
-    d3:"Completed",
-    d4:"100%"
-   },
-   {
-    d1:"School",
-    d2:"Madurai",
-    d3:"Pending",
-    d4:"20%"
-   },
-   {
-    d1: "Apartment",
-    d2: "Trichy",
-    d3:"Ongoing",
-    d4:"45%" 
-   }]
-   
-    return(
-       <div className="table-container">
+  return (
+    <div className="table-container">
 
-         <h2 className="table-title">Recent Projects</h2>
+      <h2 className="table-title">Recent Projects</h2>
 
-        <div className="table-box">
+      <div className="table-box">
         <table>
 
-         <thead><tr>
-                <th>Project Name</th>
-                <th>Site</th>
-                <th>Status</th>
-                <th>Progress</th>
-            </tr></thead>
-            
-           <tbody>
-            { arr.map((x,index)=>(<tr key={index}>
-            <td>{x.d1}</td>
-            <td>{x.d2}</td>
-            <td>{x.d3}</td>
-            <td>{x.d4}</td>  
-            </tr>)) }
-            </tbody>
+          <thead><tr>
+            <th>Project Name</th>
+            <th>Site</th>
+            <th>Status</th>
+            <th>Progress</th>
+          </tr></thead>
+
+          <tbody>
+            {projects.map((x, index) => (
+              <tr key={index}>
+                <td>{x.project}</td>
+                <td>{x.site}</td>
+
+                <td>
+                  <span className={`status ${x.status.toLowerCase()}`}>
+                    {x.status}
+                  </span>
+                </td>
+
+                <td>{x.progress}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
-          </div>
-         </div>
-    );
+      </div>
+    </div>
+  );
 }
-export default Table
+export default Table;

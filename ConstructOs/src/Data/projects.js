@@ -6,7 +6,7 @@ const obj = [{
     Action:"View",
 },
 {   ProjectName:"Villa A", 
-    Site:"CBE",
+    Site:"Coimbatore",
     Status:"Completed",
     Progress:"100",
     Action:"View",
@@ -28,7 +28,7 @@ const obj = [{
 {
     ProjectName:"Hospital",
     Site:"Salem",
-    Status:"completed",
+    Status:"Completed",
     Progress:"100",
     Action:"View",
 },
@@ -42,7 +42,7 @@ const obj = [{
 {
     ProjectName:"Metro",
     Site:"Chennai",
-    Status:" Pending",
+    Status:"Pending",
     Progress:"15",
     Action:"View",
 },

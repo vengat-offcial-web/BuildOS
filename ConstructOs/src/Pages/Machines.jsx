@@ -1,8 +1,8 @@
 // import obj4 from '../Data/machines'
 import '../Css/machines.css'
 import DashboardCard from '../components/DashboardCard';
-import  obj4 from "../Data/machines"
-import alert from "../Data/machineAlert"
+import  obj4 from "../data/machines"
+import alert from "../data/machineAlert"
 function Machines(){
     const arr = alert.map((x,index)=><p key={index}>
         {x.Alert1}

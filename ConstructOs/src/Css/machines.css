@@ -23,7 +23,6 @@
     color:#6b7280;
 }
 
-
 /* Search + Button */
 
 .machine-top{
@@ -36,38 +35,42 @@
 }
 
 .machine-top input{
-    width:330px;
-    height:45px;
-    padding:0 16px;
+    width:420px;
+    height:48px;
+    padding:0 18px;
     border:1px solid #d1d5db;
     border-radius:10px;
     outline:none;
     background:#fff;
     font-size:15px;
+    transition:.3s;
+}
+
+.machine-top input::placeholder{
+    color:#9ca3af;
 }
 
 .machine-top input:focus{
     border-color:#2563eb;
-    box-shadow:0 0 0 3px rgba(37,99,235,.12);
+    box-shadow:0 0 0 3px rgba(37,99,235,.15);
 }
 
 .machine-top button{
-    height:45px;
-    padding:0 22px;
+    height:48px;
+    padding:0 24px;
     border:none;
     border-radius:10px;
-    background:#1d4ed8;
-    color:white;
+    background:#2563eb;
+    color:#fff;
     font-size:15px;
     font-weight:600;
     cursor:pointer;
+    transition:.3s;
 }
 
 .machine-top button:hover{
-    background:#1e40af;
+    background:#1d4ed8;
 }
-
-
 /* Machine Cards */
 
 .machine-cards{
@@ -123,7 +126,6 @@
     min-width:900px;
     border-collapse:collapse;
 }
-
 /* ---------- Header ---------- */
 
 .machine-table-box thead th{
@@ -131,16 +133,15 @@
     top:0;
     z-index:10;
 
-    background:#172f51;
+    background:#1f2937;
     color:#fff;
 
     text-align:left;
-    padding:18px 20px;
-    font-size:15px;
+    padding:18px 22px;
+    font-size:16px;
     font-weight:600;
 
-    border-bottom:1px solid #374151;
-    border-right:1px solid #374151;
+    border-right:1px solid rgba(255,255,255,.08);
 }
 
 .machine-table-box thead th:last-child{
@@ -154,7 +155,6 @@
 .machine-table-box thead th:last-child{
     border-top-right-radius:12px;
 }
-
 /* ---------- Body ---------- */
 
 .machine-table-box td{

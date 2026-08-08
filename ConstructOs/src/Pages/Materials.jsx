@@ -1,4 +1,4 @@
-import obj3 from '../Data/materials'
+import obj3 from '../data/materials'
 import DashboardCard from '../components/DashboardCard';
 import '../Css/materials.css'
 function Materials(){
