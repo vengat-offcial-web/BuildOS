@@ -1,0 +1,10 @@
+export { default as Dashboard } from "./Dashboard";
+export { default as Projects } from "./Projects";
+export { default as Workers } from "./Workers";
+export { default as Materials } from "./Materials";
+export { default as Machines } from "./Machines";
+export { default as Tasks } from "./Tasks";
+export { default as Reports } from "./Reports";
+export { default as Settings } from "./Settings";
+export { default as WorkerDashboard } from "./WorkerDashboard";
+export { default as WorkerSettings } from "./WorkerSettings";
