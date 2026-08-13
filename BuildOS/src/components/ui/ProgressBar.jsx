@@ -27,7 +27,7 @@ export const ProgressBar = ({
         <div className={`flex items-center gap-3 ${className}`}>
             <div className={`flex-1 bg-slate-800 ${heightClass} rounded-full overflow-hidden`}>
                 <div
-                    className={`h-full bg-gradient-to-r ${gradientClass} rounded-full transition-all duration-500`}
+                    className={`h-full bg-linear-to-r ${gradientClass} rounded-full transition-all duration-500`}
                     style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                 ></div>
             </div>
