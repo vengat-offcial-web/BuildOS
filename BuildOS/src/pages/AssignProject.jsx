@@ -320,7 +320,7 @@ function AssignProject() {
                         }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${eng.avatarBg} text-[#6B21A8] flex items-center justify-center font-extrabold text-xs border border-white shadow-sm shrink-0`}>
+                        <div className={`w-10 h-10 rounded-xl bg-linear-to-tr ${eng.avatarBg} text-[#6B21A8] flex items-center justify-center font-extrabold text-xs border border-white shadow-sm shrink-0`}>
                           {eng.name.charAt(0)}
                         </div>
                         <div>
