@@ -43,7 +43,7 @@ export function ProjectBentoCard({
   return (
     <div 
       onClick={() => navigate(`/projects/${id}`)}
-      className={`${cardBg} p-6 rounded-[32px] border border-white/90 shadow-[0_12px_32px_rgba(167,139,250,0.1)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(139,92,246,0.18)] cursor-pointer group flex flex-col justify-between relative overflow-hidden`}
+      className={`${cardBg} p-6 rounded-32pxl border border-white/90 shadow-[0_12px_32px_rgba(167,139,250,0.1)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(139,92,246,0.18)] cursor-pointer group flex flex-col justify-between relative overflow-hidden`}
     >
       {/* Background Decorative Graphic Accent */}
       <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-white/40 rounded-full blur-xl pointer-events-none"></div>
