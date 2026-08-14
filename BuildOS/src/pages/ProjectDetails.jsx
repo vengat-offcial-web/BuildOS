@@ -539,7 +539,7 @@ function ProjectDetails() {
                   value={editDeadline}
                   onChange={(e) => setEditDeadline(e.target.value)}
                   className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                  placeholder="Enter Target Completion Date"
+                  placeholder="DD/MM/YYYY"
                 />
               </div>
 
