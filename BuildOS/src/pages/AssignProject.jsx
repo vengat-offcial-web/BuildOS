@@ -30,7 +30,6 @@ const engineersDatabase = [
 ];
 
 const cityTags = ["Chennai", "Coimbatore", "Madurai", "Trichy", "Salem", "Hosur"];
-const tradeCategories = ["Masonry", "Steel Rebar", "Heavy Equipment", "Electrical", "Scaffolding"];
 
 function AssignProject() {
   const navigate = useNavigate();
@@ -42,26 +41,11 @@ function AssignProject() {
   const [description, setDescription] = useState('');
   const [selectedEngineer, setSelectedEngineer] = useState(null);
   const [engineerSearch, setEngineerSearch] = useState('');
-  // const [formData, setFormData] = useState({
-  //   name: "",
-  //   location: "",
-  //   description: "",
-  //   engineerSearch: "",
-  // })
-
-  // const handleChange = e => {
-  //   const { name, value } = e.target;
-  //   setFormData(prevValue => ({
-  //     ...prevValue,
-  //     [name]: value
-  //   }))
-  // }
 
   const [startDate, setStartDate] = useState('2026-08-15');
   const [deadline, setDeadline] = useState('2027-02-15');
 
   const [workforceRequired, setWorkforceRequired] = useState(25);
-  const [selectedTrades, setSelectedTrades] = useState(['Masonry', 'Steel Rebar']);
 
   const [priority, setPriority] = useState('Medium');
 
@@ -89,14 +73,6 @@ function AssignProject() {
     const months = (diffDays / 30.4).toFixed(1);
     return { days: diffDays, text: `${diffDays} Days (~${months} Months)` };
   }, [startDate, deadline]);
-
-  const toggleTrade = (trade) => {
-    if (selectedTrades.includes(trade)) {
-      setSelectedTrades(selectedTrades.filter(t => t !== trade));
-    } else {
-      setSelectedTrades([...selectedTrades, trade]);
-    }
-  };
 
   const validate = () => {
     const errs = {};
@@ -490,30 +466,6 @@ function AssignProject() {
                   <FiAlertCircle /> {errors.workers}
                 </p>
               )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2">
-                Worker Trades Required <span className="text-slate-400 font-normal">(Optional)</span>
-              </label>
-              <div className="flex items-center gap-2 flex-wrap">
-                {tradeCategories.map(trade => {
-                  const active = selectedTrades.includes(trade);
-                  return (
-                    <button
-                      key={trade}
-                      type="button"
-                      onClick={() => toggleTrade(trade)}
-                      className={`text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all cursor-pointer ${active
-                          ? 'bg-[#03020A] text-white border-[#03020A] shadow-sm'
-                          : 'bg-white text-slate-600 border-purple-100 hover:bg-purple-50'
-                        }`}
-                    >
-                      {active ? `✓ ${trade}` : trade}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
           </Card>
 
