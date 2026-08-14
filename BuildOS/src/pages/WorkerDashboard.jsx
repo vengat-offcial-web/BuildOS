@@ -23,7 +23,7 @@ function WorkerDashboard() {
     ]);
 
     const toggleTask = (id) => {
-        setTasks(tasks.map(t => {
+        setTasks(prev => prev.map(t => {
             if (t.id === id) {
                 const nextStatus = t.status === "Completed" ? "Pending" : "Completed";
                 return { ...t, status: nextStatus };
@@ -41,6 +41,7 @@ function WorkerDashboard() {
                 actionLabel={clockedIn ? "Clock Out of Shift" : "Clock In to Shift"}
                 actionIcon={FiClock}
                 onActionClick={() => setClockedIn(!clockedIn)}
+                variant="emerald"
             />
 
             {/* Top Stats Cards */}
@@ -49,32 +50,40 @@ function WorkerDashboard() {
                     title="Shift Status" 
                     value={clockedIn ? "ON DUTY" : "OFF DUTY"} 
                     icon={FiUserCheck} 
-                    trend={clockedIn ? "Clocked in at 08:00 AM" : "Not clocked in"} 
+                    subtitle={clockedIn ? "Clocked in at 08:00 AM" : "Not clocked in"}
+                    badgeType={clockedIn ? "lime" : "rose"}
+                    accentColor={clockedIn ? "lime" : "dark"}
                 />
                 <DashboardCard 
                     title="Assigned Site" 
                     value="Metro Link - B4" 
                     icon={FiMapPin} 
-                    trend="Supervisor: R. Sharma" 
+                    subtitle="Supervisor: R. Sharma"
+                    badgeType="purple"
+                    accentColor="purple"
                 />
                 <DashboardCard 
                     title="Tasks Today" 
                     value={`${tasks.filter(t => t.status === "Completed").length} / ${tasks.length}`} 
                     icon={FiCheckSquare} 
-                    trend="50% Completed" 
+                    subtitle="50% Completed"
+                    badgeType="lime"
+                    accentColor="lime"
                 />
                 <DashboardCard 
                     title="Safety Compliance" 
                     value="100%" 
                     icon={FiShield} 
-                    trend="Zero Incidents" 
+                    subtitle="Zero Incidents"
+                    badgeType="lime"
+                    accentColor="dark"
                 />
             </div>
 
             {/* Shift & Weather Status */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Active Tasks Panel */}
-                <Card className="lg:col-span-2 space-y-4">
+                <Card variant="dark" hover={false} className="lg:col-span-2 space-y-4">
                     <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                         <div className="flex items-center gap-2">
                             <FiCheckSquare className="text-emerald-400 text-lg" />
@@ -124,7 +133,7 @@ function WorkerDashboard() {
 
                 {/* Worker Site & Safety Summary */}
                 <div className="space-y-6">
-                    <Card className="space-y-4">
+                    <Card variant="dark" hover={false} className="space-y-4">
                         <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
                             <FiShield className="text-blue-400 text-lg" />
                             <h3 className="text-base font-bold text-slate-100">PPE Safety Verification</h3>
@@ -151,7 +160,7 @@ function WorkerDashboard() {
                         </ul>
                     </Card>
 
-                    <Card className="bg-gradient-to-br from-emerald-950/30 to-slate-900 border-emerald-500/20 p-5">
+                    <Card variant="dark" hover={false} className="bg-gradient-to-br from-emerald-950/30 to-slate-900 border-emerald-500/20 p-5">
                         <div className="flex items-center gap-3 mb-2">
                             <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
                                 <FiSun className="text-xl" />

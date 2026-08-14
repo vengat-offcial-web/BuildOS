@@ -49,8 +49,8 @@ function Login() {
     return (
         <div className="min-h-screen w-full bg-[#F5F5F7] text-[#03020A] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden selection:bg-[#C4B5FD]">
             {/* Background Pastel Glow Orbs */}
-            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-gradient-to-br from-[#E9D5FF]/50 via-[#C4B5FD]/30 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-[-10%] left-[10%] w-[500px] h-[500px] bg-gradient-to-tr from-[#F0FDC2]/60 via-[#E4F9A8]/40 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-[-10%] right-[-5%] w-125 h-125 bg-linear-to-br from-[#E9D5FF]/50 via-[#C4B5FD]/30 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-[-10%] left-[10%] w-125 h-125 bg-linear-to-tr from-[#F0FDC2]/60 via-[#E4F9A8]/40 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="w-full max-w-md relative z-10">
                 {/* Main Glass Card */}
@@ -58,7 +58,7 @@ function Login() {
                     
                     {/* Header Logo */}
                     <div className="flex flex-col items-center text-center mb-8">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#7C3AED] via-[#8B5CF6] to-[#C4B5FD] flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-500/25 mb-4 ring-4 ring-white">
+                        <div className="w-14 h-14 rounded-2xl bg-linear-to-tr from-[#7C3AED] via-[#8B5CF6] to-[#C4B5FD] flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-500/25 mb-4 ring-4 ring-white">
                             <FaHelmetSafety />
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#03020A]">

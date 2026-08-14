@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Card, ProgressBar, Badge } from '../components/ui';
+import { Card, ProgressBar } from '../components/ui';
 import { FiBarChart2, FiDownload, FiCalendar, FiTrendingUp, FiShield, FiDollarSign, FiClock } from 'react-icons/fi';
+
+const monthOptions = ['August 2026', 'July 2026', 'June 2026', 'Q2 2026 Summary'];
 
 function Reports() {
   const [selectedMonth, setSelectedMonth] = useState('August 2026');
+  const [showMonthDropdown, setShowMonthDropdown] = useState(false);
 
   return (
     <div className="space-y-8 pb-8">
@@ -20,11 +23,38 @@ function Reports() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="bg-white/80 hover:bg-white text-[#03020A] border border-purple-100 text-xs font-bold px-4 py-2.5 rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer">
-            <FiCalendar className="text-[#7C3AED]" />
-            <span>{selectedMonth}</span>
-          </button>
-          <button className="dark-nav-pill px-5 py-2.5 rounded-full text-xs font-extrabold flex items-center gap-2 shadow-lg hover:bg-black transition-all cursor-pointer">
+          <div className="relative">
+            <button 
+              type="button"
+              onClick={() => setShowMonthDropdown(!showMonthDropdown)}
+              className="bg-white/80 hover:bg-white text-[#03020A] border border-purple-100 text-xs font-bold px-4 py-2.5 rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+            >
+              <FiCalendar className="text-[#7C3AED]" />
+              <span>{selectedMonth}</span>
+            </button>
+
+            {showMonthDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-purple-100 rounded-2xl shadow-xl z-20 overflow-hidden py-1">
+                {monthOptions.map(m => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => {
+                      setSelectedMonth(m);
+                      setShowMonthDropdown(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors cursor-pointer ${
+                      selectedMonth === m ? 'bg-purple-100 text-[#7C3AED]' : 'text-slate-700 hover:bg-purple-50'
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button type="button" className="dark-nav-pill px-5 py-2.5 rounded-full text-xs font-extrabold flex items-center gap-2 shadow-lg hover:bg-black transition-all cursor-pointer">
             <FiDownload className="text-[#BEF264]" />
             <span>Export Executive PDF</span>
           </button>
@@ -80,11 +110,10 @@ function Reports() {
 
       {/* Visual Analytics Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Visual Bar Chart: Project Expenditure Breakdown */}
         <Card hover={false} className="space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-purple-100">
             <h3 className="text-base font-extrabold text-[#03020A]">Project Expenditure Breakdown ($K)</h3>
-            <span className="text-xs font-bold text-purple-700">Aug 2026</span>
+            <span className="text-xs font-bold text-purple-700">{selectedMonth}</span>
           </div>
 
           <div className="space-y-4 pt-2">
@@ -105,7 +134,6 @@ function Reports() {
           </div>
         </Card>
 
-        {/* Labor & Fleet Efficiency Matrix */}
         <Card hover={false} className="space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-purple-100">
             <h3 className="text-base font-extrabold text-[#03020A]">Fleet & Material Utilization</h3>
@@ -166,7 +194,7 @@ function Reports() {
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-right">
-                    <button className="text-xs font-bold text-[#7C3AED] hover:underline flex items-center gap-1 ml-auto">
+                    <button type="button" className="text-xs font-bold text-[#7C3AED] hover:underline flex items-center gap-1 ml-auto cursor-pointer">
                       <FiDownload /> Download
                     </button>
                   </td>

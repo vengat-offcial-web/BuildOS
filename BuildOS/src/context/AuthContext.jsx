@@ -1,29 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { AuthContext } from './authContextInstance';
+import useAuth from './useAuth';
+
+const safeGetStorage = (key, fallback = null) => {
+    try {
+        const saved = localStorage.getItem(key);
+        return saved ? JSON.parse(saved) : fallback;
+    } catch {
+        return fallback;
+    }
+};
+
+const safeSetStorage = (key, value) => {
+    try {
+        if (value === null || value === undefined) {
+            localStorage.removeItem(key);
+        } else {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+    } catch {
+        // Fallback for private browsing or storage quota errors
+    }
+};
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(() => {
-        try {
-            const saved = localStorage.getItem('buildos_user');
-            return saved ? JSON.parse(saved) : null;
-        } catch {
-            return null;
-        }
-    });
+    const [user, setUser] = useState(() => safeGetStorage('buildos_user', null));
 
     const envAdminEmail = (import.meta.env.ADMIN_EMAIL || import.meta.env.VITE_ADMIN_EMAIL || 'admin@gmail.com').toLowerCase();
     const envAdminPassword = import.meta.env.ADMIN_PASSWORD || import.meta.env.VITE_ADMIN_PASSWORD || '123456';
 
     useEffect(() => {
-        if (user) {
-            localStorage.setItem('buildos_user', JSON.stringify(user));
-        } else {
-            localStorage.removeItem('buildos_user');
-        }
+        safeSetStorage('buildos_user', user);
     }, [user]);
 
-    const login = (email, password) => {
-        const cleanEmail = email.trim().toLowerCase();
+    const login = useCallback((email, password) => {
+        const cleanEmail = (email || '').trim().toLowerCase();
         
         if (!cleanEmail || !password) {
             return { success: false, error: 'Please enter both email and password.' };
@@ -42,13 +53,7 @@ export const AuthProvider = ({ children }) => {
             return { success: true, role: 'admin' };
         } else {
             const profileKey = `buildos_worker_profile_${cleanEmail}`;
-            const existingProfile = localStorage.getItem(profileKey);
-            let profileData = {};
-            try {
-                if (existingProfile) profileData = JSON.parse(existingProfile);
-            } catch {
-                profileData = {};
-            }
+            const profileData = safeGetStorage(profileKey, {});
 
             const defaultName = cleanEmail.split('@')[0].toUpperCase();
             const workerUser = {
@@ -63,34 +68,41 @@ export const AuthProvider = ({ children }) => {
             setUser(workerUser);
             return { success: true, role: 'worker' };
         }
-    };
+    }, [envAdminEmail, envAdminPassword]);
 
-    const logout = () => {
+    const logout = useCallback(() => {
         setUser(null);
-        localStorage.removeItem('buildos_user');
-    };
+        safeSetStorage('buildos_user', null);
+    }, []);
 
-    const updateProfile = (updatedFields) => {
+    const updateProfile = useCallback((updatedFields) => {
         setUser((prevUser) => {
             if (!prevUser) return null;
             const updated = { ...prevUser, ...updatedFields };
             if (updated.role === 'worker') {
                 const profileKey = `buildos_worker_profile_${prevUser.email.toLowerCase()}`;
-                localStorage.setItem(profileKey, JSON.stringify(updated));
+                safeSetStorage(profileKey, updated);
             }
-            localStorage.setItem('buildos_user', JSON.stringify(updated));
+            safeSetStorage('buildos_user', updated);
             return updated;
         });
         return { success: true };
-    };
+    }, []);
+
+    const contextValue = useMemo(() => ({
+        user,
+        login,
+        logout,
+        updateProfile,
+        adminCredentials: { email: envAdminEmail, password: envAdminPassword }
+    }), [user, login, logout, updateProfile, envAdminEmail, envAdminPassword]);
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, updateProfile, adminCredentials: { email: envAdminEmail, password: envAdminPassword } }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-export { default as useAuth } from './useAuth';
+export { useAuth };
 export default AuthProvider;
-    

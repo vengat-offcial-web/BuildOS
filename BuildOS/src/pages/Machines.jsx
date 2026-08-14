@@ -42,6 +42,7 @@ function Machines() {
         </div>
 
         <button
+          type="button"
           onClick={() => setShowModal(true)}
           className="dark-nav-pill px-5 py-3 rounded-full text-xs font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all cursor-pointer shrink-0"
         >
@@ -69,6 +70,7 @@ function Machines() {
           {['All', 'Operational', 'Maintenance Due'].map((st) => (
             <button
               key={st}
+              type="button"
               onClick={() => setStatusFilter(st)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 statusFilter === st
@@ -135,7 +137,7 @@ function Machines() {
           <div className="glass-card w-full max-w-md p-6 rounded-[32px] border border-white shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-purple-100 pb-3">
               <h3 className="text-lg font-extrabold text-[#03020A]">Register Heavy Machinery</h3>
-              <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500">✕</button>
+              <button type="button" onClick={() => setShowModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 cursor-pointer">✕</button>
             </div>
 
             <form onSubmit={handleAddMachine} className="space-y-4">
@@ -174,8 +176,8 @@ function Machines() {
               </div>
 
               <div className="pt-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md">Register Machine</button>
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">Cancel</button>
+                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md cursor-pointer">Register Machine</button>
               </div>
             </form>
           </div>

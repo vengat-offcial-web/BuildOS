@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Badge } from '../components/ui';
-import { FiUsers, FiSearch, FiPlus, FiCheckCircle, FiShield, FiPhone } from 'react-icons/fi';
+import { FiUsers, FiSearch, FiPlus, FiShield, FiPhone } from 'react-icons/fi';
 import { FaHelmetSafety } from 'react-icons/fa6';
 import { useData } from '../context/useData';
 
@@ -37,11 +37,12 @@ function Workers() {
             Site Workforce Directory
           </h1>
           <p className="text-xs font-semibold text-slate-500 mt-1">
-            Total 128 registered site personnel • 96% active attendance today
+            Total {workers.length + 120} registered site personnel • 96% active attendance today
           </p>
         </div>
 
         <button
+          type="button"
           onClick={() => setShowModal(true)}
           className="dark-nav-pill px-5 py-3 rounded-full text-xs font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all cursor-pointer shrink-0"
         >
@@ -69,6 +70,7 @@ function Workers() {
           {['All', 'Masonry', 'Steel', 'Crane', 'Electrical'].map((tr) => (
             <button
               key={tr}
+              type="button"
               onClick={() => setTradeFilter(tr)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 tradeFilter === tr
@@ -125,7 +127,7 @@ function Workers() {
               <span className="text-slate-500 flex items-center gap-1 font-semibold">
                 <FiPhone className="text-purple-500" /> {w.phone}
               </span>
-              <button className="text-xs font-bold text-[#7C3AED] hover:underline">
+              <button type="button" className="text-xs font-bold text-[#7C3AED] hover:underline cursor-pointer">
                 View Profile
               </button>
             </div>
@@ -139,7 +141,7 @@ function Workers() {
           <div className="glass-card w-full max-w-md p-6 rounded-[32px] border border-white shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-purple-100 pb-3">
               <h3 className="text-lg font-extrabold text-[#03020A]">Register New Worker</h3>
-              <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500">✕</button>
+              <button type="button" onClick={() => setShowModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 cursor-pointer">✕</button>
             </div>
 
             <form onSubmit={handleAddWorker} className="space-y-4">
@@ -178,8 +180,8 @@ function Workers() {
               </div>
 
               <div className="pt-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md">Register Worker</button>
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">Cancel</button>
+                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md cursor-pointer">Register Worker</button>
               </div>
             </form>
           </div>

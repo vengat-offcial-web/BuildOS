@@ -76,6 +76,7 @@ function WorkerSettings() {
             <PageHeader
                 title="Worker Profile & Settings"
                 description="Update your personal information, email address, password, and portal theme preferences."
+                variant="emerald"
             />
 
             {/* Notification Banner */}
@@ -96,7 +97,7 @@ function WorkerSettings() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Profile Details Card */}
-                <Card className="space-y-5">
+                <Card variant="dark" hover={false} className="space-y-5">
                     <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
                         <FiUser className="text-emerald-400 text-lg" />
                         <h3 className="text-base font-bold text-slate-100">Personal Account Details</h3>
@@ -146,7 +147,7 @@ function WorkerSettings() {
                 </Card>
 
                 {/* Password Change Card */}
-                <Card className="space-y-5">
+                <Card variant="dark" hover={false} className="space-y-5">
                     <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
                         <FiLock className="text-emerald-400 text-lg" />
                         <h3 className="text-base font-bold text-slate-100">Security & Password</h3>
@@ -172,7 +173,7 @@ function WorkerSettings() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200"
+                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
                                 >
                                     {showPassword ? <FiEyeOff /> : <FiEye />}
                                 </button>
@@ -201,7 +202,7 @@ function WorkerSettings() {
                 </Card>
 
                 {/* Theme Preferences Card */}
-                <Card className="space-y-5">
+                <Card variant="dark" hover={false} className="space-y-5">
                     <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
                         <FiSun className="text-emerald-400 text-lg" />
                         <h3 className="text-base font-bold text-slate-100">Theme Preference</h3>

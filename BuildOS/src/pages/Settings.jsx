@@ -4,13 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { FiSettings, FiUser, FiBell, FiShield, FiSliders, FiCheck } from 'react-icons/fi';
 
 function Settings() {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const [profileData, setProfileData] = useState({
-    name: user?.name || 'Vengadesh',
-    title: 'Project Director & Site Overseer',
+    name: user?.name || 'VENGADESH V',
+    title: user?.title || 'Project Director & Site Overseer',
     email: user?.email || 'admin@buildos.com',
     phone: '+91 98765 43210',
     company: 'BuildOS Construction Ltd'
@@ -25,6 +25,13 @@ function Settings() {
 
   const handleSave = (e) => {
     e.preventDefault();
+    if (updateProfile) {
+      updateProfile({
+        name: profileData.name,
+        email: profileData.email,
+        title: profileData.title
+      });
+    }
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
   };
@@ -63,6 +70,7 @@ function Settings() {
           return (
             <button
               key={t.id}
+              type="button"
               onClick={() => setActiveTab(t.id)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 activeTab === t.id

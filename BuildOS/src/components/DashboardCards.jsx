@@ -3,7 +3,7 @@ import DashboardCard from "./DashboardCard.jsx";
 import { FiFolder, FiActivity, FiUsers, FiClock } from 'react-icons/fi';
 import { useData } from '../context/useData';
 
-export function DashboardCards({ items }) {
+export function DashboardCards({ items, onCardClick }) {
     const {
         totalProjectsCount = 0,
         activeProjectsCount = 0,
@@ -20,7 +20,8 @@ export function DashboardCards({ items }) {
             icon: FiFolder,
             subtitle: "+12% this month",
             badgeType: "lime",
-            accentColor: "purple"
+            accentColor: "purple",
+            filterStatus: "All"
         },
         {
             id: 'active-projects',
@@ -29,7 +30,8 @@ export function DashboardCards({ items }) {
             icon: FiActivity,
             subtitle: "3 nearing deadline",
             badgeType: "purple",
-            accentColor: "lime"
+            accentColor: "lime",
+            filterStatus: "In Progress"
         },
         {
             id: 'workers',
@@ -38,7 +40,8 @@ export function DashboardCards({ items }) {
             icon: FiUsers,
             subtitle: "+8 this week",
             badgeType: "lime",
-            accentColor: "purple"
+            accentColor: "purple",
+            filterStatus: "Workers"
         },
         {
             id: 'pending-tasks',
@@ -47,7 +50,8 @@ export function DashboardCards({ items }) {
             icon: FiClock,
             subtitle: `${overdueTasksCount} overdue`,
             badgeType: "rose",
-            accentColor: "dark"
+            accentColor: "dark",
+            filterStatus: "Pending"
         }
     ];
 
@@ -56,15 +60,20 @@ export function DashboardCards({ items }) {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {cardsToRender.map((card) => (
-                <DashboardCard
+                <div 
                     key={card.id || card.title}
-                    title={card.title}
-                    value={card.value}
-                    icon={card.icon}
-                    subtitle={card.subtitle}
-                    badgeType={card.badgeType}
-                    accentColor={card.accentColor}
-                />
+                    onClick={() => onCardClick && onCardClick(card.filterStatus)}
+                    className={onCardClick ? "cursor-pointer transition-transform hover:scale-[1.01]" : ""}
+                >
+                    <DashboardCard
+                        title={card.title}
+                        value={card.value}
+                        icon={card.icon}
+                        subtitle={card.subtitle}
+                        badgeType={card.badgeType}
+                        accentColor={card.accentColor}
+                    />
+                </div>
             ))}
         </div>
     );

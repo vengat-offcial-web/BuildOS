@@ -4,7 +4,6 @@ import { Badge, ProgressBar, Card } from '../components/ui';
 import {
   FiArrowLeft,
   FiMapPin,
-  FiUserCheck,
   FiCalendar,
   FiDollarSign,
   FiCheckCircle,
@@ -45,6 +44,7 @@ function ProjectDetails() {
       {/* Top Breadcrumb & Navigation Action */}
       <div className="flex items-center justify-between">
         <button
+          type="button"
           onClick={() => navigate('/projects')}
           className="bg-white/80 hover:bg-white text-[#03020A] border border-purple-100 text-xs font-bold px-4 py-2.5 rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer"
         >
@@ -132,6 +132,7 @@ function ProjectDetails() {
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 activeTab === tab.id
@@ -149,7 +150,6 @@ function ProjectDetails() {
       {/* Tab 1: Milestones & Tasks */}
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Milestones List */}
           <Card hover={false}>
             <h3 className="text-lg font-extrabold text-[#03020A] mb-4 pb-3 border-b border-purple-100 flex items-center gap-2">
               <FiCheckCircle className="text-[#7C3AED]" />
@@ -177,7 +177,6 @@ function ProjectDetails() {
             </div>
           </Card>
 
-          {/* Active Tasks Checklist */}
           <Card hover={false}>
             <h3 className="text-lg font-extrabold text-[#03020A] mb-4 pb-3 border-b border-purple-100 flex items-center gap-2">
               <FiClock className="text-[#7C3AED]" />

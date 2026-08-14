@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Badge } from '../components/ui';
+import { Card } from '../components/ui';
 import {
   FiArrowLeft,
   FiFolder,
@@ -138,6 +138,7 @@ function AssignProject() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <button
+            type="button"
             onClick={() => navigate('/projects')}
             className="inline-flex items-center gap-2 text-xs font-bold text-[#7C3AED] hover:text-[#581C87] bg-white/80 hover:bg-white px-3.5 py-1.5 rounded-full border border-purple-100 mb-3 shadow-sm transition-all cursor-pointer"
           >
@@ -174,10 +175,8 @@ function AssignProject() {
       {/* Main 2-Column Responsive Form */}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* ================= LEFT COLUMN ================= */}
+        {/* LEFT COLUMN */}
         <div className="space-y-6">
-          
-          {/* Card 1: Project Information */}
           <Card hover={false} className="space-y-5">
             <div className="pb-3 border-b border-purple-100 flex items-center justify-between">
               <h3 className="text-base font-extrabold text-[#03020A] flex items-center gap-2">
@@ -189,7 +188,6 @@ function AssignProject() {
               </span>
             </div>
 
-            {/* Project Name */}
             <div>
               <label className="block text-xs font-extrabold text-[#03020A] mb-1.5">
                 Project Name <span className="text-rose-500">*</span>
@@ -218,7 +216,6 @@ function AssignProject() {
               )}
             </div>
 
-            {/* Project Location */}
             <div>
               <label className="block text-xs font-extrabold text-[#03020A] mb-1.5">
                 Project Location <span className="text-rose-500">*</span>
@@ -246,7 +243,6 @@ function AssignProject() {
                 </p>
               )}
 
-              {/* Quick City Selector Chips */}
               <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
                 <span className="text-[10px] font-bold text-slate-400 mr-1">Quick Select:</span>
                 {cityTags.map(city => (
@@ -269,7 +265,6 @@ function AssignProject() {
               </div>
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-xs font-extrabold text-[#03020A] mb-1.5">
                 Project Scope & Description <span className="text-slate-400 font-normal">(Optional)</span>
@@ -278,13 +273,12 @@ function AssignProject() {
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe project specifications, floor height, specialized structures, architectural requirements..."
+                placeholder="Describe project specifications, floor height, specialized structures..."
                 className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3.5 text-[#03020A] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all resize-none"
               />
             </div>
           </Card>
 
-          {/* Card 2: Site Engineer Selection */}
           <Card hover={false} className="space-y-4">
             <div className="pb-3 border-b border-purple-100 flex items-center justify-between">
               <h3 className="text-base font-extrabold text-[#03020A] flex items-center gap-2">
@@ -296,7 +290,6 @@ function AssignProject() {
               </span>
             </div>
 
-            {/* Search Input */}
             <div>
               <label className="block text-xs font-extrabold text-[#03020A] mb-1.5">
                 Select Site Engineer <span className="text-rose-500">*</span>
@@ -324,7 +317,6 @@ function AssignProject() {
               )}
             </div>
 
-            {/* Interactive Engineer Roster Selector Cards */}
             <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
               {filteredEngineers.length > 0 ? (
                 filteredEngineers.map(eng => {
@@ -375,10 +367,8 @@ function AssignProject() {
           </Card>
         </div>
 
-        {/* ================= RIGHT COLUMN ================= */}
+        {/* RIGHT COLUMN */}
         <div className="space-y-6">
-
-          {/* Card 3: Project Timeline & Duration Calculator */}
           <Card hover={false} className="space-y-4">
             <div className="pb-3 border-b border-purple-100 flex items-center justify-between">
               <h3 className="text-base font-extrabold text-[#03020A] flex items-center gap-2">
@@ -429,7 +419,6 @@ function AssignProject() {
               </p>
             )}
 
-            {/* Estimated Duration Indicator */}
             {durationText && (
               <div className="bg-purple-50/70 p-3.5 rounded-2xl border border-purple-100 flex items-center justify-between text-xs">
                 <span className="font-bold text-[#03020A] flex items-center gap-1.5">
@@ -442,7 +431,6 @@ function AssignProject() {
             )}
           </Card>
 
-          {/* Card 4: Workforce Requirement */}
           <Card hover={false} className="space-y-4">
             <div className="pb-3 border-b border-purple-100 flex items-center justify-between">
               <h3 className="text-base font-extrabold text-[#03020A] flex items-center gap-2">
@@ -454,7 +442,6 @@ function AssignProject() {
               </span>
             </div>
 
-            {/* Stepper Counter */}
             <div>
               <label className="block text-xs font-extrabold text-[#03020A] mb-1.5">
                 Number of Workers Required <span className="text-rose-500">*</span>
@@ -498,7 +485,6 @@ function AssignProject() {
               )}
             </div>
 
-            {/* Trade Categories Selection */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-2">
                 Worker Trades Required <span className="text-slate-400 font-normal">(Optional)</span>
@@ -525,7 +511,6 @@ function AssignProject() {
             </div>
           </Card>
 
-          {/* Card 5: Project Priority Selection */}
           <Card hover={false} className="space-y-4">
             <div className="pb-3 border-b border-purple-100 flex items-center justify-between">
               <h3 className="text-base font-extrabold text-[#03020A] flex items-center gap-2">
@@ -556,10 +541,10 @@ function AssignProject() {
           </Card>
         </div>
 
-        {/* Bottom Full-Width Action Bar */}
+        {/* Action Bar */}
         <div className="lg:col-span-2 glass-card p-6 rounded-[32px] border border-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
           <div className="text-xs font-semibold text-slate-500">
-            Click <strong className="text-[#03020A]">Create & Assign Project</strong> to dispatch site parameters to DataContext.
+            Click <strong className="text-[#03020A]">Create & Assign Project</strong> to dispatch site parameters.
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">

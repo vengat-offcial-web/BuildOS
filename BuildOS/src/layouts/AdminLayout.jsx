@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar, Navbar } from '../components';
 
 function AdminLayout() {
+    const [searchTerm, setSearchTerm] = useState('');
+
     return (
         <div className="min-h-screen bg-[#F5F5F7] text-[#03020A] flex flex-col md:flex-row relative antialiased">
             {/* Ambient Pastel Background Glows */}
@@ -14,9 +16,12 @@ function AdminLayout() {
 
             {/* Main Content Viewport */}
             <main className="flex-1 flex flex-col min-w-0 min-h-screen z-10 relative">
-                <Navbar />
+                <Navbar 
+                    searchValue={searchTerm} 
+                    onSearchChange={setSearchTerm} 
+                />
                 <div className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8">
-                    <Outlet />
+                    <Outlet context={{ searchTerm, setSearchTerm }} />
                 </div>
             </main>
         </div>

@@ -1,2 +1,8 @@
-export { default as Task } from "./Task"
-export { default as dashboardcardsdata } from "./dashboradcardsdata"
+export {
+  initialProjectsData,
+  initialWorkersData,
+  initialMaterialsData,
+  initialMachinesData,
+  initialTasksData,
+  initialActivityData
+} from "./initialData";

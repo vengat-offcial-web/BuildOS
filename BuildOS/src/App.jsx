@@ -1,25 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { DataProvider } from './context/DataContext';
+import { AuthProvider, DataProvider, useAuth } from './context';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import WorkerLayout from './layouts/WorkerLayout';
 import Login from './Login';
-import {
-    Dashboard,
-    Projects,
-    ProjectDetails,
-    AssignProject,
-    Workers,
-    Materials,
-    Machines,
-    Tasks,
-    Reports,
-    Settings,
-    WorkerDashboard,
-    WorkerSettings
-} from './pages/index';
+import { Dashboard,Projects,ProjectDetails,AssignProject,Workers,Materials,Machines,Tasks,Reports,Settings,WorkerDashboard,WorkerSettings} from './pages/index';
 
 // Root redirect handler based on current user role
 function RootRedirect() {
@@ -32,7 +18,6 @@ function RootRedirect() {
     }
     return <Navigate to="/worker/dashboard" replace />;
 }
-
 function App() {
     return (
         <AuthProvider>
@@ -78,5 +63,4 @@ function App() {
         </AuthProvider>
     );
 }
-
 export default App;
