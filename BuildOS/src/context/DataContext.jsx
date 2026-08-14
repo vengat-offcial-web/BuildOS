@@ -65,7 +65,7 @@ export const DataProvider = ({ children }) => {
       workforceRequired: projectData.workforceRequired || 25,
       accent: projectData.accent || (projectData.priority === 'Critical' || projectData.priority === 'High' ? 'purple' : 'lime'),
       iconType: 'building',
-      budget: '$1.0M / $3.5M',
+      budget: '₹1.5 Cr / ₹5.0 Cr',
       description: projectData.description || 'Newly registered construction project development site.'
     };
     setProjects(prev => [newProj, ...prev]);

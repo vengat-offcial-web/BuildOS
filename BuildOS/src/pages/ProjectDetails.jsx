@@ -478,7 +478,7 @@ function ProjectDetails() {
                   value={editBudget}
                   onChange={(e) => setEditBudget(e.target.value)}
                   className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                  placeholder="₹1.5 Cr / ₹5.0 Cr"
+                  placeholder="Enter Budget Spent / Total Budget"
                 />
               </div>
 
@@ -489,7 +489,7 @@ function ProjectDetails() {
                   value={editDeadline}
                   onChange={(e) => setEditDeadline(e.target.value)}
                   className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                  placeholder="Target Date (e.g. Feb 15, 2027)"
+                  placeholder="Enter Target Completion Date"
                 />
               </div>
 
