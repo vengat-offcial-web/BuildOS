@@ -42,6 +42,20 @@ function AssignProject() {
   const [description, setDescription] = useState('');
   const [selectedEngineer, setSelectedEngineer] = useState(null);
   const [engineerSearch, setEngineerSearch] = useState('');
+  // const [formData, setFormData] = useState({
+  //   name: "",
+  //   location: "",
+  //   description: "",
+  //   engineerSearch: "",
+  // })
+
+  // const handleChange = e => {
+  //   const { name, value } = e.target;
+  //   setFormData(prevValue => ({
+  //     ...prevValue,
+  //     [name]: value
+  //   }))
+  // }
 
   const [startDate, setStartDate] = useState('2026-08-15');
   const [deadline, setDeadline] = useState('2027-02-15');
@@ -174,7 +188,7 @@ function AssignProject() {
 
       {/* Main 2-Column Responsive Form */}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+
         {/* LEFT COLUMN */}
         <div className="space-y-6">
           <Card hover={false} className="space-y-5">
@@ -204,9 +218,8 @@ function AssignProject() {
                     if (errors.name) setErrors({ ...errors, name: null });
                   }}
                   placeholder="e.g. Marina Commercial Tower Phase 2"
-                  className={`w-full bg-white border text-xs font-semibold rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
-                    errors.name ? 'border-rose-400 focus:ring-rose-300' : 'border-purple-100 focus:ring-[#A78BFA]'
-                  }`}
+                  className={`w-full bg-white border text-xs font-semibold rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${errors.name ? 'border-rose-400 focus:ring-rose-300' : 'border-purple-100 focus:ring-[#A78BFA]'
+                    }`}
                 />
               </div>
               {errors.name && (
@@ -232,9 +245,8 @@ function AssignProject() {
                     if (errors.location) setErrors({ ...errors, location: null });
                   }}
                   placeholder="e.g. Chennai Central"
-                  className={`w-full bg-white border text-xs font-semibold rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
-                    errors.location ? 'border-rose-400 focus:ring-rose-300' : 'border-purple-100 focus:ring-[#A78BFA]'
-                  }`}
+                  className={`w-full bg-white border text-xs font-semibold rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${errors.location ? 'border-rose-400 focus:ring-rose-300' : 'border-purple-100 focus:ring-[#A78BFA]'
+                    }`}
                 />
               </div>
               {errors.location && (
@@ -253,11 +265,10 @@ function AssignProject() {
                       setLocation(city);
                       if (errors.location) setErrors({ ...errors, location: null });
                     }}
-                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
-                      location === city
+                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${location === city
                         ? 'bg-[#7C3AED] text-white border-[#7C3AED]'
                         : 'bg-white/80 text-slate-600 border-purple-100 hover:bg-purple-50'
-                    }`}
+                      }`}
                   >
                     {city}
                   </button>
@@ -304,9 +315,8 @@ function AssignProject() {
                   value={engineerSearch}
                   onChange={(e) => setEngineerSearch(e.target.value)}
                   placeholder="Search engineer by name or specialty..."
-                  className={`w-full bg-white border text-xs font-semibold rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
-                    errors.engineer ? 'border-rose-400 focus:ring-rose-300' : 'border-purple-100 focus:ring-[#A78BFA]'
-                  }`}
+                  className={`w-full bg-white border text-xs font-semibold rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${errors.engineer ? 'border-rose-400 focus:ring-rose-300' : 'border-purple-100 focus:ring-[#A78BFA]'
+                    }`}
                 />
               </div>
 
@@ -328,11 +338,10 @@ function AssignProject() {
                         setSelectedEngineer(eng);
                         if (errors.engineer) setErrors({ ...errors, engineer: null });
                       }}
-                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                        isSelected
+                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${isSelected
                           ? 'bg-[#F0FDC2]/60 border-[#BEF264] shadow-md scale-[1.01]'
                           : 'bg-white/80 border-purple-100 hover:bg-purple-50/60'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${eng.avatarBg} text-[#6B21A8] flex items-center justify-center font-extrabold text-xs border border-white shadow-sm shrink-0`}>
@@ -349,9 +358,8 @@ function AssignProject() {
                       </div>
 
                       <div className="text-right shrink-0">
-                        <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full transition-all ${
-                          isSelected ? 'bg-[#3F6212] text-white shadow-sm' : 'bg-purple-100 text-[#7C3AED]'
-                        }`}>
+                        <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full transition-all ${isSelected ? 'bg-[#3F6212] text-white shadow-sm' : 'bg-purple-100 text-[#7C3AED]'
+                          }`}>
                           {isSelected ? '✓ Assigned' : 'Select'}
                         </span>
                       </div>
@@ -406,9 +414,8 @@ function AssignProject() {
                       setErrors({ ...errors, deadline: null, dateSequence: null });
                     }
                   }}
-                  className={`w-full bg-white border text-xs font-semibold rounded-2xl py-3 px-4 text-[#03020A] focus:ring-2 outline-none ${
-                    errors.deadline || errors.dateSequence ? 'border-rose-400 focus:ring-rose-300' : 'border-purple-100 focus:ring-[#A78BFA]'
-                  }`}
+                  className={`w-full bg-white border text-xs font-semibold rounded-2xl py-3 px-4 text-[#03020A] focus:ring-2 outline-none ${errors.deadline || errors.dateSequence ? 'border-rose-400 focus:ring-rose-300' : 'border-purple-100 focus:ring-[#A78BFA]'
+                    }`}
                 />
               </div>
             </div>
@@ -497,11 +504,10 @@ function AssignProject() {
                       key={trade}
                       type="button"
                       onClick={() => toggleTrade(trade)}
-                      className={`text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all cursor-pointer ${
-                        active
+                      className={`text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all cursor-pointer ${active
                           ? 'bg-[#03020A] text-white border-[#03020A] shadow-sm'
                           : 'bg-white text-slate-600 border-purple-100 hover:bg-purple-50'
-                      }`}
+                        }`}
                     >
                       {active ? `✓ ${trade}` : trade}
                     </button>
@@ -530,9 +536,8 @@ function AssignProject() {
                   key={p.level}
                   type="button"
                   onClick={() => setPriority(p.level)}
-                  className={`py-3 px-3 rounded-2xl text-xs font-extrabold border transition-all text-center cursor-pointer shadow-sm ${
-                    priority === p.level ? `${p.activeColor} border-transparent scale-[1.02]` : p.color
-                  }`}
+                  className={`py-3 px-3 rounded-2xl text-xs font-extrabold border transition-all text-center cursor-pointer shadow-sm ${priority === p.level ? `${p.activeColor} border-transparent scale-[1.02]` : p.color
+                    }`}
                 >
                   {p.level}
                 </button>

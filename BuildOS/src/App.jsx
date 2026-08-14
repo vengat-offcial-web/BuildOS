@@ -19,6 +19,9 @@ function RootRedirect() {
     return <Navigate to="/worker/dashboard" replace />;
 }
 function App() {
+
+    
+
     return (
         <AuthProvider>
             <DataProvider>
