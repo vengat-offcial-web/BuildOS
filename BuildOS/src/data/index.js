@@ -4,5 +4,6 @@ export {
   initialMaterialsData,
   initialMachinesData,
   initialTasksData,
-  initialActivityData
+  initialActivityData,
+  initialEngineersData
 } from "./initialData";
