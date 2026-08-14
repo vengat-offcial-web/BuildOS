@@ -1,20 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Badge, ProgressBar, Card } from '../components/ui';
-import {
-  FiArrowLeft,
-  FiMapPin,
-  FiCalendar,
-  FiDollarSign,
-  FiCheckCircle,
-  FiClock,
-  FiUsers,
-  FiLayers,
-  FiTruck,
-  FiCheckSquare,
-  FiEdit2,
-  FiX,
-  FiSave
+import { FiArrowLeft,FiMapPin,FiCalendar,FiDollarSign,FiCheckCircle,FiClock,FiUsers,FiLayers,FiTruck,FiCheckSquare,FiEdit2,FiX,FiSave,FiPlus,FiTrash2
 } from 'react-icons/fi';
 import { FaBuilding } from 'react-icons/fa6';
 import { useData } from '../context/useData';
@@ -33,6 +20,10 @@ function ProjectDetails() {
   const [editBudget, setEditBudget] = useState('');
   const [editWorkers, setEditWorkers] = useState('');
   const [editMachinery, setEditMachinery] = useState('');
+
+  // Milestone Edit Modal State
+  const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
+  const [editMilestones, setEditMilestones] = useState([]);
 
   // Guard for route collision
   if (id === 'new' || id === 'create') {
@@ -66,12 +57,51 @@ function ProjectDetails() {
     setIsEditing(false);
   };
 
-  const projectMilestones = [
+  const defaultMilestones = [
     { name: "Foundation & Excavation", status: "Completed", date: "Feb 2026" },
     { name: "Structural Superstructure", status: project && project.progress > 50 ? "Completed" : "In Progress", date: "May 2026" },
     { name: "Exterior Glass Panel Fitting", status: project && project.progress > 70 ? "In Progress" : "Pending", date: "Aug 2026" },
     { name: "Final MEP Inspection & Handover", status: project && project.progress === 100 ? "Completed" : "Pending", date: "Oct 2026" }
   ];
+
+  const projectMilestones = (project && project.milestones && project.milestones.length > 0) ? project.milestones : defaultMilestones;
+
+  const handleOpenMilestonesModal = () => {
+    setEditMilestones(JSON.parse(JSON.stringify(projectMilestones)));
+    setIsMilestoneModalOpen(true);
+  };
+
+  const handleUpdateMilestoneField = (index, field, value) => {
+    setEditMilestones(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleAddMilestone = () => {
+    setEditMilestones(prev => [
+      ...prev,
+      { name: "New Construction Phase", status: "Pending", date: "Nov 2026" }
+    ]);
+  };
+
+  const handleRemoveMilestone = (index) => {
+    setEditMilestones(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSaveMilestones = (e) => {
+    e.preventDefault();
+    const validMilestones = editMilestones.filter(m => m.name.trim() !== '');
+    const completedCount = validMilestones.filter(m => m.status === 'Completed').length;
+    const calcProgress = validMilestones.length > 0 ? Math.round((completedCount / validMilestones.length) * 100) : (project ? project.progress : 0);
+
+    updateProject(project.id, {
+      milestones: validMilestones,
+      progress: calcProgress
+    });
+    setIsMilestoneModalOpen(false);
+  };
 
   if (!project) {
     return (
