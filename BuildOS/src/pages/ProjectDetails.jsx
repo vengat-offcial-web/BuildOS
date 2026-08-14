@@ -18,6 +18,7 @@ function ProjectDetails() {
   const [editName, setEditName] = useState('');
   const [editManager, setEditManager] = useState('');
   const [editBudget, setEditBudget] = useState('');
+  const [editDeadline, setEditDeadline] = useState('');
   const [editWorkers, setEditWorkers] = useState('');
   const [editMachinery, setEditMachinery] = useState('');
 
@@ -38,7 +39,9 @@ function ProjectDetails() {
     if (!project) return;
     setEditName(project.name || '');
     setEditManager(project.manager || '');
-    setEditBudget(project.budget || '$1.0M / $3.5M');
+    const currentBudget = project.budget ? project.budget.replace(/^\$/, '₹') : '₹1.5 Cr / ₹5.0 Cr';
+    setEditBudget(currentBudget);
+    setEditDeadline(project.deadline || 'Feb 15, 2027');
     setEditWorkers(project.workforceRequired !== undefined && project.workforceRequired !== null ? String(project.workforceRequired) : String(siteWorkers.length || 4));
     setEditMachinery(project.machineryCount !== undefined && project.machineryCount !== null ? String(project.machineryCount) : String(machines.length || 4));
     setIsEditing(true);
@@ -51,6 +54,7 @@ function ProjectDetails() {
       name: editName.trim(),
       manager: editManager.trim(),
       budget: editBudget.trim(),
+      deadline: editDeadline.trim(),
       workforceRequired: parseInt(editWorkers, 10) || 0,
       machineryCount: parseInt(editMachinery, 10) || 0
     });
@@ -222,8 +226,8 @@ function ProjectDetails() {
             <div>
               <p className="text-[10px] font-bold uppercase text-slate-400">Budget Spent</p>
               <p className="text-sm font-extrabold text-[#03020A] mt-0.5 flex items-center gap-1">
-                <FiDollarSign className="text-purple-600" />
-                {project.budget || "$1.0M / $3.5M"}
+                <span className="text-purple-600 font-bold">₹</span>
+                {project.budget ? project.budget.replace(/^\$/, '₹') : "₹1.5 Cr / ₹5.0 Cr"}
               </p>
             </div>
             <div>
@@ -462,7 +466,7 @@ function ProjectDetails() {
                   value={editManager}
                   onChange={(e) => setEditManager(e.target.value)}
                   className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                  placeholder="e.g. Rajesh Kumar"
+                  placeholder="Enter Site Engineer Name"
                   required
                 />
               </div>
@@ -474,7 +478,18 @@ function ProjectDetails() {
                   value={editBudget}
                   onChange={(e) => setEditBudget(e.target.value)}
                   className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                  placeholder="e.g. $1.0M / $3.5M"
+                  placeholder="₹1.5 Cr / ₹5.0 Cr"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Target Completion Date</label>
+                <input
+                  type="text"
+                  value={editDeadline}
+                  onChange={(e) => setEditDeadline(e.target.value)}
+                  className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+                  placeholder="Target Date (e.g. Feb 15, 2027)"
                 />
               </div>
 
