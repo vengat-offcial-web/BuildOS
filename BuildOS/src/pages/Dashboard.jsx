@@ -66,7 +66,7 @@ function Dashboard() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-2xl space-y-2">
             <h1 className="text-3xl md:text-4xl font-extrabold text-[#03020A] tracking-tight">
-              Good Morning, <span className="text-[#7C3AED]">Vengadesh</span> 👋
+              Good Morning, <span className="text-[#7C3AED]">Vengadesh</span>
             </h1>
             <p className="text-sm font-semibold text-slate-700 leading-relaxed">
               Manage your construction projects, workers, materials and tasks from one place.

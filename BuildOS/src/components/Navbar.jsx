@@ -4,7 +4,7 @@ import { FiSearch, FiBell } from 'react-icons/fi';
 export function Navbar({
     searchValue,
     onSearchChange,
-    placeholder = "Search projects, site workers, machinery, materials...",
+    placeholder = "Search Projects...",
     onNotificationClick
 }) {
     return (
