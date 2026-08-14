@@ -1,15 +1,16 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { DataProvider } from './context/DataContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import WorkerLayout from './layouts/WorkerLayout';
 import Login from './Login';
-import Dashboardcards from './components/DashboardCards';
-import Table from './components/Table';
 import {
     Dashboard,
     Projects,
+    ProjectDetails,
+    AssignProject,
     Workers,
     Materials,
     Machines,
@@ -32,53 +33,48 @@ function RootRedirect() {
     return <Navigate to="/worker/dashboard" replace />;
 }
 
-function AdminDashboardView() {
-    return (
-        <>
-            <Dashboard />
-            <Dashboardcards />
-            <Table />
-        </>
-    );
-}
-
 function App() {
     return (
         <AuthProvider>
-            <BrowserRouter>
-                <Routes>
-                    {/* Public Login Route */}
-                    <Route path="/login" element={<Login />} />
+            <DataProvider>
+                <BrowserRouter>
+                    <Routes>
+                        {/* Public Login Route */}
+                        <Route path="/login" element={<Login />} />
 
-                    {/* Root Redirect */}
-                    <Route path="/" element={<RootRedirect />} />
+                        {/* Root Redirect */}
+                        <Route path="/" element={<RootRedirect />} />
 
-                    {/* Admin Portal Protected Routes */}
-                    <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-                        <Route element={<AdminLayout />}>
-                            <Route path="/dashboard" element={<AdminDashboardView />} />
-                            <Route path="/projects" element={<Projects />} />
-                            <Route path="/workers" element={<Workers />} />
-                            <Route path="/materials" element={<Materials />} />
-                            <Route path="/machines" element={<Machines />} />
-                            <Route path="/tasks" element={<Tasks />} />
-                            <Route path="/reports" element={<Reports />} />
-                            <Route path="/settings" element={<Settings />} />
+                        {/* Admin Portal Protected Routes */}
+                        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                            <Route element={<AdminLayout />}>
+                                <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/projects" element={<Projects />} />
+                                <Route path="/projects/new" element={<AssignProject />} />
+                                <Route path="/assign-project" element={<AssignProject />} />
+                                <Route path="/projects/:id" element={<ProjectDetails />} />
+                                <Route path="/workers" element={<Workers />} />
+                                <Route path="/materials" element={<Materials />} />
+                                <Route path="/machines" element={<Machines />} />
+                                <Route path="/tasks" element={<Tasks />} />
+                                <Route path="/reports" element={<Reports />} />
+                                <Route path="/settings" element={<Settings />} />
+                            </Route>
                         </Route>
-                    </Route>
 
-                    {/* Worker Portal Protected Routes */}
-                    <Route element={<ProtectedRoute allowedRoles={['worker']} />}>
-                        <Route element={<WorkerLayout />}>
-                            <Route path="/worker/dashboard" element={<WorkerDashboard />} />
-                            <Route path="/worker/settings" element={<WorkerSettings />} />
+                        {/* Worker Portal Protected Routes */}
+                        <Route element={<ProtectedRoute allowedRoles={['worker']} />}>
+                            <Route element={<WorkerLayout />}>
+                                <Route path="/worker/dashboard" element={<WorkerDashboard />} />
+                                <Route path="/worker/settings" element={<WorkerSettings />} />
+                            </Route>
                         </Route>
-                    </Route>
 
-                    {/* Fallback Catch-All */}
-                    <Route path="*" element={<RootRedirect />} />
-                </Routes>
-            </BrowserRouter>
+                        {/* Fallback Catch-All */}
+                        <Route path="*" element={<RootRedirect />} />
+                    </Routes>
+                </BrowserRouter>
+            </DataProvider>
         </AuthProvider>
     );
 }

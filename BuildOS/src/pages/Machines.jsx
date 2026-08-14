@@ -1,105 +1,188 @@
-import React from 'react';
-import { useMachinesController } from '../controllers/useMachinesController';
-import { PageHeader, FilterBar, Badge, Card } from '../components/ui';
-import DashboardCard from '../components/DashboardCard';
-import { FiTruck, FiTool, FiDroplet, FiCpu, FiPlus, FiAlertTriangle } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { Card, Badge, ProgressBar } from '../components/ui';
+import { FiTruck, FiSearch, FiPlus, FiCpu } from 'react-icons/fi';
+import { FaTruckRampBox } from 'react-icons/fa6';
+import { useData } from '../context/useData';
 
 function Machines() {
-    const {
-        searchTerm,
-        setSearchTerm,
-        allMachines,
-        filteredMachines,
-        alerts,
-        getConditionVariant,
-        handleAddMachine
-    } = useMachinesController();
+  const { machines, addMachine } = useData();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [showModal, setShowModal] = useState(false);
 
-    return (
-        <div className="space-y-6">
-            <PageHeader
-                title="Machinery & Equipment"
-                description="Monitor and manage heavy machinery, operators, and maintenance alerts."
-                actionLabel="Add Machine"
-                actionIcon={FiPlus}
-                onActionClick={handleAddMachine}
-            />
+  const [newMachine, setNewMachine] = useState({ name: '', category: '', site: '', operator: '' });
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <DashboardCard title="Running Machines" value="12" icon={FiTruck} trend="83% operational" />
-                <DashboardCard title="In Maintenance" value="4" icon={FiTool} trend="Service active" />
-                <DashboardCard title="Fuel Refill Due" value="2" icon={FiDroplet} trend="Urgent" />
-                <DashboardCard title="Total Machines" value="18" icon={FiCpu} trend="Fleet total" />
-            </div>
+  const handleAddMachine = (e) => {
+    e.preventDefault();
+    if (!newMachine.name) return;
 
-            <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-500/20 rounded-2xl p-5 backdrop-blur-md">
-                <div className="flex items-center gap-2.5 mb-3 text-amber-400 font-bold text-sm">
-                    <FiAlertTriangle className="text-lg shrink-0" />
-                    <h3>Today's Machinery Maintenance Alerts</h3>
-                </div>
-                <div className="space-y-2 text-xs text-slate-300">
-                    {alerts.map((x, index) => (
-                        <div key={index} className="flex flex-col sm:flex-row gap-3 p-3 rounded-xl bg-slate-900/60 border border-amber-500/10">
-                            {x.Alert1 && <p className="flex-1 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>{x.Alert1}</p>}
-                            {x.Alert2 && <p className="flex-1 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>{x.Alert2}</p>}
-                            {x.Alert3 && <p className="flex-1 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>{x.Alert3}</p>}
-                        </div>
-                    ))}
-                </div>
-            </div>
+    addMachine(newMachine);
+    setNewMachine({ name: '', category: '', site: '', operator: '' });
+    setShowModal(false);
+  };
 
-            <FilterBar
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                placeholder="Search machine, type, site, or operator..."
-                filteredCount={filteredMachines.length}
-                totalCount={allMachines.length}
-                itemLabel="equipment units"
-            />
+  const filtered = machines.filter(m => {
+    const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || m.site.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'All' || m.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-            <Card className="overflow-hidden p-0" hover={false}>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr className="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-800/40">
-                                <th className="py-3.5 px-5">Machine Name</th>
-                                <th className="py-3.5 px-5">Type</th>
-                                <th className="py-3.5 px-5">Site Location</th>
-                                <th className="py-3.5 px-5">Assigned Operator</th>
-                                <th className="py-3.5 px-5">Operational Condition</th>
-                                <th className="py-3.5 px-5 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                            {filteredMachines.map((x, index) => (
-                                <tr key={index} className="hover:bg-slate-800/40 transition-colors">
-                                    <td className="py-3.5 px-5 font-semibold text-slate-100 flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                                            <FiTruck />
-                                        </div>
-                                        {x.MachineName}
-                                    </td>
-                                    <td className="py-3.5 px-5 text-slate-400">{x.Type}</td>
-                                    <td className="py-3.5 px-5 text-slate-300">{x.Site}</td>
-                                    <td className="py-3.5 px-5 text-slate-300 font-medium">{x.Operator}</td>
-                                    <td className="py-3.5 px-5">
-                                        <Badge variant={getConditionVariant(x.Condition)}>
-                                            {x.Condition}
-                                        </Badge>
-                                    </td>
-                                    <td className="py-3.5 px-5 text-right">
-                                        <button className="text-xs font-semibold text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1.5 rounded-lg border border-blue-500/20 transition-all">
-                                            {x.Action || "Inspect"}
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </Card>
+  return (
+    <div className="space-y-8 pb-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#03020A] tracking-tight flex items-center gap-2">
+            <FiTruck className="text-[#7C3AED]" />
+            Heavy Equipment & Fleet Telemetry
+          </h1>
+          <p className="text-xs font-semibold text-slate-500 mt-1">
+            {machines.length} total machinery units • {machines.filter(x => x.status === 'Operational').length} active on job sites
+          </p>
         </div>
-    );
+
+        <button
+          onClick={() => setShowModal(true)}
+          className="dark-nav-pill px-5 py-3 rounded-full text-xs font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all cursor-pointer shrink-0"
+        >
+          <FiPlus className="text-[#BEF264] text-base" />
+          <span>Register Equipment</span>
+        </button>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="glass-card p-4 rounded-[28px] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full sm:w-80">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-purple-400">
+            <FiSearch className="text-sm" />
+          </span>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search equipment by name or site..."
+            className="w-full bg-white/90 border border-purple-100 text-xs font-semibold rounded-full pl-10 pr-4 py-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
+          {['All', 'Operational', 'Maintenance Due'].map((st) => (
+            <button
+              key={st}
+              onClick={() => setStatusFilter(st)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                statusFilter === st
+                  ? 'bg-[#7C3AED] text-white shadow-md'
+                  : 'bg-white/80 text-slate-600 hover:bg-white hover:text-[#03020A]'
+              }`}
+            >
+              {st}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Machinery Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        {filtered.map((m) => (
+          <Card key={m.id} hover={true} className="space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-[#03020A] text-[#BEF264] flex items-center justify-center text-xl shadow-md shrink-0">
+                  <FaTruckRampBox />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-[#03020A]">{m.name}</h3>
+                  <p className="text-xs font-semibold text-purple-600 flex items-center gap-1 mt-0.5">
+                    <FiCpu /> {m.category} • Site: {m.site}
+                  </p>
+                </div>
+              </div>
+              <Badge variant={m.status === 'Operational' ? 'completed' : 'pending'}>
+                {m.status}
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 bg-white/80 rounded-2xl p-3.5 border border-white text-center">
+              <div>
+                <p className="text-[10px] font-bold uppercase text-slate-400">Assigned Operator</p>
+                <p className="text-xs font-bold text-[#03020A] mt-0.5 truncate">{m.operator}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase text-slate-400">Fuel Level</p>
+                <p className="text-xs font-bold text-purple-700 mt-0.5">{m.fuelLevel}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase text-slate-400">Total Run Time</p>
+                <p className="text-xs font-bold text-slate-700 mt-0.5">{m.hoursUsed}</p>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-bold text-[#03020A]">
+                <span>Equipment Health Rating</span>
+                <span className="text-[#7C3AED]">{m.healthPct}%</span>
+              </div>
+              <ProgressBar progress={m.healthPct} variant={m.healthPct > 90 ? 'lime' : 'purple'} size="sm" />
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Add Machine Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="glass-card w-full max-w-md p-6 rounded-[32px] border border-white shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+              <h3 className="text-lg font-extrabold text-[#03020A]">Register Heavy Machinery</h3>
+              <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500">✕</button>
+            </div>
+
+            <form onSubmit={handleAddMachine} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Equipment Model & Name</label>
+                <input
+                  type="text"
+                  required
+                  value={newMachine.name}
+                  onChange={(e) => setNewMachine({ ...newMachine, name: e.target.value })}
+                  placeholder="e.g. JCB 3DX Backhoe Loader"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Equipment Category</label>
+                <input
+                  type="text"
+                  value={newMachine.category}
+                  onChange={(e) => setNewMachine({ ...newMachine, category: e.target.value })}
+                  placeholder="e.g. Earthmoving & Loading"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Job Site</label>
+                <input
+                  type="text"
+                  value={newMachine.site}
+                  onChange={(e) => setNewMachine({ ...newMachine, site: e.target.value })}
+                  placeholder="e.g. Marina Tower"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Cancel</button>
+                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md">Register Machine</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default Machines;

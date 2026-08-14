@@ -1,37 +1,123 @@
 import React from 'react';
-import { FiCalendar, FiActivity } from 'react-icons/fi';
+import { FiCalendar, FiPlus, FiArrowRight, FiActivity, FiCheckCircle } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { DashboardCards, Table, ProjectBentoCard } from '../components';
+import { useData } from '../context/useData';
 
 function Dashboard() {
-    return (
-        <div className="relative overflow-hidden bg-gradient-to-r from-blue-900/30 via-indigo-900/20 to-slate-900/40 border border-blue-500/20 rounded-2xl p-6 mb-8 backdrop-blur-md">
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-semibold text-blue-400 mb-2">
-                        <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                        Live Dashboard Overview
-                    </div>
-                    <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-                        Welcome Back, <span className="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">Vengadesh!</span> 👋
-                    </h1>
-                    <p className="text-sm text-slate-300 mt-1">
-                        Here is the live operational summary for your active construction projects today.
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button className="bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2">
-                        <FiCalendar className="text-blue-400" />
-                        <span>Aug 12, 2026</span>
-                    </button>
-                    <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2">
-                        <FiActivity />
-                        <span>Live Activity</span>
-                    </button>
-                </div>
-            </div>
-            {/* Background Accent Decorative Glow */}
-            <div className="absolute -right-10 -top-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  const navigate = useNavigate();
+  const { projects = [], activityFeed = [] } = useData() || {};
+
+  const featuredProjects = projects.slice(0, 4);
+
+  return (
+    <div className="space-y-8 pb-8">
+      {/* Welcome Banner Card */}
+      <div className="glass-hero-purple p-8 rounded-[32px] border border-white/90 shadow-[0_14px_36px_rgba(167,139,250,0.15)] relative overflow-hidden">
+        {/* Ambient Glow Graphic */}
+        <div className="absolute top-[-30%] right-[-10%] w-80 h-80 bg-white/40 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="max-w-2xl space-y-2">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-[#03020A] tracking-tight">
+              Good Morning, <span className="text-[#7C3AED]">Vengadesh</span> 👋
+            </h1>
+            <p className="text-sm font-semibold text-slate-700 leading-relaxed">
+              Manage your construction projects, workers, materials and tasks from one place.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <button className="bg-white/80 hover:bg-white text-[#03020A] border border-white/90 text-xs font-bold px-4 py-3 rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer">
+              <FiCalendar className="text-[#7C3AED] text-sm" />
+              <span>Aug 14, 2026</span>
+            </button>
+            <button 
+              onClick={() => navigate('/projects/new')}
+              className="dark-nav-pill hover:bg-black text-white text-xs font-extrabold px-5 py-3 rounded-full transition-all flex items-center gap-2 shadow-lg shadow-black/20 cursor-pointer"
+            >
+              <FiPlus className="text-[#BEF264] text-sm" />
+              <span>New Project</span>
+            </button>
+          </div>
         </div>
-    );
+      </div>
+
+      {/* KPI Cards Section */}
+      <DashboardCards />
+
+      {/* Bento Project Cards Showcase Header */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-extrabold text-[#03020A] tracking-tight">Featured Construction Sites</h2>
+            <p className="text-xs font-semibold text-slate-500">High priority active site developments</p>
+          </div>
+          <button 
+            onClick={() => navigate('/projects')}
+            className="text-xs font-bold text-[#7C3AED] hover:text-[#581C87] flex items-center gap-1.5 bg-purple-100/60 hover:bg-purple-100 px-4 py-2 rounded-full transition-all cursor-pointer"
+          >
+            <span>Explore All Projects</span>
+            <FiArrowRight className="text-xs" />
+          </button>
+        </div>
+
+        {/* Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredProjects.map((proj) => (
+            <ProjectBentoCard
+              key={proj.id}
+              id={proj.id}
+              name={proj.name}
+              location={proj.location}
+              manager={proj.manager}
+              progress={proj.progress}
+              status={proj.status}
+              deadline={proj.deadline}
+              accent={proj.accent || 'purple'}
+              iconType={proj.iconType || 'building'}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Projects Table Overview */}
+      <Table />
+
+      {/* Live Site Operations Feed (Full Width & Dynamic from Context) */}
+      <div className="glass-card p-6 rounded-[28px] border border-white">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-purple-100">
+          <h3 className="text-lg font-extrabold text-[#03020A] flex items-center gap-2">
+            <FiActivity className="text-[#7C3AED]" />
+            Live Site Operations Feed
+          </h3>
+          <span className="text-[11px] font-bold text-slate-500">Updated Real-Time</span>
+        </div>
+
+        <div className="space-y-3">
+          {activityFeed.map((feed, i) => (
+            <div key={i} className="bg-white/80 p-3.5 rounded-2xl border border-white flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center text-xs font-bold shrink-0">
+                  <FiCheckCircle />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-[#03020A]">{feed.title}</h4>
+                  <p className="text-[11px] text-slate-500 font-medium">{feed.site}</p>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E9D5FF] text-[#6B21A8]">
+                  {feed.status}
+                </span>
+                <p className="text-[10px] text-slate-400 font-semibold mt-1">{feed.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default Dashboard;

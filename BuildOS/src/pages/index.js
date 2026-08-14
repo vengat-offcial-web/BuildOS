@@ -1,5 +1,7 @@
 export { default as Dashboard } from "./Dashboard";
 export { default as Projects } from "./Projects";
+export { default as ProjectDetails } from "./ProjectDetails";
+export { default as AssignProject } from "./AssignProject";
 export { default as Workers } from "./Workers";
 export { default as Materials } from "./Materials";
 export { default as Machines } from "./Machines";

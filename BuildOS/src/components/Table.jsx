@@ -1,75 +1,111 @@
 import React from 'react';
 import { Card, Badge, ProgressBar } from './ui';
-
-const projects = [
-  { project: "Mall Build", site: "Chennai", status: "Ongoing", progress: 80 },
-  { project: "Hospital", site: "Madurai", status: "Completed", progress: 100 },
-  { project: "Bridge", site: "Coimbatore", status: "Ongoing", progress: 65 },
-  { project: "Apartment", site: "Trichy", status: "Pending", progress: 35 },
-  { project: "School", site: "Salem", status: "Completed", progress: 100 },
-  { project: "IT Park", site: "Chennai", status: "Ongoing", progress: 72 },
-  { project: "Shopping Complex", site: "Erode", status: "Pending", progress: 28 },
-  { project: "Factory", site: "Hosur", status: "Ongoing", progress: 55 },
-  { project: "Office Tower", site: "Bangalore", status: "Completed", progress: 100 },
-  { project: "Metro Station", site: "Chennai", status: "Ongoing", progress: 61 }
-];
+import { useNavigate } from 'react-router-dom';
+import { FiArrowRight, FiMapPin, FiUserCheck, FiInbox } from 'react-icons/fi';
+import { useData } from '../context/useData';
 
 function getStatusVariant(status) {
-  switch (status) {
-    case "Completed":
-      return "success";
-    case "Ongoing":
-      return "info";
-    case "Pending":
-    default:
-      return "warning";
-  }
+  const s = (status || '').toLowerCase();
+  if (s === 'completed') return 'completed';
+  if (s === 'in progress' || s === 'in-progress') return 'in-progress';
+  if (s === 'overdue') return 'overdue';
+  return 'pending';
 }
 
-function Table() {
+export function Table({ projectsData, title = "Active Construction Projects", subtitle = "Real-time status tracking across job sites" }) {
+  const navigate = useNavigate();
+  const { projects: contextProjects = [] } = useData() || {};
+
+  const projectList = projectsData || contextProjects;
+  const displayedProjects = projectList.slice(0, 6);
+
   return (
-    <Card hover={false}>
-      <div className="flex items-center justify-between mb-6">
+    <Card hover={false} className="mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-purple-100">
         <div>
-          <h2 className="text-xl font-bold text-slate-100">Recent Projects Overview</h2>
-          <p className="text-xs text-slate-400">Live operational status across construction sites</p>
+          <h2 className="text-xl font-extrabold text-[#03020A] tracking-tight">{title}</h2>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">{subtitle}</p>
         </div>
-        <button className="text-xs font-semibold text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1.5 rounded-lg border border-blue-500/20 transition-all">
-          View All Projects
+        <button 
+          type="button"
+          onClick={() => navigate('/projects')}
+          className="dark-nav-pill px-4 py-2.5 rounded-full text-xs font-bold flex items-center justify-center gap-2 hover:bg-black transition-all cursor-pointer shadow-md"
+        >
+          <span>View All Projects</span>
+          <FiArrowRight className="text-xs text-[#BEF264]" />
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              <th className="py-3 px-4">Project Name</th>
-              <th className="py-3 px-4">Site Location</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4">Progress Meter</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60 text-slate-300">
-            {projects.map((x, index) => (
-              <tr key={index} className="hover:bg-slate-800/40 transition-colors">
-                <td className="py-3.5 px-4 font-semibold text-slate-200">{x.project}</td>
-                <td className="py-3.5 px-4 text-slate-400">{x.site}</td>
-                <td className="py-3.5 px-4">
-                  <Badge variant={getStatusVariant(x.status)}>
-                    {x.status}
-                  </Badge>
-                </td>
-                <td className="py-3.5 px-4 min-w-[180px]">
-                  <ProgressBar
-                    progress={x.progress}
-                    variant={x.progress === 100 ? "emerald" : "blue"}
-                  />
-                </td>
+      {displayedProjects.length === 0 ? (
+        <div className="py-12 text-center text-slate-400 space-y-2">
+          <FiInbox className="text-3xl mx-auto text-purple-300" />
+          <p className="text-sm font-semibold text-slate-500">No active construction projects available.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="border-b border-purple-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <th className="py-3 px-4">Project Name</th>
+                <th className="py-3 px-4">Location</th>
+                <th className="py-3 px-4">Site Engineer</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4 min-w-[160px]">Progress</th>
+                <th className="py-3 px-4 text-right">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-purple-100/60 text-slate-700 font-medium">
+              {displayedProjects.map((x) => (
+                <tr 
+                  key={x.id} 
+                  className="hover:bg-purple-50/50 transition-colors group cursor-pointer" 
+                  onClick={() => navigate(`/projects/${x.id}`)}
+                >
+                  <td className="py-3.5 px-4 font-bold text-[#03020A] group-hover:text-[#7C3AED] transition-colors">
+                    {x.name || x.project}
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-600">
+                    <span className="inline-flex items-center gap-1">
+                      <FiMapPin className="text-purple-400" />
+                      {x.location || x.site || 'N/A'}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-600">
+                    <span className="inline-flex items-center gap-1.5">
+                      <FiUserCheck className="text-purple-500" />
+                      {x.manager || 'Unassigned'}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <Badge variant={getStatusVariant(x.status)}>
+                      {x.status || 'Pending'}
+                    </Badge>
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <ProgressBar
+                      progress={x.progress || 0}
+                      variant={x.progress === 100 ? "lime" : "purple"}
+                      size="sm"
+                    />
+                  </td>
+                  <td className="py-3.5 px-4 text-right">
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/projects/${x.id}`);
+                      }}
+                      className="text-xs font-bold text-[#7C3AED] hover:text-[#581C87] bg-purple-100/60 hover:bg-purple-100 px-3 py-1.5 rounded-full transition-all cursor-pointer"
+                    >
+                      Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </Card>
   );
 }

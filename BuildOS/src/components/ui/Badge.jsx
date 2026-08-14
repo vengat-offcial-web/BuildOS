@@ -1,22 +1,26 @@
 import React from 'react';
 
-const variantStyles = {
-    success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    warning: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    error: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    info: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    neutral: "bg-slate-800 text-slate-400 border-slate-700"
+const VARIANTS = {
+  completed: 'badge-completed text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm',
+  success: 'badge-completed text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm',
+  'in-progress': 'badge-in-progress text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm',
+  info: 'badge-in-progress text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm',
+  pending: 'badge-pending text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm',
+  warning: 'badge-pending text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm',
+  overdue: 'badge-overdue text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm',
+  danger: 'badge-overdue text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm',
 };
 
-export const Badge = ({ children, variant = "info", dot = true, className = "" }) => {
-    const style = variantStyles[variant] || variantStyles.info;
-    return (
-        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${style} ${className}`}>
-            {dot && <span className="w-1.5 h-1.5 rounded-full bg-current"></span>}
-            {children}
-        </span>
-    );
-};
+export function Badge({ children, variant = 'info', className = '' }) {
+  const normalizedVariant = String(variant).toLowerCase().replace(/\s+/g, '-');
+  const badgeStyle = VARIANTS[normalizedVariant] || VARIANTS.info;
+
+  return (
+    <span className={`${badgeStyle} ${className}`}>
+      <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+      {children}
+    </span>
+  );
+}
 
 export default Badge;

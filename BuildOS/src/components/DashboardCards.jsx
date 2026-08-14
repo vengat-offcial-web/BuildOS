@@ -1,48 +1,76 @@
 import React from 'react';
 import DashboardCard from "./DashboardCard.jsx";
-import { FiFolder, FiUsers, FiLayers, FiTruck } from 'react-icons/fi';
+import { FiFolder, FiActivity, FiUsers, FiClock } from 'react-icons/fi';
+import { useData } from '../context/useData';
 
-const dashboardCards = [
-    {
-        title: "Total Projects",
-        value: "24",
-        icon: FiFolder,
-        trend: "12 active"
-    },
-    {
-        title: "Active Workers",
-        value: "368",
-        icon: FiUsers,
-        trend: "94% present"
-    },
-    {
-        title: "Materials Stock",
-        value: "82%",
-        icon: FiLayers,
-        trend: "Good availability"
-    },
-    {
-        title: "Machines Running",
-        value: "15 / 18",
-        icon: FiTruck,
-        trend: "83% operational"
-    }
-];
+export function DashboardCards({ items }) {
+    const {
+        totalProjectsCount = 0,
+        activeProjectsCount = 0,
+        totalWorkersCount = 0,
+        pendingTasksCount = 0,
+        overdueTasksCount = 0
+    } = useData() || {};
 
-function Dashboardcards() {
+    const defaultCards = [
+        {
+            id: 'total-projects',
+            title: "Total Projects",
+            value: String(totalProjectsCount),
+            icon: FiFolder,
+            subtitle: "+12% this month",
+            badgeType: "lime",
+            accentColor: "purple"
+        },
+        {
+            id: 'active-projects',
+            title: "Active Projects",
+            value: String(activeProjectsCount),
+            icon: FiActivity,
+            subtitle: "3 nearing deadline",
+            badgeType: "purple",
+            accentColor: "lime"
+        },
+        {
+            id: 'workers',
+            title: "Workers",
+            value: String(totalWorkersCount),
+            icon: FiUsers,
+            subtitle: "+8 this week",
+            badgeType: "lime",
+            accentColor: "purple"
+        },
+        {
+            id: 'pending-tasks',
+            title: "Pending Tasks",
+            value: String(pendingTasksCount),
+            icon: FiClock,
+            subtitle: `${overdueTasksCount} overdue`,
+            badgeType: "rose",
+            accentColor: "dark"
+        }
+    ];
+
+    const cardsToRender = items || defaultCards;
+
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            {dashboardCards.map((card, index) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {cardsToRender.map((card) => (
                 <DashboardCard
-                    key={index}
+                    key={card.id || card.title}
                     title={card.title}
                     value={card.value}
                     icon={card.icon}
-                    trend={card.trend}
+                    subtitle={card.subtitle}
+                    badgeType={card.badgeType}
+                    accentColor={card.accentColor}
                 />
             ))}
         </div>
     );
 }
 
-export default Dashboardcards;
+// Backward compatibility export alias
+export const Dashboardcards = DashboardCards;
+
+export default DashboardCards;

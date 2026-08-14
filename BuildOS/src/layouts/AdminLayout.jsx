@@ -1,18 +1,21 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Side from '../components/Sidebar';
-import Nav from '../components/Navbar';
+import { Sidebar, Navbar } from '../components';
 
 function AdminLayout() {
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row antialiased selection:bg-blue-500 selection:text-white">
-            {/* Admin Sidebar Navigation */}
-            <Side />
+        <div className="min-h-screen bg-[#F5F5F7] text-[#03020A] flex flex-col md:flex-row relative antialiased">
+            {/* Ambient Pastel Background Glows */}
+            <div className="fixed top-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-[#E9D5FF]/40 via-[#C4B5FD]/25 to-transparent rounded-full blur-3xl pointer-events-none z-0"></div>
+            <div className="fixed bottom-[-10%] left-[15%] w-[550px] h-[550px] bg-gradient-to-tr from-[#F0FDC2]/50 via-[#E4F9A8]/30 to-transparent rounded-full blur-3xl pointer-events-none z-0"></div>
+
+            {/* Sticky Sidebar Navigation */}
+            <Sidebar />
 
             {/* Main Content Viewport */}
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-950 min-h-screen overflow-y-auto">
-                <Nav />
-                <div className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+            <main className="flex-1 flex flex-col min-w-0 min-h-screen z-10 relative">
+                <Navbar />
+                <div className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8">
                     <Outlet />
                 </div>
             </main>

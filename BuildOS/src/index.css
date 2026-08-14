@@ -1,36 +1,120 @@
 @import "tailwindcss";
 
 :root {
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  
+  --bg-main: #F5F5F7;
+  --bg-subtle: #EDEDF3;
+  --purple-primary: #8B5CF6;
+  --purple-light: #E9D5FF;
+  --purple-accent: #C4B5FD;
+  --purple-deep: #7C3AED;
+  --lime-soft: #D9F99D;
+  --lime-accent: #BEF264;
+  --dark-pill: #03020A;
 }
 
 body {
-  background-color: #020617;
-  color: #f8fafc;
+  background-color: var(--bg-main);
+  color: #03020A;
   font-family: var(--font-sans);
   overflow-x: hidden;
+  letter-spacing: -0.01em;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
 }
 
-/* Custom scrollbars */
+/* Glassmorphism Surface Base */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 30px -5px rgba(167, 139, 250, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  border-radius: 28px;
+}
+
+.glass-card-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px -4px rgba(139, 92, 246, 0.14), 0 6px 16px -2px rgba(0, 0, 0, 0.04);
+  border-color: rgba(216, 180, 254, 0.9);
+}
+
+/* Soft Lavender/Purple Gradient Hero Card */
+.glass-hero-purple {
+  background: linear-gradient(135deg, rgba(233, 213, 255, 0.85) 0%, rgba(216, 180, 254, 0.7) 50%, rgba(196, 181, 253, 0.6) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 14px 32px -4px rgba(167, 139, 250, 0.15);
+  border-radius: 32px;
+}
+
+/* Soft Lime Accent Card */
+.glass-hero-lime {
+  background: linear-gradient(135deg, rgba(240, 253, 194, 0.9) 0%, rgba(228, 249, 168, 0.75) 50%, rgba(217, 249, 157, 0.6) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 14px 32px -4px rgba(190, 242, 100, 0.15);
+  border-radius: 32px;
+}
+
+/* Minimal Black Navigation Pill */
+.dark-nav-pill {
+  background: #03020A;
+  color: #FFFFFF;
+  box-shadow: 0 12px 28px -6px rgba(3, 2, 10, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Status Badges */
+.badge-completed {
+  background-color: #ECFDF5;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
+}
+
+.badge-in-progress {
+  background-color: #F3E8FF;
+  color: #6B21A8;
+  border: 1px solid #E9D5FF;
+}
+
+.badge-pending {
+  background-color: #FEF9C3;
+  color: #854D0E;
+  border: 1px solid #FEF08A;
+}
+
+.badge-overdue {
+  background-color: #FFE4E6;
+  color: #9F1239;
+  border: 1px solid #FECDD3;
+}
+
+/* Custom Soft Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: rgba(245, 245, 247, 0.8);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #D8B4FE;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #A78BFA;
 }

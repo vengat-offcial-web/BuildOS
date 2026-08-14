@@ -1,7 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import WorkerSidebar from '../components/WorkerSidebar';
-import Nav from '../components/Navbar';
+import { WorkerSidebar, Navbar } from '../components';
 
 function WorkerLayout() {
     return (
@@ -11,7 +10,7 @@ function WorkerLayout() {
 
             {/* Main Content Viewport */}
             <main className="flex-1 flex flex-col min-w-0 bg-slate-950 min-h-screen overflow-y-auto">
-                <Nav />
+                <Navbar />
                 <div className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6">
                     <Outlet />
                 </div>
