@@ -95,12 +95,57 @@ function ProjectDetails() {
     const validMilestones = editMilestones.filter(m => m.name.trim() !== '');
     const completedCount = validMilestones.filter(m => m.status === 'Completed').length;
     const calcProgress = validMilestones.length > 0 ? Math.round((completedCount / validMilestones.length) * 100) : (project ? project.progress : 0);
-
     updateProject(project.id, {
       milestones: validMilestones,
       progress: calcProgress
     });
     setIsMilestoneModalOpen(false);
+  };
+
+  // Task Edit Modal State
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [editTasks, setEditTasks] = useState([]);
+
+  const defaultTasks = [
+    { id: 1, title: "Glass facade panel alignment on Floor 18", priority: "High", status: "In Progress" },
+    { id: 2, title: "Structural core concrete compression testing", priority: "High", status: "Completed" },
+    { id: 3, title: "Track signaling cable laying Pier 42–48", priority: "High", status: "In Progress" },
+    { id: 4, title: "Basement 2 main electrical transformer wiring", priority: "High", status: "Overdue" }
+  ];
+
+  const projectTasks = (project && project.tasks && project.tasks.length > 0) ? project.tasks : defaultTasks;
+
+  const handleOpenTasksModal = () => {
+    setEditTasks(JSON.parse(JSON.stringify(projectTasks)));
+    setIsTaskModalOpen(true);
+  };
+
+  const handleUpdateTaskField = (index, field, value) => {
+    setEditTasks(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleAddTask = () => {
+    setEditTasks(prev => [
+      ...prev,
+      { title: "New On-Site Task Inspection", priority: "Medium", status: "Pending" }
+    ]);
+  };
+
+  const handleRemoveTask = (index) => {
+    setEditTasks(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSaveTasks = (e) => {
+    e.preventDefault();
+    const validTasks = editTasks.filter(t => t.title.trim() !== '');
+    updateProject(project.id, {
+      tasks: validTasks
+    });
+    setIsTaskModalOpen(false);
   };
 
   if (!project) {
@@ -278,12 +323,22 @@ function ProjectDetails() {
           </Card>
 
           <Card hover={false}>
-            <h3 className="text-lg font-extrabold text-[#03020A] mb-4 pb-3 border-b border-purple-100 flex items-center gap-2">
-              <FiClock className="text-[#7C3AED]" />
-              Active Site Tasks Checklist
-            </h3>
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-purple-100">
+              <h3 className="text-lg font-extrabold text-[#03020A] flex items-center gap-2">
+                <FiClock className="text-[#7C3AED]" />
+                Active Site Tasks Checklist
+              </h3>
+              <button
+                type="button"
+                onClick={handleOpenTasksModal}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-purple-50 hover:bg-purple-100 text-[#7C3AED] hover:text-purple-900 border border-purple-100 text-xs font-bold transition-all cursor-pointer shadow-sm"
+              >
+                <FiEdit2 className="text-xs text-[#7C3AED]" />
+                <span>Edit</span>
+              </button>
+            </div>
             <div className="space-y-3">
-              {tasks.slice(0, 4).map((t, index) => (
+              {projectTasks.map((t, index) => (
                 <div key={index} className="bg-white/80 p-4 rounded-2xl border border-white flex items-center justify-between gap-4">
                   <div>
                     <h4 className="text-xs font-bold text-[#03020A]">{t.title}</h4>
@@ -291,7 +346,7 @@ function ProjectDetails() {
                       Priority: {t.priority}
                     </span>
                   </div>
-                  <Badge variant={t.status === 'Completed' ? 'completed' : t.status === 'In Progress' ? 'in-progress' : 'pending'}>
+                  <Badge variant={t.status === 'Completed' ? 'completed' : t.status === 'In Progress' ? 'in-progress' : t.status === 'Overdue' ? 'overdue' : 'pending'}>
                     {t.status}
                   </Badge>
                 </div>
@@ -580,6 +635,126 @@ function ProjectDetails() {
                 >
                   <FiSave className="text-sm text-[#BEF264]" />
                   <span>Save Milestones</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Active Site Tasks Modal */}
+      {isTaskModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white/95 backdrop-blur-xl border border-purple-100 rounded-[32px] p-6 md:p-8 max-w-2xl w-full shadow-2xl space-y-6 relative max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-purple-100 pb-4 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-2xl bg-purple-100 text-[#7C3AED]">
+                  <FiClock className="text-lg" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-[#03020A]">Edit Active Site Tasks</h3>
+                  <p className="text-xs font-semibold text-slate-500">Update task descriptions, priority levels & status</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsTaskModalOpen(false)}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer"
+              >
+                <FiX className="text-lg" />
+              </button>
+            </div>
+
+            {/* Modal Form List */}
+            <form onSubmit={handleSaveTasks} className="space-y-4 overflow-y-auto flex-1 pr-1">
+              <div className="space-y-3">
+                {editTasks.map((t, idx) => (
+                  <div key={idx} className="bg-purple-50/40 p-4 rounded-2xl border border-purple-100/80 space-y-3 relative">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="w-6 h-6 rounded-lg bg-[#7C3AED] text-white flex items-center justify-center text-xs font-extrabold">
+                        {idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTask(idx)}
+                        title="Delete Task"
+                        className="text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-full border border-rose-100 transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <FiTrash2 className="text-xs" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="sm:col-span-1">
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Task Description</label>
+                        <input
+                          type="text"
+                          value={t.title}
+                          onChange={(e) => handleUpdateTaskField(idx, 'title', e.target.value)}
+                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
+                          placeholder="e.g. Inspect rebar binding"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Priority</label>
+                        <select
+                          value={t.priority}
+                          onChange={(e) => handleUpdateTaskField(idx, 'priority', e.target.value)}
+                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] cursor-pointer"
+                        >
+                          <option value="High">High</option>
+                          <option value="Medium">Medium</option>
+                          <option value="Low">Low</option>
+                          <option value="Critical">Critical</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Status</label>
+                        <select
+                          value={t.status}
+                          onChange={(e) => handleUpdateTaskField(idx, 'status', e.target.value)}
+                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] cursor-pointer"
+                        >
+                          <option value="In Progress">In Progress</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Overdue">Overdue</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddTask}
+                className="w-full py-3 border-2 border-dashed border-purple-200 hover:border-[#7C3AED] bg-purple-50/40 hover:bg-purple-50 text-[#7C3AED] text-xs font-extrabold rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <FiPlus className="text-sm" />
+                <span>Add New Task</span>
+              </button>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-purple-100 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsTaskModalOpen(false)}
+                  className="px-5 py-2.5 rounded-full border border-purple-100 text-xs font-bold text-slate-600 hover:bg-purple-50 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-full bg-[#03020A] hover:bg-[#7C3AED] text-white text-xs font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <FiSave className="text-sm text-[#BEF264]" />
+                  <span>Save Tasks</span>
                 </button>
               </div>
             </form>
