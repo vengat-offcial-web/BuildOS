@@ -15,6 +15,7 @@ import {
     FiX,
     FiFileText
 } from 'react-icons/fi';
+import { FaHelmetSafety } from 'react-icons/fa6';
 
 function WorkerDashboard() {
     const { user } = useAuth();
@@ -38,13 +39,11 @@ function WorkerDashboard() {
         fullTitle: "Metro Line Extension (Phase 2 - Zone B4)",
         location: "Coimbatore Rapid Corridor",
         engineer: "R. Sharma (Lead Site Engineer)",
+        workerRole: "Senior Structural & Steel Rebar Specialist",
         status: "In Progress",
         completion: 85,
         deadline: "Oct 10, 2026",
-        shiftSchedule: "08:00 AM – 05:00 PM (General Shift)",
-        description: "8.4 km elevated rapid transit metro corridor including 4 station terminals. Zone B4 currently executing pier concrete curing and signaling cable prep.",
-        siteFacilities: ["Hydration Station at Entrance B", "First Aid Bay Block 1", "Machinery Bay C"],
-        safetyRating: "ISO 45001 Safety Certified • Zero Incidents"
+        shiftSchedule: "08:00 AM – 05:00 PM (General Shift)"
     };
 
     // Leave Request form state
@@ -526,30 +525,16 @@ function WorkerDashboard() {
                                 </div>
                             </div>
 
-                            {/* Description */}
-                            <div className="space-y-1">
-                                <h4 className="font-extrabold text-[#03020A]">Site Overview</h4>
-                                <p className="text-slate-600 leading-relaxed bg-white/60 p-3 rounded-2xl border border-white">{assignedProject.description}</p>
-                            </div>
-
-                            {/* Site Facilities */}
-                            <div className="space-y-1.5">
-                                <h4 className="font-extrabold text-[#03020A]">Site Facilities & Amenities</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {assignedProject.siteFacilities.map((fac, i) => (
-                                        <span key={i} className="px-3 py-1 rounded-full bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264] text-[11px] font-bold">
-                                            ✓ {fac}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Safety Tag */}
-                            <div className="p-3 rounded-2xl bg-purple-100/60 border border-purple-200/60 flex items-center justify-between">
-                                <span className="text-[11px] font-bold text-purple-800 flex items-center gap-1.5">
-                                    <FiShield className="text-purple-600" /> {assignedProject.safetyRating}
-                                </span>
-                                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#7C3AED] text-white">ACTIVE SITE</span>
+                            {/* Worker Assigned Role by Site Engineer */}
+                            <div className="bg-[#F0FDC2]/60 border border-[#BEF264] p-4 rounded-2xl space-y-1">
+                                <span className="text-[10px] font-extrabold text-[#3F6212] uppercase tracking-wider block">Worker Assigned Role by Site Engineer</span>
+                                <p className="font-extrabold text-[#03020A] text-sm flex items-center gap-2 pt-0.5">
+                                    <FaHelmetSafety className="text-[#7C3AED] text-base" />
+                                    <span>{assignedProject.workerRole}</span>
+                                </p>
+                                <p className="text-[11px] text-slate-600 font-semibold pt-1">
+                                    Assigned & Authorized By: <strong className="text-[#7C3AED]">{assignedProject.engineer}</strong>
+                                </p>
                             </div>
                         </div>
 
