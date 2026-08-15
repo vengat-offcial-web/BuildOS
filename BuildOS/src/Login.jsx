@@ -90,7 +90,7 @@ function Login() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="admin@gmail.com"
+                                    placeholder="Enter the mail"
                                     className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                 />
                             </div>
