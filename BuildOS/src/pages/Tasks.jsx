@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Badge } from '../components/ui';
 import { FiCheckSquare, FiPlus, FiAlertCircle, FiCalendar } from 'react-icons/fi';
+import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Tasks() {
   const { tasks, addTask, toggleTaskStatus, pendingTasksCount, overdueTasksCount } = useData();
+  const outletContext = useOutletContext() || {};
+  const searchTerm = outletContext.searchTerm || '';
   const [statusTab, setStatusTab] = useState('All');
   const [showModal, setShowModal] = useState(false);
 
@@ -20,9 +23,16 @@ function Tasks() {
   };
 
   const filteredTasks = tasks.filter(t => {
-    if (statusTab === 'All') return true;
-    if (statusTab === 'Overdue') return t.overdue;
-    return t.status === statusTab;
+    const title = t.title || t.name || '';
+    const site = t.site || '';
+    const assignee = t.assignee || '';
+    const matchesSearch = !searchTerm || 
+      title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      site.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      assignee.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesTab = statusTab === 'All' ? true : statusTab === 'Overdue' ? t.overdue : t.status === statusTab;
+    return matchesSearch && matchesTab;
   });
 
   return (

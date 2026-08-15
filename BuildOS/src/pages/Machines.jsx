@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Card, Badge, ProgressBar } from '../components/ui';
-import { FiTruck, FiSearch, FiPlus, FiCpu } from 'react-icons/fi';
+import { FiTruck, FiPlus, FiCpu, FiFilter } from 'react-icons/fi';
 import { FaTruckRampBox } from 'react-icons/fa6';
+import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Machines() {
   const { machines, addMachine } = useData();
-  const [searchTerm, setSearchTerm] = useState('');
+  const outletContext = useOutletContext() || {};
+  const searchTerm = outletContext.searchTerm || '';
   const [statusFilter, setStatusFilter] = useState('All');
   const [showModal, setShowModal] = useState(false);
 
@@ -51,22 +53,12 @@ function Machines() {
         </button>
       </div>
 
-      {/* Search and Filters */}
-      <div className="glass-card p-4 rounded-[28px] flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-80">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-purple-400">
-            <FiSearch className="text-sm" />
+      {/* Filter Pills Bar */}
+      <div className="glass-card p-4 rounded-[28px] flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 overflow-x-auto w-full">
+          <span className="text-xs font-bold text-slate-400 flex items-center gap-1 shrink-0 mr-1">
+            <FiFilter className="text-purple-500" /> Filter Status:
           </span>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search equipment by name or site..."
-            className="w-full bg-white/90 border border-purple-100 text-xs font-semibold rounded-full pl-10 pr-4 py-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
           {['All', 'Operational', 'Maintenance Due'].map((st) => (
             <button
               key={st}

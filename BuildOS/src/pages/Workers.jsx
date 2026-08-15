@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Card, Badge } from '../components/ui';
-import { FiUsers, FiSearch, FiPlus, FiShield, FiPhone } from 'react-icons/fi';
+import { FiUsers, FiPlus, FiShield, FiPhone, FiFilter } from 'react-icons/fi';
 import { FaHelmetSafety } from 'react-icons/fa6';
+import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Workers() {
   const { workers, addWorker } = useData();
-  const [searchTerm, setSearchTerm] = useState('');
+  const outletContext = useOutletContext() || {};
+  const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
   const [showModal, setShowModal] = useState(false);
 
@@ -51,22 +53,12 @@ function Workers() {
         </button>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="glass-card p-4 rounded-[28px] flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-80">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-purple-400">
-            <FiSearch className="text-sm" />
+      {/* Filter Pills Bar */}
+      <div className="glass-card p-4 rounded-[28px] flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 overflow-x-auto w-full">
+          <span className="text-xs font-bold text-slate-400 flex items-center gap-1 shrink-0 mr-1">
+            <FiFilter className="text-purple-500" /> Filter Trade:
           </span>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search worker by name or site..."
-            className="w-full bg-white/90 border border-purple-100 text-xs font-semibold rounded-full pl-10 pr-4 py-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
           {['All', 'Masonry', 'Steel', 'Crane', 'Electrical'].map((tr) => (
             <button
               key={tr}
