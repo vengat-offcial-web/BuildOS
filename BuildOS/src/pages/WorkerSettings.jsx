@@ -18,7 +18,7 @@ function WorkerSettings() {
 
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
-    const [theme, setTheme] = useState(user?.theme || 'dark');
+    const [theme, setTheme] = useState(user?.theme || 'purple');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -72,24 +72,24 @@ function WorkerSettings() {
     };
 
     return (
-        <div className="space-y-6 max-w-4xl">
+        <div className="space-y-6 max-w-4xl pb-8">
             <PageHeader
                 title="Worker Profile & Settings"
-                description="Update your personal information, email address, password, and portal theme preferences."
-                variant="emerald"
+                description="Update your personal information, email address, security credentials, and portal theme preferences."
+                variant="purple"
             />
 
             {/* Notification Banner */}
             {message.text && (
-                <div className={`p-4 rounded-xl text-sm flex items-start gap-3 border transition-all ${
+                <div className={`p-4 rounded-2xl text-xs font-bold flex items-center gap-3 border shadow-xs transition-all ${
                     message.type === 'success'
-                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                        : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                        ? 'bg-[#F0FDC2] border-[#BEF264] text-[#3F6212]'
+                        : 'bg-[#FFE4E6] border-[#FECDD3] text-[#9F1239]'
                 }`}>
                     {message.type === 'success' ? (
-                        <FiCheckCircle className="text-lg shrink-0 mt-0.5" />
+                        <FiCheckCircle className="text-base shrink-0" />
                     ) : (
-                        <FiAlertCircle className="text-lg shrink-0 mt-0.5" />
+                        <FiAlertCircle className="text-base shrink-0" />
                     )}
                     <span>{message.text}</span>
                 </div>
@@ -97,21 +97,21 @@ function WorkerSettings() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Profile Details Card */}
-                <Card variant="dark" hover={false} className="space-y-5">
-                    <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-                        <FiUser className="text-emerald-400 text-lg" />
-                        <h3 className="text-base font-bold text-slate-100">Personal Account Details</h3>
+                <Card hover={false} className="space-y-5">
+                    <div className="flex items-center gap-2 border-b border-purple-100 pb-3">
+                        <FiUser className="text-[#7C3AED] text-base" />
+                        <h3 className="text-base font-extrabold text-[#03020A]">Personal Account Details</h3>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         {/* Worker Name Input */}
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
                                 Full Name
                             </label>
                             <div className="relative">
-                                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                    <FiUser className="text-base" />
+                                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-purple-400">
+                                    <FiUser className="text-sm" />
                                 </span>
                                 <input
                                     type="text"
@@ -119,19 +119,19 @@ function WorkerSettings() {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="Your Full Name"
-                                    className="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl py-2.5 pl-10 pr-4 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                                    className="w-full bg-white border border-purple-100 rounded-2xl py-2.5 pl-10 pr-4 text-[#03020A] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-xs"
                                 />
                             </div>
                         </div>
 
                         {/* Worker Email Input */}
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
                                 Email Address
                             </label>
                             <div className="relative">
-                                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                    <FiMail className="text-base" />
+                                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-purple-400">
+                                    <FiMail className="text-sm" />
                                 </span>
                                 <input
                                     type="email"
@@ -139,7 +139,7 @@ function WorkerSettings() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="worker@buildos.com"
-                                    className="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl py-2.5 pl-10 pr-4 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                                    className="w-full bg-white border border-purple-100 rounded-2xl py-2.5 pl-10 pr-4 text-[#03020A] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-xs"
                                 />
                             </div>
                         </div>
@@ -147,33 +147,33 @@ function WorkerSettings() {
                 </Card>
 
                 {/* Password Change Card */}
-                <Card variant="dark" hover={false} className="space-y-5">
-                    <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-                        <FiLock className="text-emerald-400 text-lg" />
-                        <h3 className="text-base font-bold text-slate-100">Security & Password</h3>
+                <Card hover={false} className="space-y-5">
+                    <div className="flex items-center gap-2 border-b border-purple-100 pb-3">
+                        <FiLock className="text-[#7C3AED] text-base" />
+                        <h3 className="text-base font-extrabold text-[#03020A]">Security & Password</h3>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         {/* New Password */}
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
                                 New Password (Leave blank to keep current)
                             </label>
                             <div className="relative">
-                                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                    <FiLock className="text-base" />
+                                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-purple-400">
+                                    <FiLock className="text-sm" />
                                 </span>
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Enter new password"
-                                    className="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl py-2.5 pl-10 pr-11 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                                    className="w-full bg-white border border-purple-100 rounded-2xl py-2.5 pl-10 pr-11 text-[#03020A] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-xs"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-purple-600 cursor-pointer"
                                 >
                                     {showPassword ? <FiEyeOff /> : <FiEye />}
                                 </button>
@@ -182,19 +182,19 @@ function WorkerSettings() {
 
                         {/* Confirm Password */}
                         <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
                                 Confirm New Password
                             </label>
                             <div className="relative">
-                                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                    <FiLock className="text-base" />
+                                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-purple-400">
+                                    <FiLock className="text-sm" />
                                 </span>
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     placeholder="Confirm new password"
-                                    className="w-full bg-slate-800/60 border border-slate-700/60 rounded-xl py-2.5 pl-10 pr-4 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                                    className="w-full bg-white border border-purple-100 rounded-2xl py-2.5 pl-10 pr-4 text-[#03020A] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-xs"
                                 />
                             </div>
                         </div>
@@ -202,27 +202,27 @@ function WorkerSettings() {
                 </Card>
 
                 {/* Theme Preferences Card */}
-                <Card variant="dark" hover={false} className="space-y-5">
-                    <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-                        <FiSun className="text-emerald-400 text-lg" />
-                        <h3 className="text-base font-bold text-slate-100">Theme Preference</h3>
+                <Card hover={false} className="space-y-5">
+                    <div className="flex items-center gap-2 border-b border-purple-100 pb-3">
+                        <FiSun className="text-[#7C3AED] text-base" />
+                        <h3 className="text-base font-extrabold text-[#03020A]">Theme Palette Preference</h3>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {[
-                            { id: 'dark', name: 'Dark Slate', border: 'border-blue-500' },
-                            { id: 'emerald', name: 'Emerald', border: 'border-emerald-500' },
-                            { id: 'indigo', name: 'Indigo Night', border: 'border-indigo-500' },
-                            { id: 'teal', name: 'Teal Modern', border: 'border-teal-500' }
+                            { id: 'purple', name: 'Lavender Purple', color: 'bg-[#E9D5FF] text-[#6B21A8] border-[#D8B4FE]' },
+                            { id: 'lime', name: 'Pastel Lime', color: 'bg-[#F0FDC2] text-[#3F6212] border-[#BEF264]' },
+                            { id: 'dark', name: 'Dark Bento', color: 'bg-[#03020A] text-white border-white/20' },
+                            { id: 'light', name: 'Clean White', color: 'bg-white text-[#03020A] border-purple-100' }
                         ].map((t) => (
                             <button
                                 key={t.id}
                                 type="button"
                                 onClick={() => setTheme(t.id)}
-                                className={`p-3.5 rounded-xl border text-center transition-all cursor-pointer ${
+                                className={`p-3.5 rounded-2xl border text-center transition-all cursor-pointer ${t.color} ${
                                     theme === t.id
-                                        ? `${t.border} bg-slate-800/90 text-white font-bold ring-2 ring-emerald-500/20`
-                                        : 'border-slate-800 bg-slate-900/40 text-slate-400 hover:bg-slate-800/50'
+                                        ? 'ring-2 ring-[#7C3AED] font-extrabold scale-[1.02] shadow-sm'
+                                        : 'opacity-80 hover:opacity-100'
                                 }`}
                             >
                                 <p className="text-xs">{t.name}</p>
@@ -236,13 +236,13 @@ function WorkerSettings() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-sm shadow-lg shadow-emerald-500/20 active:scale-[0.99] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="dark-nav-pill px-6 py-3 rounded-full text-xs font-extrabold text-white shadow-md hover:bg-black transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                         {loading ? (
                             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                         ) : (
                             <>
-                                <FiSave className="text-base" />
+                                <FiSave className="text-sm text-[#BEF264]" />
                                 <span>Save Settings</span>
                             </>
                         )}
@@ -254,3 +254,4 @@ function WorkerSettings() {
 }
 
 export default WorkerSettings;
+

@@ -20,8 +20,6 @@ function RootRedirect() {
 }
 function App() {
 
-    
-
     return (
         <AuthProvider>
             <DataProvider>
