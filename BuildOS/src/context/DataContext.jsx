@@ -124,6 +124,37 @@ export const DataProvider = ({ children }) => {
     return newMat;
   }, [logActivity]);
 
+  const updateMaterial = useCallback((id, updatedFields) => {
+    setMaterials(prev => prev.map(m => (m.id === Number(id) || m.name.toLowerCase() === String(id).toLowerCase()) ? { ...m, ...updatedFields } : m));
+  }, []);
+
+  const deductMaterialStock = useCallback((materialName, allocatedQuantityStr, projectName) => {
+    setMaterials(prev => prev.map(mat => {
+      if (mat.name.toLowerCase().trim() === materialName.toLowerCase().trim()) {
+        const currentStockNum = parseFloat(mat.totalStock.replace(/,/g, '')) || 0;
+        const allocNum = parseFloat(allocatedQuantityStr.replace(/,/g, '')) || 0;
+        const unit = mat.totalStock.replace(/[\d,.\s]/g, '').trim() || 'Units';
+
+        if (allocNum > 0 && currentStockNum >= allocNum) {
+          const remainingStock = Math.max(0, currentStockNum - allocNum);
+          const origStock = parseFloat(initialMaterialsData.find(m => m.name === mat.name)?.totalStock.replace(/,/g, '') || currentStockNum);
+          const newPct = Math.max(0, Math.round((remainingStock / Math.max(origStock, 1)) * 100));
+          const newStatus = remainingStock <= 0 ? "Reorder Required" : newPct < 40 ? "Low Stock Alert" : "Stocked";
+
+          return {
+            ...mat,
+            totalStock: `${remainingStock.toLocaleString()} ${unit}`.trim(),
+            availablePct: newPct,
+            status: newStatus,
+            siteAllocated: `${projectName || 'Site'} (${allocatedQuantityStr})`
+          };
+        }
+      }
+      return mat;
+    }));
+    logActivity(`Material Allocated: ${materialName}`, projectName || 'Site', `Allocated: ${allocatedQuantityStr}`, 'lime');
+  }, [logActivity]);
+
   const addMachine = useCallback((machineData) => {
     const newMac = {
       id: Date.now(),
@@ -187,6 +218,8 @@ export const DataProvider = ({ children }) => {
     addWorker,
     updateWorker,
     addMaterialOrder,
+    updateMaterial,
+    deductMaterialStock,
     addMachine,
     addTask,
     toggleTaskStatus,
@@ -209,6 +242,8 @@ export const DataProvider = ({ children }) => {
     addWorker,
     updateWorker,
     addMaterialOrder,
+    updateMaterial,
+    deductMaterialStock,
     addMachine,
     addTask,
     toggleTaskStatus,
