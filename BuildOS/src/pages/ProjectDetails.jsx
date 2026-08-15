@@ -11,7 +11,7 @@ import { initialEngineersData } from '../data';
 function ProjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProjectById, updateProject, workers, materials, machines, tasks, deductMaterialStock } = useData();
+  const { getProjectById, updateProject, workers, materials, machines, tasks } = useData();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Edit Modal State
@@ -216,14 +216,6 @@ function ProjectDetails() {
     updateProject(project.id, {
       allocatedMaterials: validAllocations
     });
-
-    // Deduct quantity from saved materials in DataContext / Materials Page
-    validAllocations.forEach(item => {
-      if (item.name && item.quantity && deductMaterialStock) {
-        deductMaterialStock(item.name, item.quantity, project.name);
-      }
-    });
-
     setIsMaterialModalOpen(false);
   };
 
