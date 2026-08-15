@@ -22,9 +22,7 @@ function WorkerLayout() {
             {/* Main Content Viewport */}
             <main className="flex-1 flex flex-col min-w-0 min-h-screen z-10 relative">
                 <Navbar 
-                    searchValue={searchTerm} 
-                    onSearchChange={setSearchTerm} 
-                    placeholder="Search Worker Portal..."
+                    showSearch={false}
                 />
                 <div className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8">
                     <Outlet context={{ searchTerm, setSearchTerm }} />

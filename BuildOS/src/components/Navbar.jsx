@@ -5,24 +5,29 @@ export function Navbar({
     searchValue,
     onSearchChange,
     placeholder = "Search Projects...",
-    onNotificationClick
+    onNotificationClick,
+    showSearch = true
 }) {
     return (
         <header className="sticky top-0 z-30 bg-white/60 backdrop-blur-xl border-b border-white/80 px-6 py-4 flex items-center justify-between gap-4 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
             {/* Search Input Pill */}
-            <div className="relative flex-1 max-w-md" role="search">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-purple-400">
-                    <FiSearch className="text-base" />
-                </span>
-                <input
-                    type="text"
-                    value={searchValue}
-                    onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-                    placeholder={placeholder}
-                    aria-label="Search"
-                    className="w-full bg-white/80 border border-purple-100/80 text-[#03020A] placeholder-slate-400 text-xs font-medium rounded-full pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#A78BFA]/50 focus:border-[#A78BFA] transition-all shadow-sm"
-                />
-            </div>
+            {showSearch ? (
+                <div className="relative flex-1 max-w-md" role="search">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-purple-400">
+                        <FiSearch className="text-base" />
+                    </span>
+                    <input
+                        type="text"
+                        value={searchValue}
+                        onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+                        placeholder={placeholder}
+                        aria-label="Search"
+                        className="w-full bg-white/80 border border-purple-100/80 text-[#03020A] placeholder-slate-400 text-xs font-medium rounded-full pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#A78BFA]/50 focus:border-[#A78BFA] transition-all shadow-sm"
+                    />
+                </div>
+            ) : (
+                <div className="flex-1"></div>
+            )}
 
             {/* Right Controls */}
             <div className="flex items-center gap-3 sm:gap-4">
