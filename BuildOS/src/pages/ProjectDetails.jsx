@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Badge, ProgressBar, Card } from '../components/ui';
-import { FiArrowLeft,FiMapPin,FiCalendar,FiDollarSign,FiCheckCircle,FiClock,FiUsers,FiLayers,FiTruck,FiCheckSquare,FiEdit2,FiX,FiSave,FiPlus,FiTrash2,FiUserCheck
+import { FiArrowLeft,FiMapPin,FiCalendar,FiDollarSign,FiCheckCircle,FiClock,FiUsers,FiLayers,FiTruck,FiCheckSquare,FiEdit2,FiX,FiSave,FiPlus,FiTrash2,FiUserCheck,FiSearch
 } from 'react-icons/fi';
 import { FaBuilding } from 'react-icons/fa6';
 import { useData } from '../context/useData';
@@ -24,6 +24,12 @@ function ProjectDetails() {
   const [editMachinery, setEditMachinery] = useState('');
   const [showEngineerSuggestions, setShowEngineerSuggestions] = useState(false);
 
+  // Site Team Roster Edit Modal State
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [editTeamMembers, setEditTeamMembers] = useState([]);
+  const [workerSearchQuery, setWorkerSearchQuery] = useState('');
+  const [showWorkerSearchDropdown, setShowWorkerSearchDropdown] = useState(false);
+
   const filteredEngineers = useMemo(() => {
     const term = (editManager || '').toLowerCase().trim();
     if (!term) return initialEngineersData;
@@ -45,6 +51,94 @@ function ProjectDetails() {
   const project = getProjectById(id);
 
   const siteWorkers = workers.filter(w => project && project.name && (w.site.toLowerCase().includes(project.name.toLowerCase()) || w.site.toLowerCase().includes(project.location.toLowerCase()))).slice(0, 4);
+
+  // Combined catalog of saved engineers and site workers for auto-fill searching
+  const savedPersonnelCatalog = useMemo(() => {
+    const combined = [
+      ...initialEngineersData.map(e => ({ name: e.name, trade: e.role, phone: e.phone, type: 'Engineer' })),
+      ...(workers || []).map(w => ({ name: w.name, trade: w.trade, phone: w.phone || '+91 98765 00000', type: 'Site Worker' }))
+    ];
+    const seen = new Set();
+    return combined.filter(item => {
+      if (!item.name) return false;
+      const key = item.name.toLowerCase().trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [workers]);
+
+  const defaultTeamMembers = (project && project.teamMembers && project.teamMembers.length > 0)
+    ? project.teamMembers
+    : (siteWorkers.length > 0 ? siteWorkers : workers.slice(0, 4));
+
+  const projectTeamMembers = (project && project.teamMembers && project.teamMembers.length > 0)
+    ? project.teamMembers
+    : defaultTeamMembers;
+
+  const searchedPersonnelCandidates = useMemo(() => {
+    const q = workerSearchQuery.toLowerCase().trim();
+    if (!q) return savedPersonnelCatalog;
+    return savedPersonnelCatalog.filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      c.trade.toLowerCase().includes(q) ||
+      c.phone.toLowerCase().includes(q)
+    );
+  }, [workerSearchQuery, savedPersonnelCatalog]);
+
+  const handleOpenTeamModal = () => {
+    if (!project) return;
+    const currentList = (project.teamMembers && project.teamMembers.length > 0)
+      ? project.teamMembers
+      : defaultTeamMembers;
+    setEditTeamMembers(currentList.map(m => ({
+      name: m.name || '',
+      trade: m.trade || m.role || 'Site Engineer',
+      phone: m.phone || m.contact || '+91 98765 00000'
+    })));
+    setWorkerSearchQuery('');
+    setShowWorkerSearchDropdown(false);
+    setIsTeamModalOpen(true);
+  };
+
+  const handleUpdateTeamMemberField = (index, field, value) => {
+    setEditTeamMembers(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleRemoveTeamMember = (index) => {
+    setEditTeamMembers(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddBlankTeamMember = () => {
+    setEditTeamMembers(prev => [...prev, { name: '', trade: 'Site Engineer', phone: '+91 98765 00000' }]);
+  };
+
+  const handleSelectSavedWorker = (candidate) => {
+    const exists = editTeamMembers.some(m => m.name.toLowerCase().trim() === candidate.name.toLowerCase().trim());
+    if (!exists) {
+      setEditTeamMembers(prev => [...prev, {
+        name: candidate.name,
+        trade: candidate.trade,
+        phone: candidate.phone
+      }]);
+    }
+    setWorkerSearchQuery('');
+    setShowWorkerSearchDropdown(false);
+  };
+
+  const handleSaveTeam = (e) => {
+    e.preventDefault();
+    const validTeam = editTeamMembers.filter(m => m.name.trim() !== '');
+    updateProject(project.id, {
+      teamMembers: validTeam,
+      workforceRequired: validTeam.length > 0 ? validTeam.length : project.workforceRequired
+    });
+    setIsTeamModalOpen(false);
+  };
 
   const handleOpenEdit = () => {
     if (!project) return;
@@ -373,21 +467,43 @@ function ProjectDetails() {
 
       {/* Tab 2: Site Team Roster */}
       {activeTab === 'team' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {(siteWorkers.length > 0 ? siteWorkers : workers.slice(0, 4)).map((mem, index) => (
-            <Card key={index} hover={true} className="text-center p-6 space-y-3">
-              <div className="w-14 h-14 rounded-full bg-linear-to-tr from-[#E9D5FF] to-[#D9F99D] text-[#6B21A8] flex items-center justify-center font-extrabold text-lg mx-auto shadow-md border-2 border-white">
-                {mem.name.charAt(0)}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-white shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-2xl bg-purple-100 text-[#7C3AED]">
+                <FiUsers className="text-base" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-[#03020A]">{mem.name}</h4>
-                <p className="text-xs font-semibold text-purple-600">{mem.trade}</p>
+                <h3 className="text-sm font-extrabold text-[#03020A]">Assigned Site Personnel ({projectTeamMembers.length})</h3>
+                <p className="text-xs font-semibold text-slate-500">Site engineers, managers & active workforce leads</p>
               </div>
-              <p className="text-[11px] font-medium text-slate-500 bg-purple-50 py-1 px-3 rounded-full">
-                {mem.phone}
-              </p>
-            </Card>
-          ))}
+            </div>
+            <button
+              type="button"
+              onClick={handleOpenTeamModal}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-purple-50 hover:bg-purple-100 text-[#7C3AED] hover:text-purple-900 border border-purple-100 text-xs font-bold transition-all cursor-pointer shadow-sm"
+            >
+              <FiEdit2 className="text-xs text-[#7C3AED]" />
+              <span>Edit Team</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {projectTeamMembers.map((mem, index) => (
+              <Card key={index} hover={true} className="text-center p-6 space-y-3">
+                <div className="w-14 h-14 rounded-full bg-linear-to-tr from-[#E9D5FF] to-[#D9F99D] text-[#6B21A8] flex items-center justify-center font-extrabold text-lg mx-auto shadow-md border-2 border-white">
+                  {mem.name ? mem.name.charAt(0).toUpperCase() : 'W'}
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#03020A]">{mem.name}</h4>
+                  <p className="text-xs font-semibold text-purple-600">{mem.trade || mem.role || 'Site Engineer'}</p>
+                </div>
+                <p className="text-[11px] font-medium text-slate-500 bg-purple-50 py-1 px-3 rounded-full">
+                  {mem.phone || mem.contact || '+91 98765 00000'}
+                </p>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
 
@@ -820,6 +936,189 @@ function ProjectDetails() {
                 >
                   <FiSave className="text-sm text-[#BEF264]" />
                   <span>Save Tasks</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Site Team Roster Modal */}
+      {isTeamModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white/95 backdrop-blur-xl border border-purple-100 rounded-[32px] p-6 md:p-8 max-w-2xl w-full shadow-2xl space-y-6 relative max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-purple-100 pb-4 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-2xl bg-purple-100 text-[#7C3AED]">
+                  <FiUsers className="text-lg" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-[#03020A]">Edit Site Team & Personnel</h3>
+                  <p className="text-xs font-semibold text-slate-500">Add from saved workers or edit engineer details</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsTeamModalOpen(false)}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer"
+              >
+                <FiX className="text-lg" />
+              </button>
+            </div>
+
+            {/* Quick Search & Auto-Fill from Saved Personnel */}
+            <div className="relative shrink-0">
+              <label className="block text-xs font-extrabold text-[#7C3AED] mb-1.5 flex items-center gap-1.5">
+                <FiSearch className="text-xs" />
+                <span>Search & Add from Saved Workers / Engineers</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={workerSearchQuery}
+                  onChange={(e) => {
+                    setWorkerSearchQuery(e.target.value);
+                    setShowWorkerSearchDropdown(true);
+                  }}
+                  onFocus={() => setShowWorkerSearchDropdown(true)}
+                  className="w-full bg-purple-50/50 border border-purple-200 text-xs font-semibold rounded-2xl p-3 pl-10 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+                  placeholder="Search worker by name, trade or phone..."
+                />
+                <FiSearch className="absolute left-3.5 top-3.5 text-purple-400 text-sm" />
+              </div>
+
+              {/* Autocomplete Search Dropdown */}
+              {showWorkerSearchDropdown && searchedPersonnelCandidates.length > 0 && (
+                <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-white/95 backdrop-blur-xl border border-purple-100 rounded-2xl shadow-xl max-h-52 overflow-y-auto p-1.5 animate-in fade-in duration-150">
+                  <div className="text-[10px] font-extrabold text-purple-700 px-3 py-1 uppercase tracking-wider flex items-center justify-between border-b border-purple-100/60 mb-1">
+                    <span>Saved Personnel Roster ({searchedPersonnelCandidates.length})</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowWorkerSearchDropdown(false)}
+                      className="text-slate-400 hover:text-slate-600 text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {searchedPersonnelCandidates.map((cand, idx) => {
+                    const isAlreadyAdded = editTeamMembers.some(m => m.name.toLowerCase().trim() === cand.name.toLowerCase().trim());
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSelectSavedWorker(cand)}
+                        disabled={isAlreadyAdded}
+                        className={`w-full text-left px-3 py-2 rounded-xl transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                          isAlreadyAdded ? 'bg-slate-50 opacity-60 cursor-not-allowed' : 'hover:bg-purple-50 group'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center text-xs font-extrabold shrink-0">
+                            {cand.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-xs font-extrabold text-[#03020A] group-hover:text-[#7C3AED]">{cand.name}</p>
+                            <p className="text-[10px] font-semibold text-slate-500">{cand.trade} • {cand.phone}</p>
+                          </div>
+                        </div>
+                        <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full ${
+                          isAlreadyAdded ? 'bg-slate-200 text-slate-500' : 'bg-purple-100 text-purple-700 group-hover:bg-[#7C3AED] group-hover:text-white'
+                        }`}>
+                          {isAlreadyAdded ? 'Added' : '+ Add Auto-Fill'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Form List */}
+            <form onSubmit={handleSaveTeam} className="space-y-4 overflow-y-auto flex-1 pr-1">
+              <div className="space-y-3">
+                {editTeamMembers.map((m, idx) => (
+                  <div key={idx} className="bg-purple-50/40 p-4 rounded-2xl border border-purple-100/80 space-y-3 relative">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="w-6 h-6 rounded-lg bg-[#7C3AED] text-white flex items-center justify-center text-xs font-extrabold">
+                        {idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTeamMember(idx)}
+                        title="Delete Member"
+                        className="text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-full border border-rose-100 transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <FiTrash2 className="text-xs" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Site Member Name</label>
+                        <input
+                          type="text"
+                          value={m.name}
+                          onChange={(e) => handleUpdateTeamMemberField(idx, 'name', e.target.value)}
+                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
+                          placeholder="Engineer or Worker Name"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Role / Trade</label>
+                        <input
+                          type="text"
+                          value={m.trade}
+                          onChange={(e) => handleUpdateTeamMemberField(idx, 'trade', e.target.value)}
+                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
+                          placeholder="e.g. Masonry Lead / Engineer"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Contact Info / Phone</label>
+                        <input
+                          type="text"
+                          value={m.phone}
+                          onChange={(e) => handleUpdateTeamMemberField(idx, 'phone', e.target.value)}
+                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
+                          placeholder="Phone number"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddBlankTeamMember}
+                className="w-full py-3 border-2 border-dashed border-purple-200 hover:border-[#7C3AED] bg-purple-50/40 hover:bg-purple-50 text-[#7C3AED] text-xs font-extrabold rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <FiPlus className="text-sm" />
+                <span>Add Custom Team Member</span>
+              </button>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-purple-100 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsTeamModalOpen(false)}
+                  className="px-5 py-2.5 rounded-full border border-purple-100 text-xs font-bold text-slate-600 hover:bg-purple-50 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-full bg-[#03020A] hover:bg-[#7C3AED] text-white text-[#BEF264] font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <FiSave className="text-sm text-[#BEF264]" />
+                  <span>Save Team Roster</span>
                 </button>
               </div>
             </form>
