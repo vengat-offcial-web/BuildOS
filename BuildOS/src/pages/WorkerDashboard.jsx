@@ -29,7 +29,23 @@ function WorkerDashboard() {
     // Modals state
     const [showLeaveModal, setShowLeaveModal] = useState(false);
     const [showSafetyModal, setShowSafetyModal] = useState(false);
+    const [showProjectModal, setShowProjectModal] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+
+    // Assigned Project Data
+    const assignedProject = {
+        name: "Metro Link – B4",
+        fullTitle: "Metro Line Extension (Phase 2 - Zone B4)",
+        location: "Coimbatore Rapid Corridor",
+        engineer: "R. Sharma (Lead Site Engineer)",
+        status: "In Progress",
+        completion: 85,
+        deadline: "Oct 10, 2026",
+        shiftSchedule: "08:00 AM – 05:00 PM (General Shift)",
+        description: "8.4 km elevated rapid transit metro corridor including 4 station terminals. Zone B4 currently executing pier concrete curing and signaling cable prep.",
+        siteFacilities: ["Hydration Station at Entrance B", "First Aid Bay Block 1", "Machinery Bay C"],
+        safetyRating: "ISO 45001 Safety Certified • Zero Incidents"
+    };
 
     // Leave Request form state
     const [leaveForm, setLeaveForm] = useState({
@@ -148,14 +164,20 @@ function WorkerDashboard() {
                     badgeType={clockedIn ? "lime" : "rose"}
                     accentColor={clockedIn ? "lime" : "dark"}
                 />
-                <DashboardCard 
-                    title="Assigned Site" 
-                    value="Metro Link – B4" 
-                    icon={FiMapPin} 
-                    subtitle="Engineer: R. Sharma"
-                    badgeType="purple"
-                    accentColor="purple"
-                />
+                <div 
+                    onClick={() => setShowProjectModal(true)}
+                    className="cursor-pointer transition-transform hover:scale-[1.02]"
+                    title="Click to view assigned project details"
+                >
+                    <DashboardCard 
+                        title="Assigned Site" 
+                        value="Metro Link – B4" 
+                        icon={FiMapPin} 
+                        subtitle="Tap for Site Details →"
+                        badgeType="purple"
+                        accentColor="purple"
+                    />
+                </div>
                 <DashboardCard 
                     title="Tasks Today" 
                     value={`${completedCount} / ${tasks.length}`} 
@@ -449,6 +471,97 @@ function WorkerDashboard() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Feature MODAL: Assigned Site Project Details */}
+            {showProjectModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="glass-card w-full max-w-lg p-6 rounded-[32px] border border-white shadow-2xl space-y-5">
+                        <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-[#C4B5FD] flex items-center justify-center text-white text-lg shadow-md">
+                                    <FiMapPin />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-extrabold text-[#03020A] tracking-tight">{assignedProject.name}</h3>
+                                    <p className="text-xs text-purple-600 font-bold">{assignedProject.fullTitle}</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowProjectModal(false)}
+                                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all flex items-center justify-center cursor-pointer"
+                            >
+                                <FiX />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4 text-xs font-medium text-slate-700">
+                            {/* Status & Location Grid */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-white/80 p-3 rounded-2xl border border-purple-100 space-y-1">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Location / Zone</span>
+                                    <p className="font-extrabold text-[#03020A]">{assignedProject.location}</p>
+                                </div>
+                                <div className="bg-white/80 p-3 rounded-2xl border border-purple-100 space-y-1">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Site Engineer</span>
+                                    <p className="font-extrabold text-[#7C3AED]">{assignedProject.engineer}</p>
+                                </div>
+                            </div>
+
+                            {/* Progress Bar & Schedule */}
+                            <div className="bg-white/80 p-4 rounded-2xl border border-purple-100 space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="font-bold text-[#03020A]">Overall Project Completion</span>
+                                    <span className="font-extrabold text-[#7C3AED]">{assignedProject.completion}%</span>
+                                </div>
+                                <div className="w-full bg-purple-100 h-2.5 rounded-full overflow-hidden">
+                                    <div className="bg-gradient-to-r from-[#7C3AED] to-[#BEF264] h-full rounded-full" style={{ width: `${assignedProject.completion}%` }}></div>
+                                </div>
+                                <div className="flex justify-between text-[11px] text-slate-500 pt-1">
+                                    <span>Target Deadline: <strong className="text-slate-700">{assignedProject.deadline}</strong></span>
+                                    <span>Shift Hours: <strong className="text-slate-700">{assignedProject.shiftSchedule}</strong></span>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div className="space-y-1">
+                                <h4 className="font-extrabold text-[#03020A]">Site Overview</h4>
+                                <p className="text-slate-600 leading-relaxed bg-white/60 p-3 rounded-2xl border border-white">{assignedProject.description}</p>
+                            </div>
+
+                            {/* Site Facilities */}
+                            <div className="space-y-1.5">
+                                <h4 className="font-extrabold text-[#03020A]">Site Facilities & Amenities</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {assignedProject.siteFacilities.map((fac, i) => (
+                                        <span key={i} className="px-3 py-1 rounded-full bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264] text-[11px] font-bold">
+                                            ✓ {fac}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Safety Tag */}
+                            <div className="p-3 rounded-2xl bg-purple-100/60 border border-purple-200/60 flex items-center justify-between">
+                                <span className="text-[11px] font-bold text-purple-800 flex items-center gap-1.5">
+                                    <FiShield className="text-purple-600" /> {assignedProject.safetyRating}
+                                </span>
+                                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#7C3AED] text-white">ACTIVE SITE</span>
+                            </div>
+                        </div>
+
+                        <div className="pt-2 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowProjectModal(false)}
+                                className="dark-nav-pill px-6 py-2.5 rounded-full text-xs font-extrabold text-white shadow-md hover:bg-black transition-all cursor-pointer"
+                            >
+                                Close Details
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
