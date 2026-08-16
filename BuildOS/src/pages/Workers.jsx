@@ -65,9 +65,6 @@ function Workers() {
             <FiUsers className="text-[#7C3AED]" />
             Site Workforce Directory
           </h1>
-          <p className="text-xs font-semibold text-slate-500 mt-1">
-            Total {allWorkersList.length + 120} registered site personnel • 96% active attendance today
-          </p>
         </div>
 
         <button
