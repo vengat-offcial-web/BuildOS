@@ -87,6 +87,9 @@ function WorkerDashboard() {
         setTimeout(() => setToastMessage(''), 4000);
     };
 
+    // Checklist Submission state
+    const [checklistSubmitted, setChecklistSubmitted] = useState(false);
+
     const toggleTask = (id) => {
         let updatedTask = null;
         setTasks(prev => prev.map(t => {
@@ -97,23 +100,27 @@ function WorkerDashboard() {
             }
             return t;
         }));
+    };
 
-        if (updatedTask) {
-            const workerName = user?.name || 'Marcoo';
-            const isCompleted = updatedTask.status === "Completed";
-            
-            // Send professional task update notification to Admin
-            addNotification(
-                `Shift Task ${isCompleted ? 'Completed ✓' : 'Updated'}`,
-                `Worker ${workerName} (${assignedProject.workerRole}) marked shift task as ${isCompleted ? 'COMPLETED' : 'PENDING'}: "${updatedTask.text}" on site ${assignedProject.name}.`,
-                "Task Checklist",
-                isCompleted ? "lime" : "purple",
-                "admin"
-            );
+    const handleChecklistSubmit = () => {
+        const workerName = user?.name || 'Marcoo';
+        const doneCount = tasks.filter(t => t.status === "Completed").length;
+        const totalCount = tasks.length;
+        const isAllDone = doneCount === totalCount;
 
-            setToastMessage(`Task marked as ${isCompleted ? 'Completed ✓' : 'Pending'}. Notification sent to Admin.`);
-            setTimeout(() => setToastMessage(''), 4000);
-        }
+        setChecklistSubmitted(true);
+
+        // Send professional daily shift report notification to Admin
+        addNotification(
+            `Shift Checklist Report Submitted ${isAllDone ? '✓' : ''}`,
+            `Worker ${workerName} (${assignedProject.workerRole}) submitted daily shift checklist report (${doneCount}/${totalCount} Tasks Completed) for site ${assignedProject.name}.`,
+            "Shift Report",
+            isAllDone ? "lime" : "purple",
+            "admin"
+        );
+
+        setToastMessage(`Daily shift checklist (${doneCount}/${totalCount} Done) submitted to Admin Workers Page!`);
+        setTimeout(() => setToastMessage(''), 4000);
     };
 
     const handleLeaveSubmit = (e) => {
@@ -301,6 +308,27 @@ function WorkerDashboard() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+
+                    {/* Submit Daily Shift Checklist Action Footer */}
+                    <div className="pt-3 border-t border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
+                            <FiCheckCircle className={checklistSubmitted ? "text-[#3F6212]" : "text-purple-500"} />
+                            <span>{checklistSubmitted ? "Report Dispatched to Admin Workers Page" : "Submit once shift tasks are ready for supervisor review"}</span>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleChecklistSubmit}
+                            className={`px-5 py-2.5 rounded-full text-xs font-extrabold transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer shrink-0 ${
+                                checklistSubmitted
+                                    ? "bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264]"
+                                    : "dark-nav-pill text-white hover:bg-black"
+                            }`}
+                        >
+                            <FiSend className={checklistSubmitted ? "text-[#3F6212]" : "text-[#BEF264]"} />
+                            <span>{checklistSubmitted ? "Report Submitted ✓" : "Submit Shift Checklist"}</span>
+                        </button>
                     </div>
                 </div>
 
