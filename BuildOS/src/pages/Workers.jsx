@@ -22,7 +22,7 @@ function Workers() {
     name: '', 
     trade: '', 
     site: '', 
-    attendance: '100%', 
+    attendance: '', 
     phone: '' 
   });
 
@@ -41,8 +41,11 @@ function Workers() {
     e.preventDefault();
     if (!newWorker.name || !newWorker.trade || !newWorker.site) return;
 
-    addWorker(newWorker);
-    setNewWorker({ name: '', trade: '', site: '', attendance: '100%', phone: '' });
+    addWorker({
+      ...newWorker,
+      attendance: newWorker.attendance || '100%'
+    });
+    setNewWorker({ name: '', trade: '', site: '', attendance: '', phone: '' });
     setShowAddModal(false);
     setToastMessage(`Worker '${newWorker.name}' registered successfully!`);
     setTimeout(() => setToastMessage(''), 4000);
@@ -262,7 +265,7 @@ function Workers() {
                   required
                   value={newWorker.name}
                   onChange={(e) => setNewWorker({ ...newWorker, name: e.target.value })}
-                  placeholder="e.g. Sakthi"
+                  placeholder="Enter full name..."
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
                 />
               </div>
@@ -274,7 +277,7 @@ function Workers() {
                   required
                   value={newWorker.trade}
                   onChange={(e) => setNewWorker({ ...newWorker, trade: e.target.value })}
-                  placeholder="e.g. Heavy Driver"
+                  placeholder="Enter role or trade..."
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
                 />
               </div>
@@ -286,7 +289,7 @@ function Workers() {
                   required
                   value={newWorker.site}
                   onChange={(e) => setNewWorker({ ...newWorker, site: e.target.value })}
-                  placeholder="e.g. Hyper Mall"
+                  placeholder="Enter assigned site location..."
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
                 />
               </div>
@@ -298,7 +301,7 @@ function Workers() {
                     type="text"
                     value={newWorker.attendance}
                     onChange={(e) => setNewWorker({ ...newWorker, attendance: e.target.value })}
-                    placeholder="100%"
+                    placeholder="Enter attendance (e.g. 100%)..."
                     className="w-full bg-white border border-purple-100 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
                   />
                 </div>
@@ -309,7 +312,7 @@ function Workers() {
                     type="text"
                     value={newWorker.phone}
                     onChange={(e) => setNewWorker({ ...newWorker, phone: e.target.value })}
-                    placeholder="+91 98765 00000"
+                    placeholder="Enter contact info..."
                     className="w-full bg-white border border-purple-100 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
                   />
                 </div>
