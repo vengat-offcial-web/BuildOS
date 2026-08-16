@@ -7,7 +7,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Workers() {
-  const { workers, addWorker } = useData();
+  const { workers, addWorker, notifications } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
@@ -29,6 +29,11 @@ function Workers() {
   if (!allWorkersList.some(w => w.name.toLowerCase() === 'mathan')) {
     allWorkersList.unshift(defaultExtraWorkers[0]);
   }
+
+  // Filter notifications relevant to worker check-ins & leave requests
+  const workerActivityAlerts = notifications ? notifications.filter(n => 
+    n.category === 'Shift Check-In' || n.category === 'Leave Request' || n.title.includes('Worker')
+  ) : [];
 
   // Submit Handler for New Worker
   const handleAddWorker = (e) => {
@@ -78,6 +83,47 @@ function Workers() {
           <FiPlus className="text-[#BEF264] text-base" />
           <span>Add New Worker</span>
         </button>
+      </div>
+
+      {/* Live Worker Shift Check-Ins & Leave Alerts Panel */}
+      <div className="glass-card p-5 rounded-[28px] border border-white space-y-3 shadow-sm">
+        <div className="flex items-center justify-between border-b border-purple-100 pb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-sm">
+              <FiCalendar />
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-[#03020A] tracking-tight">Live Worker Shift Check-Ins & Leave Alerts</h3>
+              <p className="text-[10px] text-purple-700 font-bold">Real-time dispatches from Worker Portal</p>
+            </div>
+          </div>
+          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264]">
+            {workerActivityAlerts.length} Alert{workerActivityAlerts.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {workerActivityAlerts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {workerActivityAlerts.slice(0, 4).map((alert) => (
+              <div key={alert.id} className="bg-white/80 p-3.5 rounded-2xl border border-purple-100 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                    alert.category === 'Shift Check-In'
+                      ? 'bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264]'
+                      : 'bg-[#FEF9C3] text-[#854D0E] border border-[#FEF08A]'
+                  }`}>
+                    {alert.category}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400">{alert.time}</span>
+                </div>
+                <h4 className="text-xs font-extrabold text-[#03020A] pt-0.5">{alert.title}</h4>
+                <p className="text-[11px] text-slate-600 font-medium leading-tight">{alert.message}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-slate-500 text-center py-2 font-medium">No recent worker check-ins or leave requests recorded yet.</p>
+        )}
       </div>
 
       {/* Filter Pills Bar */}

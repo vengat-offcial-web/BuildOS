@@ -57,7 +57,7 @@ export const DataProvider = ({ children }) => {
   }, []);
 
   // Notifications Handlers
-  const addNotification = useCallback((title, message, category = "Task Assignment", badge = "purple") => {
+  const addNotification = useCallback((title, message, category = "Task Assignment", badge = "purple", target = "worker") => {
     const newNotif = {
       id: Date.now(),
       title,
@@ -65,7 +65,8 @@ export const DataProvider = ({ children }) => {
       time: "Just Now",
       category,
       unread: true,
-      badge
+      badge,
+      target
     };
     setNotifications(prev => [newNotif, ...prev]);
   }, []);

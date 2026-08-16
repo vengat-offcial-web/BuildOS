@@ -22,7 +22,7 @@ import { FaHelmetSafety } from 'react-icons/fa6';
 
 function WorkerDashboard() {
     const { user } = useAuth();
-    const { workerNotes, addWorkerNote } = useData();
+    const { addNotification, updateWorker } = useData();
     const [clockedIn, setClockedIn] = useState(true);
     const [tasks, setTasks] = useState([
         { id: 1, text: "Site inspection at Zone B4 - Metro Rail Link", status: "In Progress", urgent: true },
@@ -66,6 +66,28 @@ function WorkerDashboard() {
         description: ''
     });
 
+    const handleClockToggle = () => {
+        const nextState = !clockedIn;
+        setClockedIn(nextState);
+
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const workerName = user?.name || 'Marcoo';
+
+        // Sync worker status in context
+        updateWorker(workerName, { status: nextState ? 'On Duty' : 'Off Duty' });
+
+        // Dispatch notification to Admin Workers page & header bell
+        addNotification(
+            `Worker Shift ${nextState ? 'Clock In' : 'Clock Out'}`,
+            `Worker ${workerName} (Site Specialist) clocked ${nextState ? 'IN to' : 'OUT of'} shift at ${timeStr} for Metro Link – B4`,
+            "Shift Check-In",
+            nextState ? "lime" : "purple"
+        );
+
+        setToastMessage(`Clocked ${nextState ? 'IN' : 'OUT'}! Notification sent to Admin Workers page.`);
+        setTimeout(() => setToastMessage(''), 4000);
+    };
+
     const toggleTask = (id) => {
         setTasks(prev => prev.map(t => {
             if (t.id === id) {
@@ -80,6 +102,7 @@ function WorkerDashboard() {
         e.preventDefault();
         if (!leaveForm.date) return;
 
+        const workerName = user?.name || 'Marcoo';
         const newReq = {
             id: Date.now(),
             date: leaveForm.date,
@@ -90,9 +113,18 @@ function WorkerDashboard() {
 
         setLeaveRequests([newReq, ...leaveRequests]);
         setShowLeaveModal(false);
+
+        // Dispatch notification to Admin Workers page & header bell
+        addNotification(
+            "Worker Leave Request Submitted",
+            `Worker ${workerName} submitted a ${leaveForm.reason} request for ${leaveForm.date} to Site Engineer R. Sharma. Notes: ${leaveForm.notes || 'None'}`,
+            "Leave Request",
+            "purple"
+        );
+
         setLeaveForm({ date: '', reason: 'Medical Leave', notes: '' });
 
-        setToastMessage('Leave request sent to Site Engineer R. Sharma!');
+        setToastMessage('Leave request sent! Notification dispatched to Admin & Site Engineer.');
         setTimeout(() => setToastMessage(''), 4000);
     };
 
@@ -137,7 +169,7 @@ function WorkerDashboard() {
                         {/* Feature 1: Shift Clock In / Clock Out Button */}
                         <button 
                             type="button"
-                            onClick={() => setClockedIn(!clockedIn)}
+                            onClick={handleClockToggle}
                             className="dark-nav-pill hover:bg-black text-white text-xs font-extrabold px-5 py-3 rounded-full transition-all flex items-center gap-2 shadow-lg shadow-black/20 cursor-pointer"
                         >
                             <FiClock className="text-[#BEF264] text-sm" />
