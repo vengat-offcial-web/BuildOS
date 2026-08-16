@@ -27,6 +27,36 @@ const safeSetStorage = (key, value) => {
   }
 };
 
+export const initialNotificationsData = [
+  {
+    id: 1,
+    title: "New Task Assigned by Admin",
+    message: "Admin Rajesh Kumar assigned you a new task: 'Glass facade panel alignment on Floor 18' for Metro Link – B4",
+    time: "10 mins ago",
+    category: "Task Assignment",
+    unread: true,
+    badge: "purple"
+  },
+  {
+    id: 2,
+    title: "Assigned to Project Team",
+    message: "Admin & Site Engineer R. Sharma assigned you to the Project Team for Metro Line Extension (Zone B4)",
+    time: "1 hour ago",
+    category: "Team Assignment",
+    unread: true,
+    badge: "lime"
+  },
+  {
+    id: 3,
+    title: "Site Safety Protocol Alert",
+    message: "Mandatory morning safety briefing scheduled at Zone B4 hydration bay at 08:00 AM",
+    time: "3 hours ago",
+    category: "Site Alert",
+    unread: false,
+    badge: "lime"
+  }
+];
+
 export const DataProvider = ({ children }) => {
   const [projects, setProjects] = useState(() => safeGetStorage('buildos_projects', initialProjectsData));
   const [workers, setWorkers] = useState(() => safeGetStorage('buildos_workers', initialWorkersData));
@@ -34,6 +64,7 @@ export const DataProvider = ({ children }) => {
   const [machines, setMachines] = useState(() => safeGetStorage('buildos_machines', initialMachinesData));
   const [tasks, setTasks] = useState(() => safeGetStorage('buildos_tasks', initialTasksData));
   const [activityFeed, setActivityFeed] = useState(() => safeGetStorage('buildos_activity', initialActivityData));
+  const [notifications, setNotifications] = useState(() => safeGetStorage('buildos_notifications', initialNotificationsData));
 
   // Sync state changes to localStorage
   useEffect(() => { safeSetStorage('buildos_projects', projects); }, [projects]);
@@ -42,12 +73,39 @@ export const DataProvider = ({ children }) => {
   useEffect(() => { safeSetStorage('buildos_machines', machines); }, [machines]);
   useEffect(() => { safeSetStorage('buildos_tasks', tasks); }, [tasks]);
   useEffect(() => { safeSetStorage('buildos_activity', activityFeed); }, [activityFeed]);
+  useEffect(() => { safeSetStorage('buildos_notifications', notifications); }, [notifications]);
 
   // Helper log activity generator
   const logActivity = useCallback((title, site, status, badge = 'lime') => {
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const newFeed = { time: timeStr, title, site, status, badge };
     setActivityFeed(prev => [newFeed, ...prev.slice(0, 7)]);
+  }, []);
+
+  // Notifications Handlers
+  const addNotification = useCallback((title, message, category = "Task Assignment", badge = "purple") => {
+    const newNotif = {
+      id: Date.now(),
+      title,
+      message,
+      time: "Just Now",
+      category,
+      unread: true,
+      badge
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+  }, []);
+
+  const markNotificationAsRead = useCallback((id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
+  }, []);
+
+  const markAllNotificationsAsRead = useCallback(() => {
+    setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+  }, []);
+
+  const clearNotifications = useCallback(() => {
+    setNotifications([]);
   }, []);
 
   // Action Handlers
@@ -70,8 +128,17 @@ export const DataProvider = ({ children }) => {
     };
     setProjects(prev => [newProj, ...prev]);
     logActivity(`Project Assigned: ${newProj.name}`, newProj.location, 'Status: Planning', 'purple');
+
+    // Notify Workers about team assignment
+    addNotification(
+      "Assigned to New Project Team",
+      `Admin assigned team workers to new project '${newProj.name}' at ${newProj.location}. Lead Engineer: ${newProj.manager}`,
+      "Team Assignment",
+      "purple"
+    );
+
     return newProj;
-  }, [logActivity]);
+  }, [logActivity, addNotification]);
 
   const updateProject = useCallback((id, updatedFields) => {
     setProjects(prev => prev.map(p => p.id === Number(id) ? { ...p, ...updatedFields } : p));
@@ -158,8 +225,17 @@ export const DataProvider = ({ children }) => {
     };
     setTasks(prev => [newTask, ...prev]);
     logActivity(`Task Assigned: ${newTask.title}`, newTask.site, 'Checklist Updated', 'purple');
+
+    // Notify Workers about task assignment
+    addNotification(
+      "New Task Assigned by Admin",
+      `Admin assigned new task: '${newTask.title}' for site ${newTask.site}`,
+      "Task Assignment",
+      "purple"
+    );
+
     return newTask;
-  }, [logActivity]);
+  }, [logActivity, addNotification]);
 
   const toggleTaskStatus = useCallback((taskId) => {
     setTasks(prev => prev.map(t => {
@@ -184,6 +260,11 @@ export const DataProvider = ({ children }) => {
     machines,
     tasks,
     activityFeed,
+    notifications,
+    addNotification,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    clearNotifications,
     addProject,
     updateProject,
     deleteProject,
@@ -207,6 +288,11 @@ export const DataProvider = ({ children }) => {
     machines,
     tasks,
     activityFeed,
+    notifications,
+    addNotification,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    clearNotifications,
     addProject,
     updateProject,
     deleteProject,
