@@ -18,7 +18,13 @@ function Workers() {
   const [toastMessage, setToastMessage] = useState('');
 
   // Form states for New Worker
-  const [newWorker, setNewWorker] = useState({ name: '', trade: '', site: '', phone: '' });
+  const [newWorker, setNewWorker] = useState({ 
+    name: '', 
+    trade: '', 
+    site: '', 
+    attendance: '100%', 
+    phone: '' 
+  });
 
   // Ensure Mathan and key site workers are in list
   const defaultExtraWorkers = [
@@ -33,10 +39,10 @@ function Workers() {
   // Submit Handler for New Worker
   const handleAddWorker = (e) => {
     e.preventDefault();
-    if (!newWorker.name) return;
+    if (!newWorker.name || !newWorker.trade || !newWorker.site) return;
 
     addWorker(newWorker);
-    setNewWorker({ name: '', trade: '', site: '', phone: '' });
+    setNewWorker({ name: '', trade: '', site: '', attendance: '100%', phone: '' });
     setShowAddModal(false);
     setToastMessage(`Worker '${newWorker.name}' registered successfully!`);
     setTimeout(() => setToastMessage(''), 4000);
@@ -248,7 +254,7 @@ function Workers() {
               <button type="button" onClick={() => setShowAddModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 cursor-pointer">✕</button>
             </div>
 
-            <form onSubmit={handleAddWorker} className="space-y-4">
+            <form onSubmit={handleAddWorker} className="space-y-3.5">
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">Full Name</label>
                 <input
@@ -256,25 +262,62 @@ function Workers() {
                   required
                   value={newWorker.name}
                   onChange={(e) => setNewWorker({ ...newWorker, name: e.target.value })}
-                  placeholder="e.g. Ramesh Kumar"
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                  placeholder="e.g. Sakthi"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Trade Specialization</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Role / Trade Specialization</label>
                 <input
                   type="text"
+                  required
                   value={newWorker.trade}
                   onChange={(e) => setNewWorker({ ...newWorker, trade: e.target.value })}
-                  placeholder="e.g. Heavy Equipment Mechanic"
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                  placeholder="e.g. Heavy Driver"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
                 />
               </div>
 
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Site</label>
+                <input
+                  type="text"
+                  required
+                  value={newWorker.site}
+                  onChange={(e) => setNewWorker({ ...newWorker, site: e.target.value })}
+                  placeholder="e.g. Hyper Mall"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Attendance Rate</label>
+                  <input
+                    type="text"
+                    value={newWorker.attendance}
+                    onChange={(e) => setNewWorker({ ...newWorker, attendance: e.target.value })}
+                    placeholder="100%"
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Contact Info</label>
+                  <input
+                    type="text"
+                    value={newWorker.phone}
+                    onChange={(e) => setNewWorker({ ...newWorker, phone: e.target.value })}
+                    placeholder="+91 98765 00000"
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
+                  />
+                </div>
+              </div>
+
               <div className="pt-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md cursor-pointer">Register Worker</button>
+                <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Cancel</button>
+                <button type="submit" className="dark-nav-pill px-5 py-2.5 rounded-full text-xs font-extrabold text-white shadow-md hover:bg-black transition-all cursor-pointer">Register Worker</button>
               </div>
             </form>
           </div>

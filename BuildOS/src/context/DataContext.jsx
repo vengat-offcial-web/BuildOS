@@ -154,9 +154,8 @@ export const DataProvider = ({ children }) => {
       name: workerData.name,
       trade: workerData.trade || 'General Construction Specialist',
       site: workerData.site || 'Marina Tower',
-      status: 'On Duty',
-      attendance: '100%',
-      safetyRating: 'A+ Gold',
+      status: workerData.status || 'On Duty',
+      attendance: workerData.attendance || '100%',
       phone: workerData.phone || '+91 98765 00000'
     };
     setWorkers(prev => [newWorker, ...prev]);
