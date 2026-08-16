@@ -272,17 +272,6 @@ function Workers() {
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Construction Site</label>
-                <input
-                  type="text"
-                  value={newWorker.site}
-                  onChange={(e) => setNewWorker({ ...newWorker, site: e.target.value })}
-                  placeholder="e.g. Marina Tower"
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
-                />
-              </div>
-
               <div className="pt-2 flex justify-end gap-2">
                 <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">Cancel</button>
                 <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md cursor-pointer">Register Worker</button>
