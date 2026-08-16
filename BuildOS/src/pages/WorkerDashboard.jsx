@@ -88,13 +88,32 @@ function WorkerDashboard() {
     };
 
     const toggleTask = (id) => {
+        let updatedTask = null;
         setTasks(prev => prev.map(t => {
             if (t.id === id) {
                 const nextStatus = t.status === "Completed" ? "Pending" : "Completed";
-                return { ...t, status: nextStatus };
+                updatedTask = { ...t, status: nextStatus };
+                return updatedTask;
             }
             return t;
         }));
+
+        if (updatedTask) {
+            const workerName = user?.name || 'Marcoo';
+            const isCompleted = updatedTask.status === "Completed";
+            
+            // Send professional task update notification to Admin
+            addNotification(
+                `Shift Task ${isCompleted ? 'Completed ✓' : 'Updated'}`,
+                `Worker ${workerName} (${assignedProject.workerRole}) marked shift task as ${isCompleted ? 'COMPLETED' : 'PENDING'}: "${updatedTask.text}" on site ${assignedProject.name}.`,
+                "Task Checklist",
+                isCompleted ? "lime" : "purple",
+                "admin"
+            );
+
+            setToastMessage(`Task marked as ${isCompleted ? 'Completed ✓' : 'Pending'}. Notification sent to Admin.`);
+            setTimeout(() => setToastMessage(''), 4000);
+        }
     };
 
     const handleLeaveSubmit = (e) => {
