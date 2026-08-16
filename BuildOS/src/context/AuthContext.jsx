@@ -40,17 +40,24 @@ export const AuthProvider = ({ children }) => {
             return { success: false, error: 'Please enter both email and password.' };
         }
 
-        if (cleanEmail === envAdminEmail && password === envAdminPassword) {
-            const adminUser = {
-                email: cleanEmail,
-                name: 'VENGADESH V (Admin)',
-                role: 'admin',
-                title: 'System Administrator',
-                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-                theme: 'dark'
-            };
-            setUser(adminUser);
-            return { success: true, role: 'admin' };
+        if (cleanEmail === envAdminEmail) {
+            const savedUser = safeGetStorage('buildos_user', null);
+            const activePassword = (savedUser && savedUser.role === 'admin' && savedUser.password) ? savedUser.password : envAdminPassword;
+
+            if (password === activePassword) {
+                const adminUser = savedUser ? { ...savedUser, role: 'admin' } : {
+                    email: cleanEmail,
+                    name: 'VENGADESH V (Admin)',
+                    role: 'admin',
+                    title: 'System Administrator',
+                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                    theme: 'dark'
+                };
+                setUser(adminUser);
+                return { success: true, role: 'admin' };
+            } else {
+                return { success: false, error: 'Invalid password. Please check your admin credentials.' };
+            }
         } else {
             const profileKey = `buildos_worker_profile_${cleanEmail}`;
             const profileData = safeGetStorage(profileKey, {});
