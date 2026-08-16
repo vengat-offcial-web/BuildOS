@@ -5,7 +5,9 @@ import {
   initialMaterialsData,
   initialMachinesData,
   initialTasksData,
-  initialActivityData
+  initialActivityData,
+  initialNotificationsData,
+  initialWorkerNotesData
 } from '../data';
 
 export const DataContext = createContext(null);
@@ -26,83 +28,6 @@ const safeSetStorage = (key, value) => {
     // Fallback for quota or restricted browser environments
   }
 };
-
-export const initialNotificationsData = [
-  {
-    id: 1,
-    title: "New Task Assigned by Admin",
-    message: "Admin Rajesh Kumar assigned you a new task: 'Glass facade panel alignment on Floor 18' for Metro Link – B4",
-    time: "10 mins ago",
-    category: "Task Assignment",
-    unread: true,
-    badge: "purple"
-  },
-  {
-    id: 2,
-    title: "Assigned to Project Team",
-    message: "Admin & Site Engineer R. Sharma assigned you to the Project Team for Metro Line Extension (Zone B4)",
-    time: "1 hour ago",
-    category: "Team Assignment",
-    unread: true,
-    badge: "lime"
-  },
-  {
-    id: 3,
-    title: "Site Safety Protocol Alert",
-    message: "Mandatory morning safety briefing scheduled at Zone B4 hydration bay at 08:00 AM",
-    time: "3 hours ago",
-    category: "Site Alert",
-    unread: false,
-    badge: "lime"
-  }
-];
-
-export const initialWorkerNotesData = [
-  {
-    id: 1,
-    workerName: "Mathan",
-    text: "Please verify structural beam alignment and concrete curing strength log at Hyper Mall before shift end.",
-    category: "Site Instruction",
-    senderRole: "admin",
-    senderName: "Rajesh Kumar (Project Director)",
-    time: "Today, 08:30 AM",
-    isUrgent: true,
-    isPinned: true
-  },
-  {
-    id: 2,
-    workerName: "Mathan",
-    text: "Beam structure test completed. Scaffolding anchor checked and logged into site register.",
-    category: "Worker Reply",
-    senderRole: "worker",
-    senderName: "Mathan",
-    time: "Today, 09:15 AM",
-    isUrgent: false,
-    isPinned: false
-  },
-  {
-    id: 3,
-    workerName: "Marcoo",
-    text: "Submit daily excavator fuel log and safety harness checklist before 5 PM.",
-    category: "Task Instruction",
-    senderRole: "admin",
-    senderName: "R. Sharma (Site Engineer)",
-    time: "Today, 10:00 AM",
-    isUrgent: false,
-    isPinned: false
-  },
-  {
-    id: 4,
-    workerName: "Muthu Kumar",
-    text: "Masonry alignment check on Floor 12 approved by Lead Inspector.",
-    category: "Supervisor Note",
-    senderRole: "admin",
-    senderName: "Rajesh Kumar (Project Director)",
-    time: "Yesterday, 04:30 PM",
-    isUrgent: false,
-    isPinned: false
-  }
-];
 
 export const DataProvider = ({ children }) => {
   const [projects, setProjects] = useState(() => safeGetStorage('buildos_projects', initialProjectsData));

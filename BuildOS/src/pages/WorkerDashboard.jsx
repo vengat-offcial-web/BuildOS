@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useData } from '../context/useData';
 import DashboardCard from '../components/DashboardCard';
 import {
     FiClock,
@@ -13,12 +14,15 @@ import {
     FiAlertTriangle,
     FiSend,
     FiX,
-    FiFileText
+    FiFileText,
+    FiMessageSquare,
+    FiAlertCircle
 } from 'react-icons/fi';
 import { FaHelmetSafety } from 'react-icons/fa6';
 
 function WorkerDashboard() {
     const { user } = useAuth();
+    const { workerNotes, addWorkerNote } = useData();
     const [clockedIn, setClockedIn] = useState(true);
     const [tasks, setTasks] = useState([
         { id: 1, text: "Site inspection at Zone B4 - Metro Rail Link", status: "In Progress", urgent: true },
@@ -31,7 +35,34 @@ function WorkerDashboard() {
     const [showLeaveModal, setShowLeaveModal] = useState(false);
     const [showSafetyModal, setShowSafetyModal] = useState(false);
     const [showProjectModal, setShowProjectModal] = useState(false);
+    const [showChatModal, setShowChatModal] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+    const [workerReplyText, setWorkerReplyText] = useState('');
+
+    const currentWorkerName = user?.name || 'Mathan';
+
+    // Get notes specifically for this worker or Mathan
+    const myNotes = workerNotes.filter(n => 
+        n.workerName?.toLowerCase() === currentWorkerName.toLowerCase() ||
+        n.workerName?.toLowerCase() === 'mathan'
+    );
+
+    const handleWorkerReplySubmit = (e) => {
+        e.preventDefault();
+        if (!workerReplyText.trim()) return;
+
+        addWorkerNote({
+            workerName: currentWorkerName,
+            text: workerReplyText.trim(),
+            category: 'Worker Reply',
+            senderRole: 'worker',
+            senderName: currentWorkerName
+        });
+
+        setWorkerReplyText('');
+        setToastMessage('Reply note sent to Site Engineer & Admin!');
+        setTimeout(() => setToastMessage(''), 4000);
+    };
 
     // Assigned Project Data
     const assignedProject = {
@@ -257,8 +288,69 @@ function WorkerDashboard() {
                     </div>
                 </div>
 
-                {/* Right Side: Leave Requests & Safety Alerts */}
+                {/* Right Side: Chat Notes, Leave Requests & Safety Alerts */}
                 <div className="space-y-6">
+                    {/* Supervisor Chat & Site Notes Widget Card */}
+                    <div className="glass-card p-6 rounded-[28px] border border-white space-y-4 shadow-sm">
+                        <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-xl bg-[#7C3AED] text-[#BEF264] flex items-center justify-center text-sm font-bold shadow-sm">
+                                    <FiMessageSquare />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-extrabold text-[#03020A]">Supervisor Chat & Notes</h3>
+                                    <p className="text-[10px] text-slate-500 font-semibold">Direct communication with Admin</p>
+                                </div>
+                            </div>
+                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264]">
+                                {myNotes.length} Note{myNotes.length !== 1 ? 's' : ''}
+                            </span>
+                        </div>
+
+                        {myNotes.length > 0 ? (
+                            <div className="space-y-2.5 text-xs">
+                                {myNotes.slice(0, 2).map((note) => (
+                                    <div 
+                                        key={note.id} 
+                                        className={`p-3 rounded-2xl border space-y-1 ${
+                                            note.isUrgent ? 'bg-rose-50/90 border-rose-200' : 'bg-white/80 border-purple-100'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-extrabold text-[#03020A] text-[11px] flex items-center gap-1">
+                                                {note.senderRole === 'admin' ? '👷 Project Engineer' : '👤 Me'}
+                                                {note.isUrgent && <span className="text-[9px] bg-rose-600 text-white font-bold px-1.5 py-0.2 rounded-full">URGENT</span>}
+                                            </span>
+                                            <span className="text-[9px] font-bold text-slate-400">{note.time}</span>
+                                        </div>
+                                        <p className="text-[11px] text-slate-700 font-medium leading-tight">{note.text}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-xs text-slate-500 text-center py-3 font-medium">No notes received from supervisor yet.</p>
+                        )}
+
+                        {/* Quick Reply Form */}
+                        <form onSubmit={handleWorkerReplySubmit} className="pt-2 border-t border-purple-100 flex items-center gap-2">
+                            <input
+                                type="text"
+                                required
+                                value={workerReplyText}
+                                onChange={(e) => setWorkerReplyText(e.target.value)}
+                                placeholder="Reply to Admin or send shift note..."
+                                className="flex-1 bg-white border border-purple-100 rounded-2xl px-3 py-2 text-xs font-medium text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
+                            />
+                            <button
+                                type="submit"
+                                className="dark-nav-pill px-4 py-2 rounded-2xl text-xs font-bold text-white shadow-md hover:bg-black transition-all flex items-center gap-1 shrink-0 cursor-pointer"
+                            >
+                                <FiSend className="text-[#BEF264] text-xs" />
+                                <span>Send</span>
+                            </button>
+                        </form>
+                    </div>
+
                     {/* Feature 3: Submitted Leave Requests Summary Card */}
                     <div className="glass-card p-6 rounded-[28px] border border-white space-y-4">
                         <div className="flex items-center justify-between border-b border-purple-100 pb-3">
