@@ -74,7 +74,7 @@ export const DataProvider = ({ children }) => {
   }, []);
 
   // Notifications Handlers
-  const addNotification = useCallback((title, message, category = "Task Assignment", badge = "purple", target = "worker") => {
+  const addNotification = useCallback((title, message, category = "Task Assignment", badge = "purple", target = "worker", leaveReqId = null) => {
     const newNotif = {
       id: Date.now(),
       title,
@@ -83,7 +83,8 @@ export const DataProvider = ({ children }) => {
       category,
       unread: true,
       badge,
-      target
+      target,
+      leaveReqId
     };
     setNotifications(prev => [newNotif, ...prev]);
   }, []);
@@ -306,24 +307,34 @@ export const DataProvider = ({ children }) => {
 
     // Send notification to Admin
     addNotification(
-      "Worker Leave Request Submitted",
-      `Worker ${newReq.workerName} requested ${newReq.reason} for ${newReq.date} (${newReq.notes ? `Note: ${newReq.notes}` : 'No notes'})`,
+      `Leave Request: ${newReq.workerName}`,
+      `Worker ${newReq.workerName} (${newReq.trade}) requested ${newReq.reason} for ${newReq.date}. ${newReq.notes ? `Note: "${newReq.notes}"` : ''}`,
       "Leave Request",
       "purple",
-      "admin"
+      "admin",
+      newReq.id
     );
 
     return newReq;
   }, [addNotification]);
 
   const approveLeaveRequest = useCallback((reqId) => {
+    const numId = Number(reqId);
     let approvedItem = null;
+    
     setLeaveRequests(prev => prev.map(r => {
-      if (r.id === Number(reqId)) {
+      if (r.id === numId) {
         approvedItem = { ...r, status: "Approved" };
         return approvedItem;
       }
       return r;
+    }));
+
+    setNotifications(prev => prev.map(n => {
+      if (n.leaveReqId === numId || (n.category === "Leave Request" && n.target === "admin" && (approvedItem ? n.title.includes(approvedItem.workerName) : true))) {
+        return { ...n, status: "Approved", actionTaken: "Approved", unread: false };
+      }
+      return n;
     }));
 
     if (approvedItem) {
@@ -339,13 +350,22 @@ export const DataProvider = ({ children }) => {
   }, [addNotification, logActivity]);
 
   const rejectLeaveRequest = useCallback((reqId) => {
+    const numId = Number(reqId);
     let rejectedItem = null;
+    
     setLeaveRequests(prev => prev.map(r => {
-      if (r.id === Number(reqId)) {
+      if (r.id === numId) {
         rejectedItem = { ...r, status: "Declined" };
         return rejectedItem;
       }
       return r;
+    }));
+
+    setNotifications(prev => prev.map(n => {
+      if (n.leaveReqId === numId || (n.category === "Leave Request" && n.target === "admin" && (rejectedItem ? n.title.includes(rejectedItem.workerName) : true))) {
+        return { ...n, status: "Declined", actionTaken: "Declined", unread: false };
+      }
+      return n;
     }));
 
     if (rejectedItem) {

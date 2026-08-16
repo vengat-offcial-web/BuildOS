@@ -9,16 +9,16 @@ export function Navbar({
     onNotificationClick,
     showSearch = true
 }) {
-    const { notifications, markNotificationAsRead, markAllNotificationsAsRead, clearNotifications } = useData();
+    const { notifications, markNotificationAsRead, markAllNotificationsAsRead, clearNotifications, leaveRequests, approveLeaveRequest, rejectLeaveRequest } = useData();
     const [showDrawer, setShowDrawer] = useState(false);
 
     const isWorkerPortal = !showSearch;
 
     const visibleNotifications = notifications ? notifications.filter(n => {
         if (isWorkerPortal) {
-            return n.target === 'worker' || (!n.target && n.category !== 'Shift Check-In' && n.category !== 'Leave Request');
+            return n.target === 'worker';
         }
-        return n.target === 'admin' || !n.target || n.category === 'Shift Check-In' || n.category === 'Leave Request';
+        return n.target === 'admin';
     }) : [];
 
     const unreadCount = visibleNotifications.filter(n => n.unread).length;
@@ -28,6 +28,24 @@ export function Navbar({
             onNotificationClick();
         }
         setShowDrawer(prev => !prev);
+    };
+
+    const handleApproveLeave = (n) => {
+        const matchingReq = leaveRequests && leaveRequests.find(r => r.id === n.leaveReqId || (r.workerName && n.title.includes(r.workerName)));
+        const targetReqId = n.leaveReqId || matchingReq?.id || (leaveRequests && leaveRequests[0]?.id);
+        if (targetReqId) {
+            approveLeaveRequest(targetReqId);
+        }
+        markNotificationAsRead(n.id);
+    };
+
+    const handleDeclineLeave = (n) => {
+        const matchingReq = leaveRequests && leaveRequests.find(r => r.id === n.leaveReqId || (r.workerName && n.title.includes(r.workerName)));
+        const targetReqId = n.leaveReqId || matchingReq?.id || (leaveRequests && leaveRequests[0]?.id);
+        if (targetReqId) {
+            rejectLeaveRequest(targetReqId);
+        }
+        markNotificationAsRead(n.id);
     };
 
     return (
@@ -130,8 +148,55 @@ export function Navbar({
                                             <span className="text-[10px] text-slate-400 font-semibold">{n.time}</span>
                                         </div>
 
-                                        <h4 className="text-xs font-extrabold text-[#03020A] tracking-tight">{n.title}</h4>
-                                        <p className="text-[11px] text-slate-600 font-medium leading-snug">{n.message}</p>
+                                    {(() => {
+                                        const matchingReq = leaveRequests && leaveRequests.find(r => r.id === n.leaveReqId || (r.workerName && n.title.includes(r.workerName)));
+                                        const status = n.actionTaken || n.status || matchingReq?.status || 'Pending Approval';
+
+                                        return (
+                                            <>
+                                                <h4 className="text-xs font-extrabold text-[#03020A] tracking-tight">{n.title}</h4>
+                                                <p className="text-[11px] text-slate-600 font-medium leading-snug">{n.message}</p>
+
+                                                {n.category === 'Leave Request' && !isWorkerPortal && (
+                                                    <div className="pt-2 flex items-center justify-end gap-2 border-t border-purple-100/60 mt-1">
+                                                        {status === 'Approved' ? (
+                                                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264] flex items-center gap-1">
+                                                                ✓ Approved by Admin
+                                                            </span>
+                                                        ) : status === 'Declined' ? (
+                                                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFE4E6] text-[#9F1239] border border-[#FECDD3] flex items-center gap-1">
+                                                                ✕ Declined by Admin
+                                                            </span>
+                                                        ) : (
+                                                            <>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleDeclineLeave(n);
+                                                                    }}
+                                                                    className="px-3 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer"
+                                                                >
+                                                                    ✕ Decline
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleApproveLeave(n);
+                                                                    }}
+                                                                    className="dark-nav-pill px-3 py-1 rounded-full text-[10px] font-extrabold text-white shadow-sm hover:bg-black transition-all flex items-center gap-1 cursor-pointer"
+                                                                >
+                                                                    <FiCheck className="text-[#BEF264]" />
+                                                                    <span>Approve</span>
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        );
+                                    })()}
                                     </div>
                                 ))
                             ) : (
