@@ -12,7 +12,16 @@ export function Navbar({
     const { notifications, markNotificationAsRead, markAllNotificationsAsRead, clearNotifications } = useData();
     const [showDrawer, setShowDrawer] = useState(false);
 
-    const unreadCount = notifications ? notifications.filter(n => n.unread).length : 0;
+    const isWorkerPortal = !showSearch;
+
+    const visibleNotifications = notifications ? notifications.filter(n => {
+        if (isWorkerPortal) {
+            return n.target === 'worker' || (!n.target && n.category !== 'Shift Check-In' && n.category !== 'Leave Request');
+        }
+        return n.target === 'admin' || !n.target || n.category === 'Shift Check-In' || n.category === 'Leave Request';
+    }) : [];
+
+    const unreadCount = visibleNotifications.filter(n => n.unread).length;
 
     const handleBellClick = () => {
         if (onNotificationClick) {
@@ -100,8 +109,8 @@ export function Navbar({
 
                         {/* Notifications List */}
                         <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
-                            {notifications && notifications.length > 0 ? (
-                                notifications.map((n) => (
+                            {visibleNotifications.length > 0 ? (
+                                visibleNotifications.map((n) => (
                                     <div
                                         key={n.id}
                                         onClick={() => markNotificationAsRead(n.id)}
@@ -133,9 +142,9 @@ export function Navbar({
                         </div>
 
                         {/* Footer Clear Action */}
-                        {notifications && notifications.length > 0 && (
+                        {visibleNotifications.length > 0 && (
                             <div className="pt-1 border-t border-purple-100 flex justify-between items-center text-[11px]">
-                                <span className="text-slate-400 font-medium">Real-time Admin Dispatches</span>
+                                <span className="text-slate-400 font-medium">{isWorkerPortal ? "Admin Dispatches" : "Worker Activity Alerts"}</span>
                                 <button
                                     type="button"
                                     onClick={() => clearNotifications()}

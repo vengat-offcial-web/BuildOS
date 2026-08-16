@@ -81,7 +81,8 @@ function WorkerDashboard() {
             `Worker Shift ${nextState ? 'Clock In' : 'Clock Out'}`,
             `Worker ${workerName} (Site Specialist) clocked ${nextState ? 'IN to' : 'OUT of'} shift at ${timeStr} for Metro Link – B4`,
             "Shift Check-In",
-            nextState ? "lime" : "purple"
+            nextState ? "lime" : "purple",
+            "admin"
         );
 
         setToastMessage(`Clocked ${nextState ? 'IN' : 'OUT'}! Notification sent to Admin Workers page.`);
@@ -119,7 +120,8 @@ function WorkerDashboard() {
             "Worker Leave Request Submitted",
             `Worker ${workerName} submitted a ${leaveForm.reason} request for ${leaveForm.date} to Site Engineer R. Sharma. Notes: ${leaveForm.notes || 'None'}`,
             "Leave Request",
-            "purple"
+            "purple",
+            "admin"
         );
 
         setLeaveForm({ date: '', reason: 'Medical Leave', notes: '' });
