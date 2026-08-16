@@ -51,20 +51,7 @@ function ProjectDetails() {
     );
   }, [editManager]);
 
-  // Milestone Edit Modal State
-  const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
-  const [editMilestones, setEditMilestones] = useState([]);
-
-  // Guard for route collision
-  if (id === 'new' || id === 'create') {
-    return <AssignProject />;
-  }
-
-  const project = getProjectById(id);
-
-  const siteWorkers = workers.filter(w => project && project.name && (w.site.toLowerCase().includes(project.name.toLowerCase()) || w.site.toLowerCase().includes(project.location.toLowerCase()))).slice(0, 4);
-
-  // Combined catalog of saved engineers and site workers for auto-fill searching
+  // Combined catalog of saved personnel
   const savedPersonnelCatalog = useMemo(() => {
     const combined = [
       ...initialEngineersData.map(e => ({ name: e.name, trade: e.role, phone: e.phone, type: 'Engineer' })),
@@ -80,14 +67,6 @@ function ProjectDetails() {
     });
   }, [workers]);
 
-  const defaultTeamMembers = (project && project.teamMembers && project.teamMembers.length > 0)
-    ? project.teamMembers
-    : (siteWorkers.length > 0 ? siteWorkers : workers.slice(0, 4));
-
-  const projectTeamMembers = (project && project.teamMembers && project.teamMembers.length > 0)
-    ? project.teamMembers
-    : defaultTeamMembers;
-
   const searchedPersonnelCandidates = useMemo(() => {
     const q = workerSearchQuery.toLowerCase().trim();
     if (!q) return savedPersonnelCatalog;
@@ -97,6 +76,23 @@ function ProjectDetails() {
       c.phone.toLowerCase().includes(q)
     );
   }, [workerSearchQuery, savedPersonnelCatalog]);
+
+  // Guard for route collision
+  if (id === 'new' || id === 'create') {
+    return <AssignProject />;
+  }
+
+  const project = getProjectById(id);
+
+  const siteWorkers = workers.filter(w => project && project.name && (w.site.toLowerCase().includes(project.name.toLowerCase()) || w.site.toLowerCase().includes(project.location.toLowerCase()))).slice(0, 4);
+
+  const defaultTeamMembers = (project && project.teamMembers && project.teamMembers.length > 0)
+    ? project.teamMembers
+    : (siteWorkers.length > 0 ? siteWorkers : workers.slice(0, 4));
+
+  const projectTeamMembers = (project && project.teamMembers && project.teamMembers.length > 0)
+    ? project.teamMembers
+    : defaultTeamMembers;
 
   const handleOpenTeamModal = () => {
     if (!project) return;
