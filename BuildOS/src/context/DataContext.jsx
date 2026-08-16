@@ -330,20 +330,21 @@ export const DataProvider = ({ children }) => {
       return r;
     }));
 
-    setNotifications(prev => prev.map(n => {
-      if (n.leaveReqId === numId || (n.category === "Leave Request" && n.target === "admin" && (approvedItem ? n.title.includes(approvedItem.workerName) : true))) {
-        return { ...n, status: "Approved", actionTaken: "Approved", unread: false };
-      }
-      return n;
-    }));
+    // Automatically remove the processed leave request notification from Admin's notification drawer
+    setNotifications(prev => prev.filter(n => !(
+      n.leaveReqId === numId || 
+      (n.category === "Leave Request" && n.target === "admin" && (approvedItem ? n.title.includes(approvedItem.workerName) : true))
+    )));
 
     if (approvedItem) {
+      // Send notification directly to Worker Dashboard
       addNotification(
         "Leave Request Approved! ✓",
         `Site Engineer R. Sharma approved your ${approvedItem.reason} request for ${approvedItem.date}.`,
         "Leave Request",
         "lime",
-        "worker"
+        "worker",
+        numId
       );
       logActivity(`Leave Approved: ${approvedItem.workerName}`, approvedItem.site, 'Status: Approved', 'lime');
     }
@@ -361,24 +362,29 @@ export const DataProvider = ({ children }) => {
       return r;
     }));
 
-    setNotifications(prev => prev.map(n => {
-      if (n.leaveReqId === numId || (n.category === "Leave Request" && n.target === "admin" && (rejectedItem ? n.title.includes(rejectedItem.workerName) : true))) {
-        return { ...n, status: "Declined", actionTaken: "Declined", unread: false };
-      }
-      return n;
-    }));
+    // Automatically remove the processed leave request notification from Admin's notification drawer
+    setNotifications(prev => prev.filter(n => !(
+      n.leaveReqId === numId || 
+      (n.category === "Leave Request" && n.target === "admin" && (rejectedItem ? n.title.includes(rejectedItem.workerName) : true))
+    )));
 
     if (rejectedItem) {
+      // Send notification directly to Worker Dashboard
       addNotification(
-        "Leave Request Declined",
-        `Site Engineer R. Sharma declined your ${rejectedItem.reason} for ${rejectedItem.date}. Please check with supervisor.`,
+        "Leave Request Declined ✕",
+        `Site Engineer R. Sharma declined your ${rejectedItem.reason} request for ${rejectedItem.date}. Please check with supervisor.`,
         "Leave Request",
         "purple",
-        "worker"
+        "worker",
+        numId
       );
       logActivity(`Leave Declined: ${rejectedItem.workerName}`, rejectedItem.site, 'Status: Declined', 'purple');
     }
   }, [addNotification, logActivity]);
+
+  const deleteLeaveRequest = useCallback((reqId) => {
+    setLeaveRequests(prev => prev.filter(r => r.id !== Number(reqId)));
+  }, []);
 
   // Derived Dynamic Counts
   const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'In Progress').length, [projects]);
@@ -418,6 +424,7 @@ export const DataProvider = ({ children }) => {
     addLeaveRequest,
     approveLeaveRequest,
     rejectLeaveRequest,
+    deleteLeaveRequest,
     totalProjectsCount: projects.length,
     activeProjectsCount,
     totalWorkersCount: workers.length + 120, // offset for 128 realistic team
@@ -456,6 +463,7 @@ export const DataProvider = ({ children }) => {
     addLeaveRequest,
     approveLeaveRequest,
     rejectLeaveRequest,
+    deleteLeaveRequest,
     activeProjectsCount,
     pendingTasksCount,
     overdueTasksCount
