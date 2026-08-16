@@ -142,11 +142,7 @@ function Workers() {
             </div>
 
             {/* Bottom Bar with View Profile */}
-            <div className="pt-2 border-t border-purple-100 flex items-center justify-between text-xs">
-              <span className="text-slate-500 flex items-center gap-1 font-semibold">
-                <FiPhone className="text-purple-500" /> {w.phone || '896054050'}
-              </span>
-
+            <div className="pt-2 border-t border-purple-100 flex items-center justify-end text-xs">
               <button 
                 type="button" 
                 onClick={() => setSelectedWorkerProfile(w)}
