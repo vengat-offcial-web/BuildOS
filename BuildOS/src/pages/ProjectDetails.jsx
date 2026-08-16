@@ -77,6 +77,34 @@ function ProjectDetails() {
     );
   }, [workerSearchQuery, savedPersonnelCatalog]);
 
+  const searchedMaterialCandidates = useMemo(() => {
+    const q = matSearchQuery.toLowerCase().trim();
+    if (!q) return materials;
+    return materials.filter(m =>
+      m.name.toLowerCase().includes(q) ||
+      m.category.toLowerCase().includes(q) ||
+      m.status.toLowerCase().includes(q)
+    );
+  }, [matSearchQuery, materials]);
+
+  const searchedMachineCandidates = useMemo(() => {
+    const q = macSearchQuery.toLowerCase().trim();
+    if (!q) return machines;
+    return machines.filter(m =>
+      m.name.toLowerCase().includes(q) ||
+      (m.category && m.category.toLowerCase().includes(q)) ||
+      (m.status && m.status.toLowerCase().includes(q))
+    );
+  }, [macSearchQuery, machines]);
+
+  // Milestone Edit Modal State
+  const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
+  const [editMilestones, setEditMilestones] = useState([]);
+
+  // Task Edit Modal State
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [editTasks, setEditTasks] = useState([]);
+
   // Guard for route collision
   if (id === 'new' || id === 'create') {
     return <AssignProject />;
@@ -158,16 +186,6 @@ function ProjectDetails() {
     ? project.allocatedMaterials
     : defaultAllocatedMaterials;
 
-  const searchedMaterialCandidates = useMemo(() => {
-    const q = matSearchQuery.toLowerCase().trim();
-    if (!q) return materials;
-    return materials.filter(m =>
-      m.name.toLowerCase().includes(q) ||
-      m.category.toLowerCase().includes(q) ||
-      m.status.toLowerCase().includes(q)
-    );
-  }, [matSearchQuery, materials]);
-
   const handleOpenMaterialsModal = () => {
     if (!project) return;
     const currentAlloc = (project.allocatedMaterials && project.allocatedMaterials.length > 0)
@@ -230,16 +248,6 @@ function ProjectDetails() {
   const projectAssignedMachinery = (project && project.assignedMachinery && project.assignedMachinery.length > 0)
     ? project.assignedMachinery
     : defaultAssignedMachinery;
-
-  const searchedMachineCandidates = useMemo(() => {
-    const q = macSearchQuery.toLowerCase().trim();
-    if (!q) return machines;
-    return machines.filter(m =>
-      m.name.toLowerCase().includes(q) ||
-      (m.category && m.category.toLowerCase().includes(q)) ||
-      (m.status && m.status.toLowerCase().includes(q))
-    );
-  }, [macSearchQuery, machines]);
 
   const handleOpenMachinesModal = () => {
     if (!project) return;
@@ -365,10 +373,6 @@ function ProjectDetails() {
     });
     setIsMilestoneModalOpen(false);
   };
-
-  // Task Edit Modal State
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [editTasks, setEditTasks] = useState([]);
 
   const defaultTasks = [
     { id: 1, title: "Glass facade panel alignment on Floor 18", priority: "High", status: "In Progress" },
