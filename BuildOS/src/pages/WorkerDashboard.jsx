@@ -22,7 +22,7 @@ import { FaHelmetSafety } from 'react-icons/fa6';
 
 function WorkerDashboard() {
     const { user } = useAuth();
-    const { addNotification, updateWorker } = useData();
+    const { addNotification, updateWorker, leaveRequests, addLeaveRequest } = useData();
     const [clockedIn, setClockedIn] = useState(true);
     const [tasks, setTasks] = useState([
         { id: 1, text: "Site inspection at Zone B4 - Metro Rail Link", status: "In Progress", urgent: true },
@@ -56,9 +56,6 @@ function WorkerDashboard() {
         reason: 'Medical Leave',
         notes: ''
     });
-    const [leaveRequests, setLeaveRequests] = useState([
-        { id: 1, date: '2026-08-20', reason: 'Personal Leave', status: 'Pending Approval', engineer: 'R. Sharma (Site Engineer)' }
-    ]);
 
     // Safety Report form state
     const [safetyForm, setSafetyForm] = useState({
@@ -104,29 +101,21 @@ function WorkerDashboard() {
         if (!leaveForm.date) return;
 
         const workerName = user?.name || 'Marcoo';
-        const newReq = {
-            id: Date.now(),
+
+        addLeaveRequest({
+            workerName,
+            trade: assignedProject.workerRole,
+            site: assignedProject.name,
             date: leaveForm.date,
             reason: leaveForm.reason,
-            status: 'Pending Approval',
-            engineer: 'R. Sharma (Site Engineer)'
-        };
+            engineer: assignedProject.engineer,
+            notes: leaveForm.notes
+        });
 
-        setLeaveRequests([newReq, ...leaveRequests]);
         setShowLeaveModal(false);
-
-        // Dispatch notification to Admin Workers page & header bell
-        addNotification(
-            "Worker Leave Request Submitted",
-            `Worker ${workerName} submitted a ${leaveForm.reason} request for ${leaveForm.date} to Site Engineer R. Sharma. Notes: ${leaveForm.notes || 'None'}`,
-            "Leave Request",
-            "purple",
-            "admin"
-        );
-
         setLeaveForm({ date: '', reason: 'Medical Leave', notes: '' });
 
-        setToastMessage('Leave request sent! Notification dispatched to Admin & Site Engineer.');
+        setToastMessage('Leave request sent! Dispatched to Admin Workers page for approval.');
         setTimeout(() => setToastMessage(''), 4000);
     };
 
@@ -316,18 +305,24 @@ function WorkerDashboard() {
                             </button>
                         </div>
 
-                        {leaveRequests.length > 0 ? (
+                        {leaveRequests && leaveRequests.length > 0 ? (
                             <div className="space-y-2.5 text-xs">
                                 {leaveRequests.map((req) => (
-                                    <div key={req.id} className="p-3 rounded-2xl bg-white/80 border border-white space-y-1">
+                                    <div key={req.id} className="p-3.5 rounded-2xl bg-white/80 border border-white space-y-1">
                                         <div className="flex items-center justify-between">
                                             <span className="font-extrabold text-[#03020A]">{req.reason}</span>
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FEF9C3] text-[#854D0E] border border-[#FEF08A]">
+                                            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                                                req.status === 'Approved'
+                                                    ? 'bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264]'
+                                                    : req.status === 'Declined'
+                                                    ? 'bg-[#FFE4E6] text-[#9F1239] border border-[#FECDD3]'
+                                                    : 'bg-[#FEF9C3] text-[#854D0E] border border-[#FEF08A]'
+                                            }`}>
                                                 {req.status}
                                             </span>
                                         </div>
                                         <p className="text-[11px] text-slate-500 font-medium">Date: <strong className="text-slate-700">{req.date}</strong></p>
-                                        <p className="text-[10px] text-purple-600 font-semibold">Sent to: {req.engineer}</p>
+                                        <p className="text-[10px] text-purple-600 font-semibold">Engineer: {req.engineer || 'R. Sharma (Site Engineer)'}</p>
                                     </div>
                                 ))}
                             </div>

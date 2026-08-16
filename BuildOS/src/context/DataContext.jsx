@@ -29,6 +29,21 @@ const safeSetStorage = (key, value) => {
   }
 };
 
+const initialLeaveRequestsData = [
+  {
+    id: 101,
+    workerName: "Marcoo",
+    trade: "Senior Structural Specialist",
+    site: "Metro Link – B4",
+    date: "2026-08-20",
+    reason: "Personal Leave",
+    status: "Pending Approval",
+    engineer: "R. Sharma (Site Engineer)",
+    notes: "Family function in hometown",
+    submittedTime: "10 mins ago"
+  }
+];
+
 export const DataProvider = ({ children }) => {
   const [projects, setProjects] = useState(() => safeGetStorage('buildos_projects', initialProjectsData));
   const [workers, setWorkers] = useState(() => safeGetStorage('buildos_workers', initialWorkersData));
@@ -38,6 +53,7 @@ export const DataProvider = ({ children }) => {
   const [activityFeed, setActivityFeed] = useState(() => safeGetStorage('buildos_activity', initialActivityData));
   const [notifications, setNotifications] = useState(() => safeGetStorage('buildos_notifications', initialNotificationsData));
   const [workerNotes, setWorkerNotes] = useState(() => safeGetStorage('buildos_worker_notes', initialWorkerNotesData));
+  const [leaveRequests, setLeaveRequests] = useState(() => safeGetStorage('buildos_leave_requests', initialLeaveRequestsData));
 
   // Sync state changes to localStorage
   useEffect(() => { safeSetStorage('buildos_projects', projects); }, [projects]);
@@ -48,6 +64,7 @@ export const DataProvider = ({ children }) => {
   useEffect(() => { safeSetStorage('buildos_activity', activityFeed); }, [activityFeed]);
   useEffect(() => { safeSetStorage('buildos_notifications', notifications); }, [notifications]);
   useEffect(() => { safeSetStorage('buildos_worker_notes', workerNotes); }, [workerNotes]);
+  useEffect(() => { safeSetStorage('buildos_leave_requests', leaveRequests); }, [leaveRequests]);
 
   // Helper log activity generator
   const logActivity = useCallback((title, site, status, badge = 'lime') => {
@@ -271,6 +288,78 @@ export const DataProvider = ({ children }) => {
     return workerNotes.filter(n => n.workerName?.toLowerCase() === name.toLowerCase());
   }, [workerNotes]);
 
+  // Leave Request Handlers
+  const addLeaveRequest = useCallback((reqData) => {
+    const newReq = {
+      id: Date.now(),
+      workerName: reqData.workerName || "Marcoo",
+      trade: reqData.trade || "Senior Structural Specialist",
+      site: reqData.site || "Metro Link – B4",
+      date: reqData.date,
+      reason: reqData.reason || "Medical Leave",
+      status: "Pending Approval",
+      engineer: reqData.engineer || "R. Sharma (Site Engineer)",
+      notes: reqData.notes || "",
+      submittedTime: "Just Now"
+    };
+    setLeaveRequests(prev => [newReq, ...prev]);
+
+    // Send notification to Admin
+    addNotification(
+      "Worker Leave Request Submitted",
+      `Worker ${newReq.workerName} requested ${newReq.reason} for ${newReq.date} (${newReq.notes ? `Note: ${newReq.notes}` : 'No notes'})`,
+      "Leave Request",
+      "purple",
+      "admin"
+    );
+
+    return newReq;
+  }, [addNotification]);
+
+  const approveLeaveRequest = useCallback((reqId) => {
+    let approvedItem = null;
+    setLeaveRequests(prev => prev.map(r => {
+      if (r.id === Number(reqId)) {
+        approvedItem = { ...r, status: "Approved" };
+        return approvedItem;
+      }
+      return r;
+    }));
+
+    if (approvedItem) {
+      addNotification(
+        "Leave Request Approved! ✓",
+        `Site Engineer R. Sharma approved your ${approvedItem.reason} request for ${approvedItem.date}.`,
+        "Leave Request",
+        "lime",
+        "worker"
+      );
+      logActivity(`Leave Approved: ${approvedItem.workerName}`, approvedItem.site, 'Status: Approved', 'lime');
+    }
+  }, [addNotification, logActivity]);
+
+  const rejectLeaveRequest = useCallback((reqId) => {
+    let rejectedItem = null;
+    setLeaveRequests(prev => prev.map(r => {
+      if (r.id === Number(reqId)) {
+        rejectedItem = { ...r, status: "Declined" };
+        return rejectedItem;
+      }
+      return r;
+    }));
+
+    if (rejectedItem) {
+      addNotification(
+        "Leave Request Declined",
+        `Site Engineer R. Sharma declined your ${rejectedItem.reason} for ${rejectedItem.date}. Please check with supervisor.`,
+        "Leave Request",
+        "purple",
+        "worker"
+      );
+      logActivity(`Leave Declined: ${rejectedItem.workerName}`, rejectedItem.site, 'Status: Declined', 'purple');
+    }
+  }, [addNotification, logActivity]);
+
   // Derived Dynamic Counts
   const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'In Progress').length, [projects]);
   const pendingTasksCount = useMemo(() => tasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [tasks]);
@@ -285,6 +374,7 @@ export const DataProvider = ({ children }) => {
     activityFeed,
     notifications,
     workerNotes,
+    leaveRequests,
     addNotification,
     markNotificationAsRead,
     markAllNotificationsAsRead,
@@ -305,6 +395,9 @@ export const DataProvider = ({ children }) => {
     deleteWorkerNote,
     togglePinNote,
     getWorkerNotes,
+    addLeaveRequest,
+    approveLeaveRequest,
+    rejectLeaveRequest,
     totalProjectsCount: projects.length,
     activeProjectsCount,
     totalWorkersCount: workers.length + 120, // offset for 128 realistic team
@@ -319,6 +412,7 @@ export const DataProvider = ({ children }) => {
     activityFeed,
     notifications,
     workerNotes,
+    leaveRequests,
     addNotification,
     markNotificationAsRead,
     markAllNotificationsAsRead,
@@ -339,6 +433,9 @@ export const DataProvider = ({ children }) => {
     deleteWorkerNote,
     togglePinNote,
     getWorkerNotes,
+    addLeaveRequest,
+    approveLeaveRequest,
+    rejectLeaveRequest,
     activeProjectsCount,
     pendingTasksCount,
     overdueTasksCount

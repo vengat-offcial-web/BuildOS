@@ -7,7 +7,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Workers() {
-  const { workers, addWorker, notifications } = useData();
+  const { workers, addWorker, notifications, leaveRequests, approveLeaveRequest, rejectLeaveRequest } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
@@ -34,6 +34,20 @@ function Workers() {
   const workerActivityAlerts = notifications ? notifications.filter(n => 
     n.category === 'Shift Check-In' || n.category === 'Leave Request' || n.title.includes('Worker')
   ) : [];
+
+  const pendingLeaves = leaveRequests ? leaveRequests.filter(r => r.status === 'Pending Approval') : [];
+
+  const handleApprove = (req) => {
+    approveLeaveRequest(req.id);
+    setToastMessage(`Approved leave for worker ${req.workerName}! Dispatched to Worker Dashboard.`);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
+
+  const handleReject = (req) => {
+    rejectLeaveRequest(req.id);
+    setToastMessage(`Declined leave for worker ${req.workerName}. Status updated.`);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
 
   // Submit Handler for New Worker
   const handleAddWorker = (e) => {
@@ -85,44 +99,87 @@ function Workers() {
         </button>
       </div>
 
-      {/* Live Worker Shift Check-Ins & Leave Alerts Panel */}
-      <div className="glass-card p-5 rounded-[28px] border border-white space-y-3 shadow-sm">
-        <div className="flex items-center justify-between border-b border-purple-100 pb-2.5">
-          <div className="flex items-center gap-2">
+      {/* Pending Leave Approvals Action Card */}
+      <div className="glass-card p-6 rounded-[28px] border border-white space-y-4 shadow-sm">
+        <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+          <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-sm">
               <FiCalendar />
             </div>
             <div>
-              <h3 className="text-sm font-extrabold text-[#03020A] tracking-tight">Live Worker Shift Check-Ins & Leave Alerts</h3>
-              <p className="text-[10px] text-purple-700 font-bold">Real-time dispatches from Worker Portal</p>
+              <h3 className="text-base font-extrabold text-[#03020A] tracking-tight">Pending Worker Leave Request Approvals</h3>
+              <p className="text-[11px] text-slate-500 font-medium">Review and approve/decline leave applications from site workers</p>
             </div>
           </div>
-          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264]">
-            {workerActivityAlerts.length} Alert{workerActivityAlerts.length !== 1 ? 's' : ''}
+          <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-[#FEF9C3] text-[#854D0E] border border-[#FEF08A]">
+            {pendingLeaves.length} Pending
           </span>
         </div>
 
-        {workerActivityAlerts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {workerActivityAlerts.slice(0, 4).map((alert) => (
-              <div key={alert.id} className="bg-white/80 p-3.5 rounded-2xl border border-purple-100 space-y-1">
+        {leaveRequests && leaveRequests.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {leaveRequests.map((req) => (
+              <div key={req.id} className="bg-white/80 p-4 rounded-2xl border border-purple-100 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                    alert.category === 'Shift Check-In'
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-[#03020A] text-sm">{req.workerName}</span>
+                    <span className="text-[10px] font-bold text-purple-600">({req.trade || 'Worker'})</span>
+                  </div>
+                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                    req.status === 'Approved'
                       ? 'bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264]'
+                      : req.status === 'Declined'
+                      ? 'bg-[#FFE4E6] text-[#9F1239] border border-[#FECDD3]'
                       : 'bg-[#FEF9C3] text-[#854D0E] border border-[#FEF08A]'
                   }`}>
-                    {alert.category}
+                    {req.status}
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400">{alert.time}</span>
                 </div>
-                <h4 className="text-xs font-extrabold text-[#03020A] pt-0.5">{alert.title}</h4>
-                <p className="text-[11px] text-slate-600 font-medium leading-tight">{alert.message}</p>
+
+                <div className="text-xs space-y-1 text-slate-600 font-medium bg-purple-50/50 p-2.5 rounded-xl border border-purple-100/60">
+                  <div className="flex justify-between">
+                    <span>Reason & Date:</span>
+                    <strong className="text-[#03020A]">{req.reason} ({req.date})</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Assigned Site:</span>
+                    <span className="font-bold text-[#7C3AED]">{req.site}</span>
+                  </div>
+                  {req.notes && (
+                    <div className="pt-1 text-[11px] text-slate-500 italic border-t border-purple-100/80">
+                      "Notes: {req.notes}"
+                    </div>
+                  )}
+                </div>
+
+                {req.status === 'Pending Approval' ? (
+                  <div className="pt-1 flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleReject(req)}
+                      className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer"
+                    >
+                      ✕ Decline
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApprove(req)}
+                      className="dark-nav-pill px-4 py-1.5 rounded-full text-xs font-extrabold text-white shadow-md hover:bg-black transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      <FiCheckCircle className="text-[#BEF264]" />
+                      <span>Approve Leave</span>
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-[10px] text-slate-400 font-bold text-right pt-0.5">
+                    Decision synced to Worker Dashboard
+                  </p>
+                )}
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-xs text-slate-500 text-center py-2 font-medium">No recent worker check-ins or leave requests recorded yet.</p>
+          <p className="text-xs text-slate-500 text-center py-3 font-medium">No pending leave requests submitted by workers.</p>
         )}
       </div>
 
