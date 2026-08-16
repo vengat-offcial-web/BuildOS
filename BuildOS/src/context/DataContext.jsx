@@ -57,6 +57,53 @@ export const initialNotificationsData = [
   }
 ];
 
+export const initialWorkerNotesData = [
+  {
+    id: 1,
+    workerName: "Mathan",
+    text: "Please verify structural beam alignment and concrete curing strength log at Hyper Mall before shift end.",
+    category: "Site Instruction",
+    senderRole: "admin",
+    senderName: "Rajesh Kumar (Project Director)",
+    time: "Today, 08:30 AM",
+    isUrgent: true,
+    isPinned: true
+  },
+  {
+    id: 2,
+    workerName: "Mathan",
+    text: "Beam structure test completed. Scaffolding anchor checked and logged into site register.",
+    category: "Worker Reply",
+    senderRole: "worker",
+    senderName: "Mathan",
+    time: "Today, 09:15 AM",
+    isUrgent: false,
+    isPinned: false
+  },
+  {
+    id: 3,
+    workerName: "Marcoo",
+    text: "Submit daily excavator fuel log and safety harness checklist before 5 PM.",
+    category: "Task Instruction",
+    senderRole: "admin",
+    senderName: "R. Sharma (Site Engineer)",
+    time: "Today, 10:00 AM",
+    isUrgent: false,
+    isPinned: false
+  },
+  {
+    id: 4,
+    workerName: "Muthu Kumar",
+    text: "Masonry alignment check on Floor 12 approved by Lead Inspector.",
+    category: "Supervisor Note",
+    senderRole: "admin",
+    senderName: "Rajesh Kumar (Project Director)",
+    time: "Yesterday, 04:30 PM",
+    isUrgent: false,
+    isPinned: false
+  }
+];
+
 export const DataProvider = ({ children }) => {
   const [projects, setProjects] = useState(() => safeGetStorage('buildos_projects', initialProjectsData));
   const [workers, setWorkers] = useState(() => safeGetStorage('buildos_workers', initialWorkersData));
@@ -65,6 +112,7 @@ export const DataProvider = ({ children }) => {
   const [tasks, setTasks] = useState(() => safeGetStorage('buildos_tasks', initialTasksData));
   const [activityFeed, setActivityFeed] = useState(() => safeGetStorage('buildos_activity', initialActivityData));
   const [notifications, setNotifications] = useState(() => safeGetStorage('buildos_notifications', initialNotificationsData));
+  const [workerNotes, setWorkerNotes] = useState(() => safeGetStorage('buildos_worker_notes', initialWorkerNotesData));
 
   // Sync state changes to localStorage
   useEffect(() => { safeSetStorage('buildos_projects', projects); }, [projects]);
@@ -74,6 +122,7 @@ export const DataProvider = ({ children }) => {
   useEffect(() => { safeSetStorage('buildos_tasks', tasks); }, [tasks]);
   useEffect(() => { safeSetStorage('buildos_activity', activityFeed); }, [activityFeed]);
   useEffect(() => { safeSetStorage('buildos_notifications', notifications); }, [notifications]);
+  useEffect(() => { safeSetStorage('buildos_worker_notes', workerNotes); }, [workerNotes]);
 
   // Helper log activity generator
   const logActivity = useCallback((title, site, status, badge = 'lime') => {
@@ -248,6 +297,48 @@ export const DataProvider = ({ children }) => {
     }));
   }, [logActivity]);
 
+  // Worker Notes & Chat Handlers
+  const addWorkerNote = useCallback((noteData) => {
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const newNote = {
+      id: Date.now(),
+      workerName: noteData.workerName || 'Mathan',
+      text: noteData.text,
+      category: noteData.category || 'General Note',
+      senderRole: noteData.senderRole || 'admin',
+      senderName: noteData.senderName || (noteData.senderRole === 'worker' ? noteData.workerName || 'Worker' : 'Rajesh Kumar (Project Director)'),
+      time: `Today, ${timeStr}`,
+      isUrgent: !!noteData.isUrgent,
+      isPinned: false
+    };
+    setWorkerNotes(prev => [newNote, ...prev]);
+    logActivity(`Worker Chat Note: ${newNote.workerName}`, 'Site Communication', `Note: ${newNote.category}`, newNote.isUrgent ? 'purple' : 'lime');
+    
+    // Trigger notification if sent by admin to worker or worker to admin
+    if (noteData.senderRole === 'admin') {
+      addNotification(
+        `New Message from Site Admin`,
+        `Admin sent note to ${newNote.workerName}: "${newNote.text.slice(0, 60)}..."`,
+        "Worker Chat",
+        "purple"
+      );
+    }
+    return newNote;
+  }, [logActivity, addNotification]);
+
+  const deleteWorkerNote = useCallback((noteId) => {
+    setWorkerNotes(prev => prev.filter(n => n.id !== Number(noteId)));
+  }, []);
+
+  const togglePinNote = useCallback((noteId) => {
+    setWorkerNotes(prev => prev.map(n => n.id === Number(noteId) ? { ...n, isPinned: !n.isPinned } : n));
+  }, []);
+
+  const getWorkerNotes = useCallback((name) => {
+    if (!name) return workerNotes;
+    return workerNotes.filter(n => n.workerName?.toLowerCase() === name.toLowerCase());
+  }, [workerNotes]);
+
   // Derived Dynamic Counts
   const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'In Progress').length, [projects]);
   const pendingTasksCount = useMemo(() => tasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [tasks]);
@@ -261,6 +352,7 @@ export const DataProvider = ({ children }) => {
     tasks,
     activityFeed,
     notifications,
+    workerNotes,
     addNotification,
     markNotificationAsRead,
     markAllNotificationsAsRead,
@@ -276,6 +368,10 @@ export const DataProvider = ({ children }) => {
     addMachine,
     addTask,
     toggleTaskStatus,
+    addWorkerNote,
+    deleteWorkerNote,
+    togglePinNote,
+    getWorkerNotes,
     totalProjectsCount: projects.length,
     activeProjectsCount,
     totalWorkersCount: workers.length + 120, // offset for 128 realistic team
@@ -289,6 +385,7 @@ export const DataProvider = ({ children }) => {
     tasks,
     activityFeed,
     notifications,
+    workerNotes,
     addNotification,
     markNotificationAsRead,
     markAllNotificationsAsRead,
@@ -304,6 +401,10 @@ export const DataProvider = ({ children }) => {
     addMachine,
     addTask,
     toggleTaskStatus,
+    addWorkerNote,
+    deleteWorkerNote,
+    togglePinNote,
+    getWorkerNotes,
     activeProjectsCount,
     pendingTasksCount,
     overdueTasksCount
