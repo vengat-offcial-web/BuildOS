@@ -146,8 +146,14 @@ export const DataProvider = ({ children }) => {
   }, [logActivity]);
 
   const updateWorker = useCallback((id, updatedFields) => {
-    setWorkers(prev => prev.map(w => w.id === Number(id) ? { ...w, ...updatedFields } : w));
-  }, []);
+    setWorkers(prev => prev.map(w => (w.id === Number(id) || w.name?.toLowerCase() === String(id).toLowerCase()) ? { ...w, ...updatedFields } : w));
+    logActivity(`Worker Updated: ${updatedFields.name || 'Worker'}`, updatedFields.site || 'Site', 'Details Saved', 'lime');
+  }, [logActivity]);
+
+  const deleteWorker = useCallback((id) => {
+    setWorkers(prev => prev.filter(w => w.id !== Number(id)));
+    logActivity(`Worker Removed`, `ID #${id}`, 'Roster Updated', 'purple');
+  }, [logActivity]);
 
   const addMaterialOrder = useCallback((orderData) => {
     const newMat = {
@@ -288,6 +294,7 @@ export const DataProvider = ({ children }) => {
     getProjectById,
     addWorker,
     updateWorker,
+    deleteWorker,
     addMaterialOrder,
     updateMaterial,
     addMachine,
@@ -321,6 +328,7 @@ export const DataProvider = ({ children }) => {
     getProjectById,
     addWorker,
     updateWorker,
+    deleteWorker,
     addMaterialOrder,
     updateMaterial,
     addMachine,
