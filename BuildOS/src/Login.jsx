@@ -240,7 +240,7 @@ function Login() {
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="e.g. marcoo@buildos.com"
+                                        placeholder="Enter your email address"
                                         className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                     />
                                 </div>
@@ -260,7 +260,7 @@ function Login() {
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
+                                        placeholder="Enter your password"
                                         className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-11 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                     />
                                     <button
@@ -321,7 +321,7 @@ function Login() {
                                         required
                                         value={regName}
                                         onChange={(e) => setRegName(e.target.value)}
-                                        placeholder="e.g. Ramesh Kumar"
+                                        placeholder="Enter your full name"
                                         className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                     />
                                 </div>
@@ -341,7 +341,7 @@ function Login() {
                                         required
                                         value={regTrade}
                                         onChange={(e) => setRegTrade(e.target.value)}
-                                        placeholder="e.g. Site Engineer, Structural Specialist"
+                                        placeholder="Enter or select your worker role"
                                         className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                     />
                                 </div>
@@ -379,7 +379,7 @@ function Login() {
                                         required
                                         value={regEmail}
                                         onChange={(e) => setRegEmail(e.target.value)}
-                                        placeholder="e.g. ramesh@buildos.com"
+                                        placeholder="Enter your email address"
                                         className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                     />
                                 </div>
@@ -399,7 +399,7 @@ function Login() {
                                         required
                                         value={regPassword}
                                         onChange={(e) => setRegPassword(e.target.value)}
-                                        placeholder="Create password"
+                                        placeholder="Create a password"
                                         className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-11 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                     />
                                     <button
