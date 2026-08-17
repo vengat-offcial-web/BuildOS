@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Card, Badge } from '../components/ui';
 import { 
-  FiUsers,FiPlus,FiPhone,FiFilter,FiX,FiCheckCircle,FiUserCheck,FiMapPin,FiCalendar} from 'react-icons/fi';
+  FiUsers,FiPlus,FiPhone,FiFilter,FiX,FiCheckCircle,FiUserCheck,FiMapPin,FiCalendar,FiTrash2} from 'react-icons/fi';
 import { FaHelmetSafety as FaHelmet } from 'react-icons/fa6';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Workers() {
-  const { workers, addWorker } = useData();
+  const { workers, addWorker, deleteWorker } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
@@ -15,6 +15,8 @@ function Workers() {
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedWorkerProfile, setSelectedWorkerProfile] = useState(null);
+  const [workerToDelete, setWorkerToDelete] = useState(null);
+  const [deletedWorkerIds, setDeletedWorkerIds] = useState([]);
   const [toastMessage, setToastMessage] = useState('');
 
   // Form states for New Worker
@@ -31,8 +33,8 @@ function Workers() {
     { id: 901, name: "Mathan", trade: "Site Engineer", site: "Hyper Mall", status: "On Duty", attendance: "Present", phone: "896054050" }
   ];
 
-  const allWorkersList = [...workers];
-  if (!allWorkersList.some(w => w.name.toLowerCase() === 'mathan')) {
+  const allWorkersList = workers.filter(w => !deletedWorkerIds.includes(w.id) && !deletedWorkerIds.includes(w.name?.toLowerCase()));
+  if (!allWorkersList.some(w => w.name?.toLowerCase() === 'mathan') && !deletedWorkerIds.includes('mathan')) {
     allWorkersList.unshift(defaultExtraWorkers[0]);
   }
 
@@ -50,6 +52,20 @@ function Workers() {
     setNewWorker({ name: '', trade: '', site: '', attendance: 'Present', phone: '' });
     setShowAddModal(false);
     setToastMessage(`Worker '${newWorker.name}' registered successfully!`);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
+
+  // Delete Handler for Worker
+  const handleConfirmDelete = (w) => {
+    if (!w) return;
+    deleteWorker(w.id);
+    deleteWorker(w.name);
+    setDeletedWorkerIds(prev => [...prev, w.id, w.name?.toLowerCase()]);
+    setWorkerToDelete(null);
+    if (selectedWorkerProfile?.id === w.id) {
+      setSelectedWorkerProfile(null);
+    }
+    setToastMessage(`Worker '${w.name}' removed from workforce directory!`);
     setTimeout(() => setToastMessage(''), 4000);
   };
 
@@ -155,8 +171,17 @@ function Workers() {
               </div>
             </div>
 
-            {/* Bottom Bar with View Profile */}
-            <div className="pt-2 border-t border-purple-100 flex items-center justify-end text-xs">
+            {/* Bottom Bar with Remove Worker & View Profile */}
+            <div className="pt-2 border-t border-purple-100 flex items-center justify-between text-xs">
+              <button 
+                type="button" 
+                onClick={() => setWorkerToDelete(w)}
+                className="text-xs font-bold text-rose-500 hover:text-rose-700 flex items-center gap-1 hover:underline cursor-pointer"
+                title="Remove Worker"
+              >
+                <FiTrash2 className="text-xs" /> Remove
+              </button>
+
               <button 
                 type="button" 
                 onClick={() => setSelectedWorkerProfile(w)}
@@ -251,13 +276,58 @@ function Workers() {
             </div>
 
             {/* Modal Actions */}
-            <div className="pt-2 flex justify-end">
+            <div className="pt-2 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => {
+                  const targetWorker = selectedWorkerProfile;
+                  setSelectedWorkerProfile(null);
+                  setWorkerToDelete(targetWorker);
+                }}
+                className="px-4 py-2.5 rounded-full text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <FiTrash2 className="text-xs" /> Remove Worker
+              </button>
+
               <button
                 type="button"
                 onClick={() => setSelectedWorkerProfile(null)}
                 className="dark-nav-pill px-6 py-2.5 rounded-full text-xs font-extrabold text-white shadow-md hover:bg-black transition-all cursor-pointer"
               >
                 Close Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRMATION MODAL FOR REMOVING WORKER */}
+      {workerToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="glass-card w-full max-w-sm p-6 rounded-[32px] border border-white shadow-2xl space-y-4 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto shadow-inner border border-rose-200">
+              <FiTrash2 />
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-[#03020A]">Remove Worker?</h3>
+              <p className="text-xs font-medium text-slate-500 mt-1">
+                Are you sure you want to remove <strong className="text-[#03020A]">{workerToDelete.name}</strong> from the site directory?
+              </p>
+            </div>
+            <div className="pt-2 flex justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setWorkerToDelete(null)}
+                className="px-5 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleConfirmDelete(workerToDelete)}
+                className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-rose-600 text-white shadow-md hover:bg-rose-700 transition-all cursor-pointer"
+              >
+                Confirm Remove
               </button>
             </div>
           </div>

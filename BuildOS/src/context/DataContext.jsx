@@ -169,8 +169,8 @@ export const DataProvider = ({ children }) => {
   }, [logActivity]);
 
   const deleteWorker = useCallback((id) => {
-    setWorkers(prev => prev.filter(w => w.id !== Number(id)));
-    logActivity(`Worker Removed`, `ID #${id}`, 'Roster Updated', 'purple');
+    setWorkers(prev => prev.filter(w => w.id !== id && w.id !== Number(id) && w.name?.toLowerCase() !== String(id).toLowerCase()));
+    logActivity(`Worker Removed`, `Worker #${id}`, 'Roster Updated', 'purple');
   }, [logActivity]);
 
   const addMaterialOrder = useCallback((orderData) => {
