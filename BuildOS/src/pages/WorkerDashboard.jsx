@@ -72,7 +72,10 @@ function WorkerDashboard() {
         const workerName = user?.name || 'Marcoo';
 
         // Sync worker status in context
-        updateWorker(workerName, { status: nextState ? 'On Duty' : 'Off Duty' });
+        updateWorker(workerName, { 
+            status: nextState ? 'On Duty' : 'Off Duty',
+            attendance: nextState ? 'Present' : 'Absent'
+        });
 
         // Dispatch notification to Admin Workers page & header bell
         addNotification(

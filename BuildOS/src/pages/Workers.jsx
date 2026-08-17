@@ -22,13 +22,13 @@ function Workers() {
     name: '', 
     trade: '', 
     site: '', 
-    attendance: '', 
+    attendance: 'Present', 
     phone: '' 
   });
 
   // Ensure Mathan and key site workers are in list
   const defaultExtraWorkers = [
-    { id: 901, name: "Mathan", trade: "Site Engineer", site: "Hyper Mall", status: "On Duty", attendance: "100%", phone: "896054050" }
+    { id: 901, name: "Mathan", trade: "Site Engineer", site: "Hyper Mall", status: "On Duty", attendance: "Present", phone: "896054050" }
   ];
 
   const allWorkersList = [...workers];
@@ -41,11 +41,13 @@ function Workers() {
     e.preventDefault();
     if (!newWorker.name || !newWorker.trade || !newWorker.site) return;
 
+    const finalAttendance = newWorker.attendance || 'Present';
     addWorker({
       ...newWorker,
-      attendance: newWorker.attendance || '100%'
+      attendance: finalAttendance,
+      status: finalAttendance === 'Present' ? 'On Duty' : 'Off Duty'
     });
-    setNewWorker({ name: '', trade: '', site: '', attendance: '', phone: '' });
+    setNewWorker({ name: '', trade: '', site: '', attendance: 'Present', phone: '' });
     setShowAddModal(false);
     setToastMessage(`Worker '${newWorker.name}' registered successfully!`);
     setTimeout(() => setToastMessage(''), 4000);
@@ -131,15 +133,21 @@ function Workers() {
               </Badge>
             </div>
 
-            {/* Middle Info Box with Contact Info replacing Safety Badge */}
+            {/* Middle Info Box */}
             <div className="bg-white/80 rounded-2xl p-3 border border-white space-y-2 text-xs font-medium text-slate-600">
               <div className="flex justify-between">
                 <span>Assigned Site:</span>
                 <span className="font-bold text-[#03020A]">{w.site}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Attendance Rate:</span>
-                <span className="font-bold text-[#3F6212] bg-[#F0FDC2] px-2 py-0.5 rounded-full">{w.attendance || '100%'}</span>
+              <div className="flex justify-between items-center">
+                <span>Attendance:</span>
+                <span className={`font-extrabold px-2.5 py-0.5 rounded-full text-[11px] ${
+                  (w.attendance === 'Present' || w.status === 'On Duty') 
+                    ? 'text-[#3F6212] bg-[#F0FDC2] border border-[#BEF264]' 
+                    : 'text-rose-700 bg-rose-100 border border-rose-200'
+                }`}>
+                  { (w.attendance === 'Present' || w.attendance === 'Absent') ? w.attendance : (w.status === 'On Duty' ? 'Present' : 'Absent') }
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Contact Info:</span>
@@ -205,9 +213,17 @@ function Workers() {
 
                 <div className="bg-white/80 p-3.5 rounded-2xl border border-purple-100 space-y-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block flex items-center gap-1">
-                    <FiUserCheck className="text-[#7C3AED]" /> Attendance Rate
+                    <FiUserCheck className="text-[#7C3AED]" /> Attendance Status
                   </span>
-                  <p className="font-extrabold text-[#3F6212] text-sm">{selectedWorkerProfile.attendance || '100%'}</p>
+                  <p className={`font-extrabold text-sm ${
+                    (selectedWorkerProfile.attendance === 'Present' || selectedWorkerProfile.status === 'On Duty')
+                      ? 'text-[#3F6212]'
+                      : 'text-rose-600'
+                  }`}>
+                    { (selectedWorkerProfile.attendance === 'Present' || selectedWorkerProfile.attendance === 'Absent')
+                        ? selectedWorkerProfile.attendance
+                        : (selectedWorkerProfile.status === 'On Duty' ? 'Present' : 'Absent') }
+                  </p>
                 </div>
               </div>
 
@@ -296,14 +312,15 @@ function Workers() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Attendance Rate</label>
-                  <input
-                    type="text"
-                    value={newWorker.attendance}
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Attendance Status</label>
+                  <select
+                    value={newWorker.attendance || 'Present'}
                     onChange={(e) => setNewWorker({ ...newWorker, attendance: e.target.value })}
-                    placeholder="Enter attendance (e.g. 100%)..."
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
-                  />
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-3 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
+                  >
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                  </select>
                 </div>
 
                 <div>
