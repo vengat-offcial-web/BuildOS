@@ -17,6 +17,7 @@ function ProjectDetails() {
   // Edit Modal State
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
+  const [editLocation, setEditLocation] = useState('');
   const [editManager, setEditManager] = useState('');
   const [editBudget, setEditBudget] = useState('');
   const [editDeadline, setEditDeadline] = useState('');
@@ -306,6 +307,7 @@ function ProjectDetails() {
   const handleOpenEdit = () => {
     if (!project) return;
     setEditName(project.name || '');
+    setEditLocation(project.location || '');
     setEditManager(project.manager || '');
     const currentBudget = project.budget ? project.budget.replace(/^\$/, '₹') : '₹1.5 Cr / ₹5.0 Cr';
     setEditBudget(currentBudget);
@@ -320,6 +322,7 @@ function ProjectDetails() {
     if (!editName.trim()) return;
     updateProject(project.id, {
       name: editName.trim(),
+      location: editLocation.trim(),
       manager: editManager.trim(),
       budget: editBudget.trim(),
       deadline: editDeadline.trim(),
@@ -743,7 +746,7 @@ function ProjectDetails() {
                 </div>
                 <div>
                   <h3 className="text-lg font-extrabold text-[#03020A]">Edit Project Details</h3>
-                  <p className="text-xs font-semibold text-slate-500">Update project name, site engineer & metrics</p>
+                  <p className="text-xs font-semibold text-slate-500">Update project name, location, site engineer & metrics</p>
                 </div>
               </div>
               <button
@@ -765,6 +768,18 @@ function ProjectDetails() {
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
                   placeholder="Project Name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Project Location</label>
+                <input
+                  type="text"
+                  value={editLocation}
+                  onChange={(e) => setEditLocation(e.target.value)}
+                  className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+                  placeholder="Site Location (e.g. Chennai, Coimbatore)"
                   required
                 />
               </div>
