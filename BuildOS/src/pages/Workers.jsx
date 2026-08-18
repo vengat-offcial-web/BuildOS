@@ -187,9 +187,15 @@ function Workers() {
 
             {/* Middle Info Box */}
             <div className="bg-white/80 rounded-2xl p-3 border border-white space-y-2 text-xs font-medium text-slate-600">
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span>Assigned Site:</span>
-                <span className="font-bold text-[#03020A]">{w.site}</span>
+                {(!w.site || w.site === 'Not Assigned Yet' || w.site === 'Unassigned') ? (
+                  <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                    Not Assigned Yet
+                  </span>
+                ) : (
+                  <span className="font-bold text-[#03020A]">{w.site}</span>
+                )}
               </div>
               <div className="flex justify-between items-center">
                 <span>Attendance:</span>
@@ -201,9 +207,9 @@ function Workers() {
                   { (w.attendance === 'Present' || w.attendance === 'Absent') ? w.attendance : (w.status === 'On Duty' ? 'Present' : 'Absent') }
                 </span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span>Contact Info:</span>
-                <span className="font-bold text-[#03020A]">{w.phone || '896054050'}</span>
+                <span className="font-bold text-[#03020A]">{w.phone || 'Not Provided'}</span>
               </div>
             </div>
 
@@ -269,7 +275,9 @@ function Workers() {
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block flex items-center gap-1">
                     <FiMapPin className="text-[#7C3AED]" /> Assigned Site
                   </span>
-                  <p className="font-extrabold text-[#03020A] text-sm">{selectedWorkerProfile.site}</p>
+                  <p className="font-extrabold text-[#03020A] text-sm">
+                    {(!selectedWorkerProfile.site || selectedWorkerProfile.site === 'Not Assigned Yet' || selectedWorkerProfile.site === 'Unassigned') ? 'Not Assigned Yet' : selectedWorkerProfile.site}
+                  </p>
                 </div>
 
                 <div className="bg-white/80 p-3.5 rounded-2xl border border-purple-100 space-y-1">
@@ -291,7 +299,7 @@ function Workers() {
               <div className="bg-white/80 p-4 rounded-2xl border border-purple-100 space-y-2">
                 <div className="flex justify-between items-center pb-2 border-b border-slate-100">
                   <span className="text-slate-500 font-bold">Contact Info:</span>
-                  <span className="font-extrabold text-[#03020A] text-sm">{selectedWorkerProfile.phone || '896054050'}</span>
+                  <span className="font-extrabold text-[#03020A] text-sm">{selectedWorkerProfile.phone || 'Not Provided'}</span>
                 </div>
 
                 <div className="flex justify-between items-center pt-1 pb-2 border-b border-slate-100">

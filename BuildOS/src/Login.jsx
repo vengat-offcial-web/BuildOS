@@ -10,6 +10,7 @@ import {
     FiLogIn, 
     FiUserPlus, 
     FiUser, 
+    FiPhone, 
     FiBriefcase, 
     FiCheckCircle, 
     FiAlertCircle 
@@ -32,6 +33,7 @@ function Login() {
     const [regName, setRegName] = useState('');
     const [regTrade, setRegTrade] = useState('Site Engineer');
     const [regEmail, setRegEmail] = useState('');
+    const [regPhone, setRegPhone] = useState('');
     const [regPassword, setRegPassword] = useState('');
 
     // Shared UI states
@@ -88,6 +90,10 @@ function Login() {
             setError('Please enter a valid Email Address.');
             return;
         }
+        if (!regPhone.trim()) {
+            setError('Please enter your Contact Number.');
+            return;
+        }
         if (!regPassword) {
             setError('Please choose a Password for your worker account.');
             return;
@@ -111,10 +117,10 @@ function Login() {
                     addWorker({
                         name: regName,
                         trade: regTrade,
-                        site: 'Metro Link – B4',
+                        site: 'Not Assigned Yet',
                         status: 'Off Duty',
                         attendance: 'Absent',
-                        phone: '+91 98765 43210'
+                        phone: regPhone.trim()
                     });
                 }
 
@@ -122,7 +128,7 @@ function Login() {
                 if (addNotification) {
                     addNotification(
                         `New Worker Registered: ${regName}`,
-                        `Worker ${regName} (${regTrade}) registered a new account and joined site Metro Link – B4.`,
+                        `Worker ${regName} (${regTrade}) registered a new account. Contact: ${regPhone.trim()}. Site: Not Assigned Yet.`,
                         "Worker Registration",
                         "lime",
                         "admin"
@@ -334,6 +340,26 @@ function Login() {
                                         value={regTrade}
                                         onChange={(e) => setRegTrade(e.target.value)}
                                         placeholder="Enter your worker role"
+                                        className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Contact Number */}
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                                    Contact Number <span className="text-rose-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-purple-500">
+                                        <FiPhone className="text-base" />
+                                    </span>
+                                    <input
+                                        type="tel"
+                                        required
+                                        value={regPhone}
+                                        onChange={(e) => setRegPhone(e.target.value)}
+                                        placeholder="Enter your phone number"
                                         className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                     />
                                 </div>

@@ -153,10 +153,10 @@ export const DataProvider = ({ children }) => {
       id: Date.now(),
       name: workerData.name,
       trade: workerData.trade || 'General Construction Specialist',
-      site: workerData.site || 'Marina Tower',
-      status: workerData.status || 'On Duty',
-      attendance: workerData.attendance || '100%',
-      phone: workerData.phone || '+91 98765 00000'
+      site: workerData.site || 'Not Assigned Yet',
+      status: workerData.status || 'Off Duty',
+      attendance: workerData.attendance || 'Absent',
+      phone: workerData.phone || ''
     };
     setWorkers(prev => [newWorker, ...prev]);
     logActivity(`Worker Registered: ${newWorker.name}`, newWorker.site, 'Roster Updated', 'lime');
