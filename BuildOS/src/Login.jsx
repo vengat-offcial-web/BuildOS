@@ -349,7 +349,7 @@ function Login() {
                                         <FiPhone className="text-base" />
                                     </span>
                                     <input
-                                        type="tel"
+                                        type="number"
                                         required
                                         value={regPhone}
                                         onChange={(e) => setRegPhone(e.target.value)}

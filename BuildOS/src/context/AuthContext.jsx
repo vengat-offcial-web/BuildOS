@@ -117,7 +117,8 @@ export const AuthProvider = ({ children }) => {
                 return { success: false, error: 'Invalid password. Please check your admin credentials.' };
             }
         } else {
-            const existingWorker = registeredWorkers.find(w => w.email === cleanEmail);
+            const currentAccounts = safeGetStorage('buildos_worker_accounts', registeredWorkers);
+            const existingWorker = (currentAccounts || []).find(w => w.email?.toLowerCase().trim() === cleanEmail);
 
             if (existingWorker) {
                 if (existingWorker.password === password) {
@@ -128,29 +129,50 @@ export const AuthProvider = ({ children }) => {
                 }
             }
 
-            // Fallback for demo worker login if not yet in registered list
-            const profileKey = `buildos_worker_profile_${cleanEmail}`;
-            const profileData = safeGetStorage(profileKey, {});
-
-            const defaultName = cleanEmail.split('@')[0].toUpperCase();
-            const workerUser = {
-                email: profileData.email || cleanEmail,
-                name: profileData.name || `Worker (${defaultName})`,
-                tradeRole: profileData.tradeRole || 'Site Specialist',
-                role: 'worker',
-                title: 'Site Operations Worker',
-                theme: profileData.theme || 'dark',
-                password: profileData.password || password
-            };
-            
-            setUser(workerUser);
-            return { success: true, role: 'worker' };
+            return { success: false, error: 'No account found with this email address. Your worker account may have been removed by the Admin.' };
         }
     }, [envAdminEmail, envAdminPassword, registeredWorkers]);
 
     const logout = useCallback(() => {
         setUser(null);
         safeSetStorage('buildos_user', null);
+    }, []);
+
+    const deleteWorkerAccount = useCallback((identifier) => {
+        if (!identifier) return;
+        const targetStr = String(identifier).toLowerCase().trim();
+
+        setRegisteredWorkers(prev => {
+            const filtered = prev.filter(w => {
+                const nameMatch = w.name && w.name.toLowerCase().trim() === targetStr;
+                const emailMatch = w.email && w.email.toLowerCase().trim() === targetStr;
+                const partialMatch = w.name && targetStr.includes(w.name.toLowerCase().trim());
+                if (nameMatch || emailMatch || partialMatch) {
+                    if (w.email) {
+                        try {
+                            localStorage.removeItem(`buildos_worker_profile_${w.email.toLowerCase()}`);
+                        } catch {}
+                    }
+                    return false;
+                }
+                return true;
+            });
+            safeSetStorage('buildos_worker_accounts', filtered);
+            return filtered;
+        });
+
+        setUser(prevUser => {
+            if (!prevUser || prevUser.role === 'admin') return prevUser;
+            const nameMatch = prevUser.name && prevUser.name.toLowerCase().trim() === targetStr;
+            const emailMatch = prevUser.email && prevUser.email.toLowerCase().trim() === targetStr;
+            const partialMatch = prevUser.name && targetStr.includes(prevUser.name.toLowerCase().trim());
+
+            if (nameMatch || emailMatch || partialMatch) {
+                safeSetStorage('buildos_user', null);
+                return null;
+            }
+            return prevUser;
+        });
     }, []);
 
     const updateProfile = useCallback((updatedFields) => {
@@ -172,10 +194,11 @@ export const AuthProvider = ({ children }) => {
         login,
         registerWorker,
         logout,
+        deleteWorkerAccount,
         updateProfile,
         registeredWorkers,
         adminCredentials: { email: envAdminEmail, password: envAdminPassword }
-    }), [user, login, registerWorker, logout, updateProfile, registeredWorkers, envAdminEmail, envAdminPassword]);
+    }), [user, login, registerWorker, logout, deleteWorkerAccount, updateProfile, registeredWorkers, envAdminEmail, envAdminPassword]);
 
     return (
         <AuthContext.Provider value={contextValue}>

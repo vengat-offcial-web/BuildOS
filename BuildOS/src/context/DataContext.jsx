@@ -335,15 +335,61 @@ export const DataProvider = ({ children }) => {
     const idStr = String(identifier).toLowerCase().trim();
     const idNum = Number(identifier);
 
+    const deletedEmails = [];
+    const deletedNames = [];
+
     setWorkers(prev => {
       const filtered = prev.filter(w => {
-        if (w.id === identifier || w.id === idNum) return false;
-        if (w.name && w.name.toLowerCase().trim() === idStr) return false;
+        const matchId = w.id === identifier || w.id === idNum;
+        const matchName = w.name && w.name.toLowerCase().trim() === idStr;
+        const matchPartial = w.name && idStr.includes(w.name.toLowerCase().trim());
+        if (matchId || matchName || matchPartial) {
+          if (w.email) deletedEmails.push(w.email.toLowerCase().trim());
+          if (w.name) deletedNames.push(w.name.toLowerCase().trim());
+          return false;
+        }
         return true;
       });
       safeSetStorage('buildos_workers', filtered);
       return filtered;
     });
+
+    // Also purge matching login accounts from buildos_worker_accounts & clear worker profile cache
+    try {
+      const savedAccounts = safeGetStorage('buildos_worker_accounts', []);
+      if (Array.isArray(savedAccounts)) {
+        const remainingAccounts = savedAccounts.filter(acc => {
+          const accEmail = acc.email?.toLowerCase().trim();
+          const accName = acc.name?.toLowerCase().trim();
+
+          const isDeletedByEmail = Boolean(accEmail && (accEmail === idStr || deletedEmails.includes(accEmail)));
+          const isDeletedByName = Boolean(accName && (accName === idStr || deletedNames.includes(accName) || idStr.includes(accName)));
+
+          if (isDeletedByEmail || isDeletedByName) {
+            if (accEmail) {
+              try {
+                localStorage.removeItem(`buildos_worker_profile_${accEmail}`);
+              } catch {}
+            }
+            return false;
+          }
+          return true;
+        });
+        safeSetStorage('buildos_worker_accounts', remainingAccounts);
+      }
+    } catch {}
+
+    // Clear session if logged in user is this deleted worker
+    try {
+      const activeUser = safeGetStorage('buildos_user', null);
+      if (activeUser && activeUser.role === 'worker') {
+        const uEmail = activeUser.email?.toLowerCase().trim();
+        const uName = activeUser.name?.toLowerCase().trim();
+        if (uEmail === idStr || uName === idStr || (uEmail && deletedEmails.includes(uEmail)) || (uName && deletedNames.includes(uName))) {
+          localStorage.removeItem('buildos_user');
+        }
+      }
+    } catch {}
 
     // Remove worker from project team assignments across the whole project
     setProjects(prevProjects => {

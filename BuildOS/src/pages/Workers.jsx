@@ -6,9 +6,11 @@ import {
 import { FaHelmetSafety as FaHelmet } from 'react-icons/fa6';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
+import { useAuth } from '../context/useAuth';
 
 function Workers() {
   const { workers, deleteWorker, acceptWorkerRegistration, rejectWorkerRegistration, projects } = useData();
+  const { deleteWorkerAccount } = useAuth();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
@@ -58,29 +60,17 @@ function Workers() {
     return counts;
   }, [allWorkersList]);
 
-  // Submit Handler for New Worker
-  const handleAddWorker = (e) => {
-    e.preventDefault();
-    if (!newWorker.name || !newWorker.trade || !newWorker.site) return;
-
-    const finalAttendance = newWorker.attendance || 'Present';
-    addWorker({
-      ...newWorker,
-      attendance: finalAttendance,
-      status: finalAttendance === 'Present' ? 'On Duty' : 'Off Duty',
-      approvalStatus: 'Approved'
-    });
-    setNewWorker({ name: '', trade: '', site: '', attendance: 'Present', phone: '' });
-    setShowAddModal(false);
-    setToastMessage(`Worker '${newWorker.name}' registered successfully with role '${newWorker.trade}'!`);
-    setTimeout(() => setToastMessage(''), 4000);
-  };
-
   // Delete Handler for Worker
   const handleConfirmDelete = (w) => {
     if (!w) return;
     deleteWorker(w.id);
     deleteWorker(w.name);
+    if (w.email) deleteWorker(w.email);
+    if (deleteWorkerAccount) {
+      deleteWorkerAccount(w.id);
+      deleteWorkerAccount(w.name);
+      if (w.email) deleteWorkerAccount(w.email);
+    }
     setDeletedWorkerIds(prev => [...prev, w.id, w.name?.toLowerCase()]);
     setWorkerToDelete(null);
     if (selectedWorkerProfile?.id === w.id) {
