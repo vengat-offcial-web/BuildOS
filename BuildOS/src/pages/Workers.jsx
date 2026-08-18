@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, Badge } from '../components/ui';
 import { 
   FiUsers,FiPlus,FiPhone,FiFilter,FiX,FiCheckCircle,FiUserCheck,FiMapPin,FiCalendar,FiTrash2} from 'react-icons/fi';
@@ -38,6 +38,20 @@ function Workers() {
     allWorkersList.unshift(defaultExtraWorkers[0]);
   }
 
+  // Dynamically derive trade categories from defaults + any custom roles entered by workers
+  const dynamicTradeFilters = useMemo(() => {
+    const defaultCategories = ['All', 'Site Engineer', 'Masonry', 'Steel', 'Crane', 'Electrical'];
+    const tradeSet = new Set(defaultCategories);
+    
+    allWorkersList.forEach(w => {
+      if (w.trade && w.trade.trim()) {
+        tradeSet.add(w.trade.trim());
+      }
+    });
+
+    return Array.from(tradeSet);
+  }, [allWorkersList]);
+
   // Submit Handler for New Worker
   const handleAddWorker = (e) => {
     e.preventDefault();
@@ -51,7 +65,7 @@ function Workers() {
     });
     setNewWorker({ name: '', trade: '', site: '', attendance: 'Present', phone: '' });
     setShowAddModal(false);
-    setToastMessage(`Worker '${newWorker.name}' registered successfully!`);
+    setToastMessage(`Worker '${newWorker.name}' registered successfully with role '${newWorker.trade}'!`);
     setTimeout(() => setToastMessage(''), 4000);
   };
 
@@ -70,8 +84,12 @@ function Workers() {
   };
 
   const filteredWorkers = allWorkersList.filter(w => {
-    const matchesSearch = w.name.toLowerCase().includes(searchTerm.toLowerCase()) || w.site.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTrade = tradeFilter === 'All' || w.trade.includes(tradeFilter);
+    const matchesSearch = w.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          w.site?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          w.trade?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTrade = tradeFilter === 'All' || 
+                         w.trade?.toLowerCase() === tradeFilter.toLowerCase() ||
+                         w.trade?.toLowerCase().includes(tradeFilter.toLowerCase());
     return matchesSearch && matchesTrade;
   });
 
@@ -106,17 +124,17 @@ function Workers() {
 
       {/* Filter Pills Bar */}
       <div className="glass-card p-4 rounded-[28px] flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto w-full">
+        <div className="flex items-center gap-2 overflow-x-auto w-full pb-1 scrollbar-thin">
           <span className="text-xs font-bold text-slate-400 flex items-center gap-1 shrink-0 mr-1">
             <FiFilter className="text-purple-500" /> Filter Trade:
           </span>
-          {['All', 'Site Engineer', 'Masonry', 'Steel', 'Crane', 'Electrical'].map((tr) => (
+          {dynamicTradeFilters.map((tr) => (
             <button
               key={tr}
               type="button"
               onClick={() => setTradeFilter(tr)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                tradeFilter === tr
+                tradeFilter.toLowerCase() === tr.toLowerCase()
                   ? 'bg-[#7C3AED] text-white shadow-md'
                   : 'bg-white/80 text-slate-600 hover:bg-white hover:text-[#03020A]'
               }`}
