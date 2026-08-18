@@ -653,6 +653,7 @@ export const DataProvider = ({ children }) => {
     markNotificationAsRead,
     markAllNotificationsAsRead,
     clearNotifications,
+    clearActivityFeed,
     addProject,
     updateProject,
     deleteProject,
