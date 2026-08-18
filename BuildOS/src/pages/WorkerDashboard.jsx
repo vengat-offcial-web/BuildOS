@@ -40,6 +40,22 @@ function WorkerDashboard() {
     const currentWorker = workers?.find(w => w.name?.toLowerCase().trim() === user?.name?.toLowerCase().trim());
     const [clockedIn, setClockedIn] = useState(() => currentWorker ? currentWorker.status === 'On Duty' : false);
 
+    const [tasks, setTasks] = useState([
+        { id: 1, text: "Site inspection & quality check", status: "In Progress", urgent: true },
+        { id: 2, text: "Verify concrete curing strength log (Day 3)", status: "Pending", urgent: false },
+        { id: 3, text: "Safety gear & harness check before height work", status: "Pending", urgent: false },
+        { id: 4, text: "Submit daily shift log to supervisor", status: "Pending", urgent: false }
+    ]);
+
+    // Modals state
+    const [showLeaveModal, setShowLeaveModal] = useState(false);
+    const [showSafetyModal, setShowSafetyModal] = useState(false);
+    const [showProjectModal, setShowProjectModal] = useState(false);
+    const [showChatModal, setShowChatModal] = useState(false);
+    const [chatRecipient, setChatRecipient] = useState("Rajesh Kumar (Lead Structural Engineer)");
+    const [workerChatInput, setWorkerChatInput] = useState('');
+    const [toastMessage, setToastMessage] = useState('');
+
     // Dynamically evaluate assigned project from live projects roster
     const matchedProject = useMemo(() => {
         if (!user?.name) return null;
