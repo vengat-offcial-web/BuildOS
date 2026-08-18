@@ -276,7 +276,7 @@ function Login() {
                                 ) : (
                                     <>
                                         <FiLogIn className="text-base text-[#BEF264]" />
-                                        <span>Sign In to Worker Portal</span>
+                                        <span>Sign In</span>
                                     </>
                                 )}
                             </button>
