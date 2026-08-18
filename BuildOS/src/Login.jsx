@@ -31,7 +31,7 @@ function Login() {
     
     // Registration states
     const [regName, setRegName] = useState('');
-    const [regTrade, setRegTrade] = useState('Site Engineer');
+    const [regTrade, setRegTrade] = useState('');
     const [regEmail, setRegEmail] = useState('');
     const [regPhone, setRegPhone] = useState('');
     const [regPassword, setRegPassword] = useState('');
@@ -84,6 +84,10 @@ function Login() {
 
         if (!regName.trim()) {
             setError('Please enter your Full Name.');
+            return;
+        }
+        if (!regTrade.trim()) {
+            setError('Please enter your Worker Role / Trade.');
             return;
         }
         if (!regEmail.trim()) {
