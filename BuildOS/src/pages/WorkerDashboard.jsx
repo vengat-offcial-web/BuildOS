@@ -28,7 +28,7 @@ function WorkerDashboard() {
     const [tasks, setTasks] = useState([
         { id: 1, text: "Site inspection at Zone B4 - Metro Rail Link", status: "In Progress", urgent: true },
         { id: 2, text: "Verify concrete curing strength log (Day 3)", status: "Pending", urgent: false },
-        { id: 3, text: "Safety gear & harness check before height work", status: "Completed", urgent: false },
+        { id: 3, text: "Safety gear & harness check before height work", status: "Pending", urgent: false },
         { id: 4, text: "Submit daily excavator fuel log to supervisor", status: "Pending", urgent: false }
     ]);
 
