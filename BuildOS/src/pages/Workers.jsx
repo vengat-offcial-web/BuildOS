@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Card, Badge } from '../components/ui';
 import { 
-  FiUsers,FiPlus,FiPhone,FiFilter,FiX,FiCheckCircle,FiUserCheck,FiMapPin,FiCalendar,FiTrash2} from 'react-icons/fi';
+  FiUsers, FiPlus, FiPhone, FiFilter, FiX, FiCheckCircle, FiUserCheck, FiMapPin, FiCalendar, FiTrash2, FiAlertCircle
+} from 'react-icons/fi';
 import { FaHelmetSafety as FaHelmet } from 'react-icons/fa6';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
@@ -28,11 +29,6 @@ function Workers() {
     phone: '' 
   });
 
-  // Ensure Mathan and key site workers are in list
-  const defaultExtraWorkers = [
-    { id: 901, name: "Mathan", trade: "Site Engineer", site: "Not Assigned Yet", status: "On Duty", attendance: "Present", phone: "896054050", approvalStatus: "Approved" }
-  ];
-
   const allWorkersList = useMemo(() => {
     const nameToProjectMap = {};
     (projects || []).forEach(p => {
@@ -50,9 +46,6 @@ function Workers() {
     });
 
     const filtered = (workers || []).filter(w => !deletedWorkerIds.includes(w.id) && !deletedWorkerIds.includes(w.name?.toLowerCase()));
-    if (!filtered.some(w => w.name?.toLowerCase() === 'mathan') && !deletedWorkerIds.includes('mathan')) {
-      filtered.unshift(defaultExtraWorkers[0]);
-    }
 
     return filtered.map(w => {
       const assignedProjName = nameToProjectMap[w.name?.trim().toLowerCase()];
@@ -103,7 +96,7 @@ function Workers() {
     if (selectedWorkerProfile?.id === w.id) {
       setSelectedWorkerProfile(null);
     }
-    setToastMessage(`Worker '${w.name}' removed from workforce directory!`);
+    setToastMessage(`Worker '${w.name}' permanently deleted from the entire system!`);
     setTimeout(() => setToastMessage(''), 4000);
   };
 
@@ -410,33 +403,36 @@ function Workers() {
         </div>
       )}
 
-      {/* CONFIRMATION MODAL FOR REMOVING WORKER */}
+      {/* CONFIRMATION POP-UP ALERT FOR PERMANENTLY REMOVING WORKER */}
       {workerToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="glass-card w-full max-w-sm p-6 rounded-[32px] border border-white shadow-2xl space-y-4 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto shadow-inner border border-rose-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="glass-card w-full max-w-md p-6 rounded-[32px] border border-white shadow-2xl space-y-4 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mx-auto shadow-inner border border-rose-200">
               <FiTrash2 />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-[#03020A]">Remove Worker?</h3>
-              <p className="text-xs font-medium text-slate-500 mt-1">
-                Are you sure you want to remove <strong className="text-[#03020A]">{workerToDelete.name}</strong> from the site directory?
+              <h3 className="text-lg font-extrabold text-[#03020A]">Permanently Delete Worker?</h3>
+              <p className="text-xs font-semibold text-slate-600 mt-2 leading-relaxed">
+                Are you sure you want to delete <strong className="text-rose-600 font-extrabold">{workerToDelete.name}</strong> ({workerToDelete.trade})?
+              </p>
+              <p className="text-[11px] font-medium text-slate-500 mt-2 bg-rose-50 border border-rose-100 p-3 rounded-2xl text-rose-700">
+                ⚠️ Once deleted, this worker will be completely removed from all project sites, team rosters, and workforce records across the application.
               </p>
             </div>
             <div className="pt-2 flex justify-center gap-3">
               <button
                 type="button"
                 onClick={() => setWorkerToDelete(null)}
-                className="px-5 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer"
+                className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => handleConfirmDelete(workerToDelete)}
-                className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-rose-600 text-white shadow-md hover:bg-rose-700 transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-full text-xs font-extrabold bg-rose-600 text-white shadow-md hover:bg-rose-700 transition-all cursor-pointer flex items-center gap-1.5"
               >
-                Confirm Remove
+                <FiTrash2 className="text-xs" /> Yes, Delete Permanently
               </button>
             </div>
           </div>

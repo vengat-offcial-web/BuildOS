@@ -232,17 +232,7 @@ function WorkerDashboard() {
                             <span>{clockedIn ? "Clock Out of Shift" : "Clock In to Shift"}</span>
                         </button>
 
-                        {/* Feature 2: Connect Worker to Admin Chat Button */}
-                        <button 
-                            type="button"
-                            onClick={() => setShowChatModal(true)}
-                            className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-extrabold px-4 py-3 rounded-full transition-all flex items-center gap-2 shadow-md cursor-pointer"
-                        >
-                            <FiMessageSquare className="text-[#BEF264] text-sm" />
-                            <span>Connect to Admin</span>
-                        </button>
-
-                        {/* Feature 3: Leave Request Action Button */}
+                        {/* Feature 2: Leave Request Action Button */}
                         <button 
                             type="button"
                             onClick={() => setShowLeaveModal(true)}
@@ -707,128 +697,6 @@ function WorkerDashboard() {
                                 Close Details
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Feature MODAL: Connect Worker to Admin Live Chat */}
-            {showChatModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="glass-card w-full max-w-lg p-6 rounded-[32px] border border-white shadow-2xl space-y-4 flex flex-col max-h-[85vh]">
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between border-b border-purple-100 pb-3 shrink-0">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-[#BEF264] flex items-center justify-center text-white text-lg shadow-sm">
-                                    <FiMessageSquare />
-                                </div>
-                                <div>
-                                    <h3 className="text-base font-extrabold text-[#03020A]">Connect Worker to Admin</h3>
-                                    <p className="text-xs text-purple-600 font-bold">Direct Live Message & Instructions</p>
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setShowChatModal(false)}
-                                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all flex items-center justify-center cursor-pointer"
-                            >
-                                <FiX />
-                            </button>
-                        </div>
-
-                        {/* Recipient Selection Dropdown */}
-                        <div className="bg-white/80 p-3 rounded-2xl border border-purple-100 shrink-0 space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Send Message To Admin / Engineer:</label>
-                            <select
-                                value={chatRecipient}
-                                onChange={(e) => setChatRecipient(e.target.value)}
-                                className="w-full bg-white border border-purple-100 text-xs font-bold text-[#03020A] rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-[#7C3AED]"
-                            >
-                                <option value="Rajesh Kumar (Lead Structural Engineer)">Rajesh Kumar (Lead Structural Engineer)</option>
-                                <option value="Priya Sundaram (Transit Infrastructure Lead)">Priya Sundaram (Transit Infrastructure Lead)</option>
-                                <option value="Anand Verma (Commercial Complex Specialist)">Anand Verma (Commercial Complex Specialist)</option>
-                                <option value="Kavitha R. (High-Rise Site Director)">Kavitha R. (High-Rise Site Director)</option>
-                                <option value="R. Sharma (Lead Site Engineer)">R. Sharma (Lead Site Engineer)</option>
-                                <option value="System Administrator">VENGADESH V (System Administrator)</option>
-                            </select>
-                        </div>
-
-                        {/* Chat Messages Thread */}
-                        <div className="flex-1 overflow-y-auto p-3.5 space-y-3 bg-white/70 rounded-2xl border border-purple-100/80 min-h-[200px]">
-                            {(() => {
-                                const currentWorkerName = user?.name || 'Marcoo';
-                                const myNotes = (workerNotes || []).filter(
-                                    n => n.workerName?.toLowerCase() === currentWorkerName.toLowerCase() ||
-                                         (currentWorkerName.toLowerCase() === 'marcoo' && n.workerName === 'Marcoo') ||
-                                         (currentWorkerName.toLowerCase() === 'mathan' && n.workerName === 'Mathan')
-                                );
-
-                                if (myNotes.length === 0) {
-                                    return (
-                                        <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2">
-                                            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center text-xl">
-                                                <FiMessageSquare />
-                                            </div>
-                                            <p className="text-xs font-bold text-[#03020A]">No messages yet with Admin</p>
-                                            <p className="text-[11px] text-slate-500 font-medium">Type a message below to connect with your site engineer or admin!</p>
-                                        </div>
-                                    );
-                                }
-
-                                return myNotes.map(n => {
-                                    const isWorkerMsg = n.senderRole === 'worker';
-                                    return (
-                                        <div
-                                            key={n.id}
-                                            className={`flex flex-col ${isWorkerMsg ? 'items-end' : 'items-start'}`}
-                                        >
-                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold mb-1 px-1">
-                                                <span>{n.senderName || (isWorkerMsg ? currentWorkerName : 'Admin')}</span>
-                                                <span>•</span>
-                                                <span>{n.time || 'Just Now'}</span>
-                                            </div>
-                                            <div
-                                                className={`p-3.5 rounded-2xl max-w-[85%] text-xs font-semibold shadow-xs relative group ${
-                                                    isWorkerMsg
-                                                        ? 'bg-[#7C3AED] text-white rounded-tr-none'
-                                                        : 'bg-white text-[#03020A] border border-purple-100 rounded-tl-none'
-                                                }`}
-                                            >
-                                                <p>{n.text}</p>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => deleteWorkerNote(n.id)}
-                                                    className={`absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 rounded-full text-[10px] transition-all cursor-pointer ${
-                                                        isWorkerMsg ? 'hover:bg-purple-800 text-purple-200' : 'hover:bg-rose-100 text-rose-500'
-                                                    }`}
-                                                    title="Clear message"
-                                                >
-                                                    <FiX />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                });
-                            })()}
-                        </div>
-
-                        {/* Input Box Footer */}
-                        <form onSubmit={handleSendWorkerChatMessage} className="pt-1 flex items-center gap-2 shrink-0">
-                            <input
-                                type="text"
-                                value={workerChatInput}
-                                onChange={(e) => setWorkerChatInput(e.target.value)}
-                                placeholder="Type your message to Admin / Engineer..."
-                                className="flex-1 bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
-                            />
-                            <button
-                                type="submit"
-                                className="dark-nav-pill px-5 py-2.5 rounded-2xl text-xs font-extrabold text-white shadow-md hover:bg-black transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
-                            >
-                                <FiSend className="text-[#BEF264]" />
-                                <span>Send</span>
-                            </button>
-                        </form>
                     </div>
                 </div>
             )}

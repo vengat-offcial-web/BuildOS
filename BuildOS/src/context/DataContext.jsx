@@ -47,14 +47,9 @@ const initialLeaveRequestsData = [
 export const DataProvider = ({ children }) => {
   const [projects, setProjects] = useState(() => safeGetStorage('buildos_projects', initialProjectsData));
   const [workers, setWorkers] = useState(() => {
-    const saved = safeGetStorage('buildos_workers', initialWorkersData);
-    if (!saved || !Array.isArray(saved) || saved.length === 0) return initialWorkersData;
-    const existingNames = new Set(saved.map(w => w.name?.toLowerCase().trim()));
-    const missingDefaults = initialWorkersData.filter(dw => !existingNames.has(dw.name.toLowerCase().trim()));
-    if (missingDefaults.length > 0) {
-      return [...missingDefaults, ...saved];
-    }
-    return saved;
+    const saved = safeGetStorage('buildos_workers', null);
+    if (saved && Array.isArray(saved)) return saved;
+    return initialWorkersData;
   });
   const [materials, setMaterials] = useState(() => safeGetStorage('buildos_materials', initialMaterialsData));
   const [machines, setMachines] = useState(() => safeGetStorage('buildos_machines', initialMachinesData));
@@ -309,9 +304,45 @@ export const DataProvider = ({ children }) => {
     logActivity(`Worker Updated: ${updatedFields.name || 'Worker'}`, updatedFields.site || 'Site', 'Details Saved', 'lime');
   }, [logActivity]);
 
-  const deleteWorker = useCallback((id) => {
-    setWorkers(prev => prev.filter(w => w.id !== id && w.id !== Number(id) && w.name?.toLowerCase() !== String(id).toLowerCase()));
-    logActivity(`Worker Removed`, `Worker #${id}`, 'Roster Updated', 'purple');
+  const deleteWorker = useCallback((identifier) => {
+    if (!identifier) return;
+    const idStr = String(identifier).toLowerCase().trim();
+    const idNum = Number(identifier);
+
+    setWorkers(prev => {
+      const filtered = prev.filter(w => {
+        if (w.id === identifier || w.id === idNum) return false;
+        if (w.name && w.name.toLowerCase().trim() === idStr) return false;
+        return true;
+      });
+      safeSetStorage('buildos_workers', filtered);
+      return filtered;
+    });
+
+    // Remove worker from project team assignments across the whole project
+    setProjects(prevProjects => {
+      const updatedProjects = prevProjects.map(p => {
+        let changed = false;
+        let newMembers = p.teamMembers;
+        if (p.teamMembers && Array.isArray(p.teamMembers)) {
+          newMembers = p.teamMembers.filter(m => {
+            const mName = m.name?.toLowerCase().trim();
+            return mName !== idStr && m.id !== idNum && m.id !== identifier;
+          });
+          if (newMembers.length !== p.teamMembers.length) changed = true;
+        }
+        let newManager = p.manager;
+        if (p.manager && p.manager.toLowerCase().trim() === idStr) {
+          newManager = 'Unassigned';
+          changed = true;
+        }
+        return changed ? { ...p, teamMembers: newMembers, manager: newManager } : p;
+      });
+      safeSetStorage('buildos_projects', updatedProjects);
+      return updatedProjects;
+    });
+
+    logActivity(`Worker Permanently Deleted`, `Identifier: ${identifier}`, 'Purged from Application', 'purple');
   }, [logActivity]);
 
   const addMaterialOrder = useCallback((orderData) => {
