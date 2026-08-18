@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
             tradeRole: tradeRole,
             role: 'worker',
             title: tradeRole,
-            site: 'Metro Link – B4',
+            site: 'Not Assigned Yet',
             theme: 'dark'
         };
 

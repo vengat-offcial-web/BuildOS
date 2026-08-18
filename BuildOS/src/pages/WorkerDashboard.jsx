@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/useData';
 import DashboardCard from '../components/DashboardCard';
@@ -23,38 +23,68 @@ import { FaHelmetSafety } from 'react-icons/fa6';
 
 function WorkerDashboard() {
     const { user } = useAuth();
-    const { addNotification, updateWorker, workers, leaveRequests, addLeaveRequest, deleteLeaveRequest, workerNotes, addWorkerNote, deleteWorkerNote } = useData();
+    const { 
+        addNotification, 
+        updateWorker, 
+        workers, 
+        projects, 
+        leaveRequests, 
+        addLeaveRequest, 
+        deleteLeaveRequest, 
+        workerNotes, 
+        addWorkerNote, 
+        deleteWorkerNote 
+    } = useData();
 
     // Check if current logged in worker is already clocked in from context roster
-    const currentWorker = workers?.find(w => w.name?.toLowerCase() === user?.name?.toLowerCase());
+    const currentWorker = workers?.find(w => w.name?.toLowerCase().trim() === user?.name?.toLowerCase().trim());
     const [clockedIn, setClockedIn] = useState(() => currentWorker ? currentWorker.status === 'On Duty' : false);
 
-    const [tasks, setTasks] = useState([
-        { id: 1, text: "Site inspection at Zone B4 - Metro Rail Link", status: "In Progress", urgent: true },
-        { id: 2, text: "Verify concrete curing strength log (Day 3)", status: "Pending", urgent: false },
-        { id: 3, text: "Safety gear & harness check before height work", status: "Pending", urgent: false },
-        { id: 4, text: "Submit daily excavator fuel log to supervisor", status: "Pending", urgent: false }
-    ]);
+    // Dynamically evaluate assigned project from live projects roster
+    const matchedProject = useMemo(() => {
+        if (!user?.name) return null;
+        const userNameClean = user.name.toLowerCase().trim();
 
-    // Modals state
-    const [showLeaveModal, setShowLeaveModal] = useState(false);
-    const [showSafetyModal, setShowSafetyModal] = useState(false);
-    const [showProjectModal, setShowProjectModal] = useState(false);
-    const [showChatModal, setShowChatModal] = useState(false);
-    const [chatRecipient, setChatRecipient] = useState("Rajesh Kumar (Lead Structural Engineer)");
-    const [workerChatInput, setWorkerChatInput] = useState('');
-    const [toastMessage, setToastMessage] = useState('');
+        // 1. Check if user is manager or team member of a project in projects state
+        const projByTeam = (projects || []).find(p => {
+            if (p.manager && p.manager.toLowerCase().trim() === userNameClean) return true;
+            if (p.teamMembers && Array.isArray(p.teamMembers)) {
+                return p.teamMembers.some(m => m.name && m.name.toLowerCase().trim() === userNameClean);
+            }
+            return false;
+        });
+        if (projByTeam) return projByTeam;
 
-    // Assigned Project Data
+        // 2. Check if currentWorker or user has an assigned site name that matches an existing project
+        const siteName = (currentWorker?.site || user?.site || '').trim();
+        if (siteName && siteName !== 'Not Assigned Yet' && siteName !== 'not assigned on any project') {
+            const projBySite = (projects || []).find(p => p.name?.toLowerCase().trim() === siteName.toLowerCase().trim());
+            if (projBySite) return projBySite;
+            return {
+                name: siteName,
+                location: 'Site Location',
+                manager: 'Site Lead Engineer',
+                progress: 0,
+                status: 'In Progress',
+                deadline: 'TBD',
+                description: siteName
+            };
+        }
+
+        return null;
+    }, [projects, user, currentWorker]);
+
+    const hasAssignedSite = Boolean(matchedProject);
+
     const assignedProject = {
-        name: "Metro Link – B4",
-        fullTitle: "Metro Line Extension (Phase 2 - Zone B4)",
-        location: "Coimbatore Rapid Corridor",
-        engineer: "R. Sharma (Lead Site Engineer)",
-        workerRole: "Senior Structural & Steel Rebar Specialist",
-        status: "In Progress",
-        completion: 85,
-        deadline: "Oct 10, 2026",
+        name: hasAssignedSite ? matchedProject.name : "not assigned on any project",
+        fullTitle: hasAssignedSite ? (matchedProject.description || matchedProject.name) : "No active project site assigned to your worker account yet",
+        location: hasAssignedSite ? matchedProject.location : "Unassigned",
+        engineer: hasAssignedSite ? (matchedProject.manager || "Site Lead") : "Not Assigned Yet",
+        workerRole: currentWorker?.trade || user?.tradeRole || "Site Operations Worker",
+        status: hasAssignedSite ? matchedProject.status : "Unassigned",
+        completion: hasAssignedSite ? (matchedProject.progress || 0) : 0,
+        deadline: hasAssignedSite ? (matchedProject.deadline || "N/A") : "N/A",
         shiftSchedule: "08:00 AM – 05:00 PM (General Shift)"
     };
 
@@ -236,7 +266,7 @@ function WorkerDashboard() {
                             Welcome back, <span className="text-[#7C3AED]">{user?.name || 'Marcoo'}</span>!
                         </h1>
                         <p className="text-sm font-semibold text-slate-700 leading-relaxed">
-                            Worker Portal • Site Assigned: <strong className="text-[#03020A]">Metro Link – B4</strong> • Engineer: <strong className="text-[#7C3AED]">R. Sharma</strong>
+                            Worker Portal • Site Assigned: <strong className="text-[#03020A]">{assignedProject.name}</strong> • Engineer: <strong className="text-[#7C3AED]">{assignedProject.engineer}</strong>
                         </p>
                     </div>
 
@@ -281,11 +311,11 @@ function WorkerDashboard() {
                 >
                     <DashboardCard 
                         title="Assigned Site" 
-                        value="Metro Link – B4" 
+                        value={hasAssignedSite ? assignedProject.name : "not assigned on any project"} 
                         icon={FiMapPin} 
-                        subtitle="Tap for Site Details →"
-                        badgeType="purple"
-                        accentColor="purple"
+                        subtitle={hasAssignedSite ? "Tap for Site Details →" : "No Active Site"}
+                        badgeType={hasAssignedSite ? "purple" : "yellow"}
+                        accentColor={hasAssignedSite ? "purple" : "dark"}
                     />
                 </div>
                 <DashboardCard 
@@ -501,7 +531,7 @@ function WorkerDashboard() {
                                 </div>
                                 <div>
                                     <h3 className="text-base font-extrabold text-[#03020A]">Apply for Leave</h3>
-                                    <p className="text-[11px] text-slate-500 font-medium">Recipient: <strong className="text-[#7C3AED]">R. Sharma (Site Engineer)</strong></p>
+                                    <p className="text-[11px] text-slate-500 font-medium">Recipient: <strong className="text-[#7C3AED]">{assignedProject.engineer}</strong></p>
                                 </div>
                             </div>
                             <button
@@ -666,46 +696,56 @@ function WorkerDashboard() {
                             </button>
                         </div>
 
-                        <div className="space-y-4 text-xs font-medium text-slate-700">
-                            {/* Status & Location Grid */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-white/80 p-3 rounded-2xl border border-purple-100 space-y-1">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Location / Zone</span>
-                                    <p className="font-extrabold text-[#03020A]">{assignedProject.location}</p>
+                        {hasAssignedSite ? (
+                            <div className="space-y-4 text-xs font-medium text-slate-700">
+                                {/* Status & Location Grid */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-white/80 p-3 rounded-2xl border border-purple-100 space-y-1">
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Location / Zone</span>
+                                        <p className="font-extrabold text-[#03020A]">{assignedProject.location}</p>
+                                    </div>
+                                    <div className="bg-white/80 p-3 rounded-2xl border border-purple-100 space-y-1">
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Site Engineer</span>
+                                        <p className="font-extrabold text-[#7C3AED]">{assignedProject.engineer}</p>
+                                    </div>
                                 </div>
-                                <div className="bg-white/80 p-3 rounded-2xl border border-purple-100 space-y-1">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Site Engineer</span>
-                                    <p className="font-extrabold text-[#7C3AED]">{assignedProject.engineer}</p>
-                                </div>
-                            </div>
 
-                            {/* Progress Bar & Schedule */}
-                            <div className="bg-white/80 p-4 rounded-2xl border border-purple-100 space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-bold text-[#03020A]">Overall Project Completion</span>
-                                    <span className="font-extrabold text-[#7C3AED]">{assignedProject.completion}%</span>
+                                {/* Progress Bar & Schedule */}
+                                <div className="bg-white/80 p-4 rounded-2xl border border-purple-100 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-bold text-[#03020A]">Overall Project Completion</span>
+                                        <span className="font-extrabold text-[#7C3AED]">{assignedProject.completion}%</span>
+                                    </div>
+                                    <div className="w-full bg-purple-100 h-2.5 rounded-full overflow-hidden">
+                                        <div className="bg-gradient-to-r from-[#7C3AED] to-[#BEF264] h-full rounded-full" style={{ width: `${assignedProject.completion}%` }}></div>
+                                    </div>
+                                    <div className="flex justify-between text-[11px] text-slate-500 pt-1">
+                                        <span>Target Deadline: <strong className="text-slate-700">{assignedProject.deadline}</strong></span>
+                                        <span>Shift Hours: <strong className="text-slate-700">{assignedProject.shiftSchedule}</strong></span>
+                                    </div>
                                 </div>
-                                <div className="w-full bg-purple-100 h-2.5 rounded-full overflow-hidden">
-                                    <div className="bg-gradient-to-r from-[#7C3AED] to-[#BEF264] h-full rounded-full" style={{ width: `${assignedProject.completion}%` }}></div>
-                                </div>
-                                <div className="flex justify-between text-[11px] text-slate-500 pt-1">
-                                    <span>Target Deadline: <strong className="text-slate-700">{assignedProject.deadline}</strong></span>
-                                    <span>Shift Hours: <strong className="text-slate-700">{assignedProject.shiftSchedule}</strong></span>
-                                </div>
-                            </div>
 
-                            {/* Worker Assigned Role by Site Engineer */}
-                            <div className="bg-[#F0FDC2]/60 border border-[#BEF264] p-4 rounded-2xl space-y-1">
-                                <span className="text-[10px] font-extrabold text-[#3F6212] uppercase tracking-wider block">Worker Assigned Role by Site Engineer</span>
-                                <p className="font-extrabold text-[#03020A] text-sm flex items-center gap-2 pt-0.5">
-                                    <FaHelmetSafety className="text-[#7C3AED] text-base" />
-                                    <span>{assignedProject.workerRole}</span>
-                                </p>
-                                <p className="text-[11px] text-slate-600 font-semibold pt-1">
-                                    Assigned & Authorized By: <strong className="text-[#7C3AED]">{assignedProject.engineer}</strong>
+                                {/* Worker Assigned Role by Site Engineer */}
+                                <div className="bg-[#F0FDC2]/60 border border-[#BEF264] p-4 rounded-2xl space-y-1">
+                                    <span className="text-[10px] font-extrabold text-[#3F6212] uppercase tracking-wider block">Worker Assigned Role</span>
+                                    <p className="font-extrabold text-[#03020A] text-sm flex items-center gap-2 pt-0.5">
+                                        <FaHelmetSafety className="text-[#7C3AED] text-base" />
+                                        <span>{assignedProject.workerRole}</span>
+                                    </p>
+                                    <p className="text-[11px] text-slate-600 font-semibold pt-1">
+                                        Assigned & Authorized By: <strong className="text-[#7C3AED]">{assignedProject.engineer}</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-2 text-center">
+                                <FiAlertCircle className="text-amber-600 text-2xl mx-auto" />
+                                <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-950">No Project Site Assigned</h4>
+                                <p className="text-xs font-medium text-amber-800 leading-relaxed">
+                                    You are currently not assigned to any active project site roster. Please contact the Admin to assign you to a project site (e.g. Marina Tower or Metro Line Extension).
                                 </p>
                             </div>
-                        </div>
+                        )}
 
                         <div className="pt-2 flex justify-end">
                             <button
