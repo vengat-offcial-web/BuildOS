@@ -7,7 +7,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Workers() {
-  const { workers, addWorker, deleteWorker, acceptWorkerRegistration, rejectWorkerRegistration } = useData();
+  const { workers, addWorker, deleteWorker, acceptWorkerRegistration, rejectWorkerRegistration, projects } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
@@ -30,13 +30,38 @@ function Workers() {
 
   // Ensure Mathan and key site workers are in list
   const defaultExtraWorkers = [
-    { id: 901, name: "Mathan", trade: "Site Engineer", site: "Hyper Mall", status: "On Duty", attendance: "Present", phone: "896054050", approvalStatus: "Approved" }
+    { id: 901, name: "Mathan", trade: "Site Engineer", site: "Not Assigned Yet", status: "On Duty", attendance: "Present", phone: "896054050", approvalStatus: "Approved" }
   ];
 
-  const allWorkersList = workers.filter(w => !deletedWorkerIds.includes(w.id) && !deletedWorkerIds.includes(w.name?.toLowerCase()));
-  if (!allWorkersList.some(w => w.name?.toLowerCase() === 'mathan') && !deletedWorkerIds.includes('mathan')) {
-    allWorkersList.unshift(defaultExtraWorkers[0]);
-  }
+  const allWorkersList = useMemo(() => {
+    const nameToProjectMap = {};
+    (projects || []).forEach(p => {
+      if (!p.name) return;
+      if (p.manager) {
+        nameToProjectMap[p.manager.trim().toLowerCase()] = p.name;
+      }
+      if (p.teamMembers && Array.isArray(p.teamMembers)) {
+        p.teamMembers.forEach(m => {
+          if (m.name) {
+            nameToProjectMap[m.name.trim().toLowerCase()] = p.name;
+          }
+        });
+      }
+    });
+
+    const filtered = (workers || []).filter(w => !deletedWorkerIds.includes(w.id) && !deletedWorkerIds.includes(w.name?.toLowerCase()));
+    if (!filtered.some(w => w.name?.toLowerCase() === 'mathan') && !deletedWorkerIds.includes('mathan')) {
+      filtered.unshift(defaultExtraWorkers[0]);
+    }
+
+    return filtered.map(w => {
+      const assignedProjName = nameToProjectMap[w.name?.trim().toLowerCase()];
+      if (assignedProjName) {
+        return { ...w, site: assignedProjName };
+      }
+      return w;
+    });
+  }, [workers, projects, deletedWorkerIds]);
 
   // Dynamically derive trade stats with worker counts for the sleek dropdown filter
   const tradeStats = useMemo(() => {

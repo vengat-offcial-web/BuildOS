@@ -66,6 +66,41 @@ export const DataProvider = ({ children }) => {
   useEffect(() => { safeSetStorage('buildos_worker_notes', workerNotes); }, [workerNotes]);
   useEffect(() => { safeSetStorage('buildos_leave_requests', leaveRequests); }, [leaveRequests]);
 
+  // Automatically sync worker sites with assigned projects whenever projects or workers change
+  useEffect(() => {
+    if (!projects || projects.length === 0) return;
+
+    const nameToProjectMap = {};
+    projects.forEach(p => {
+      if (!p.name) return;
+      if (p.manager) {
+        nameToProjectMap[p.manager.trim().toLowerCase()] = p.name;
+      }
+      if (p.teamMembers && Array.isArray(p.teamMembers)) {
+        p.teamMembers.forEach(m => {
+          if (m.name) {
+            nameToProjectMap[m.name.trim().toLowerCase()] = p.name;
+          }
+        });
+      }
+    });
+
+    setWorkers(prevWorkers => {
+      if (!prevWorkers || prevWorkers.length === 0) return prevWorkers;
+      let needsUpdate = false;
+      const updated = prevWorkers.map(w => {
+        if (!w.name) return w;
+        const assignedProjName = nameToProjectMap[w.name.trim().toLowerCase()];
+        if (assignedProjName && w.site !== assignedProjName) {
+          needsUpdate = true;
+          return { ...w, site: assignedProjName };
+        }
+        return w;
+      });
+      return needsUpdate ? updated : prevWorkers;
+    });
+  }, [projects]);
+
   // Helper log activity generator
   const logActivity = useCallback((title, site, status, badge = 'lime') => {
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -122,6 +157,12 @@ export const DataProvider = ({ children }) => {
     setProjects(prev => [newProj, ...prev]);
     logActivity(`Project Assigned: ${newProj.name}`, newProj.location, 'Status: Planning', 'purple');
 
+    // Automatically sync site for manager
+    if (newProj.manager) {
+      const mgrName = newProj.manager.trim().toLowerCase();
+      setWorkers(prev => prev.map(w => (w.name && w.name.trim().toLowerCase() === mgrName) ? { ...w, site: newProj.name } : w));
+    }
+
     // Notify Workers about team assignment
     addNotification(
       "Assigned to New Project Team",
@@ -134,7 +175,39 @@ export const DataProvider = ({ children }) => {
   }, [logActivity, addNotification]);
 
   const updateProject = useCallback((id, updatedFields) => {
-    setProjects(prev => prev.map(p => p.id === Number(id) ? { ...p, ...updatedFields } : p));
+    let targetProjectName = '';
+    setProjects(prev => prev.map(p => {
+      if (p.id === Number(id)) {
+        const updated = { ...p, ...updatedFields };
+        targetProjectName = updated.name;
+        return updated;
+      }
+      return p;
+    }));
+
+    // Automatically sync assigned site for manager and team members
+    const projectName = updatedFields.name || targetProjectName;
+    if (projectName) {
+      const namesToUpdate = new Set();
+      if (updatedFields.manager) {
+        namesToUpdate.add(updatedFields.manager.trim().toLowerCase());
+      }
+      if (updatedFields.teamMembers && Array.isArray(updatedFields.teamMembers)) {
+        updatedFields.teamMembers.forEach(m => {
+          if (m.name) namesToUpdate.add(m.name.trim().toLowerCase());
+        });
+      }
+
+      if (namesToUpdate.size > 0) {
+        setWorkers(prev => prev.map(w => {
+          if (w.name && namesToUpdate.has(w.name.trim().toLowerCase())) {
+            return { ...w, site: projectName };
+          }
+          return w;
+        }));
+      }
+    }
+
     logActivity(`Project Updated`, `ID #${id}`, 'Changes Saved', 'lime');
   }, [logActivity]);
 
