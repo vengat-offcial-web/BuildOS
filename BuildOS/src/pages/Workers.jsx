@@ -122,7 +122,25 @@ function Workers() {
 
       {/* Filter Trade Bar - Sleek Glassmorphism Select Dropdown */}
       <div className="glass-card p-4 rounded-[28px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 flex-wrap">
+        {/* Left Side: Showing Workers count & Reset button */}
+        <div className="flex items-center gap-3 text-xs">
+          <span className="font-semibold text-slate-500">
+            Showing <strong className="text-[#7C3AED] font-extrabold">{filteredWorkers.length}</strong> of {allWorkersList.length} workers
+          </span>
+
+          {tradeFilter !== 'All' && (
+            <button
+              type="button"
+              onClick={() => setTradeFilter('All')}
+              className="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+            >
+              <FiX className="text-xs" /> Reset
+            </button>
+          )}
+        </div>
+
+        {/* Right Side: Filter Trade Dropdown */}
+        <div className="flex items-center gap-3 flex-wrap self-end sm:self-auto">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center text-sm font-extrabold">
               <FiFilter />
@@ -142,22 +160,6 @@ function Workers() {
               </option>
             ))}
           </select>
-        </div>
-
-        <div className="flex items-center gap-3 self-end sm:self-auto text-xs">
-          <span className="font-semibold text-slate-500">
-            Showing <strong className="text-[#7C3AED] font-extrabold">{filteredWorkers.length}</strong> of {allWorkersList.length} workers
-          </span>
-
-          {tradeFilter !== 'All' && (
-            <button
-              type="button"
-              onClick={() => setTradeFilter('All')}
-              className="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all flex items-center gap-1 cursor-pointer shadow-xs"
-            >
-              <FiX className="text-xs" /> Reset
-            </button>
-          )}
         </div>
       </div>
 
