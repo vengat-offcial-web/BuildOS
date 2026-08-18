@@ -8,26 +8,16 @@ import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Workers() {
-  const { workers, addWorker, deleteWorker, acceptWorkerRegistration, rejectWorkerRegistration, projects } = useData();
+  const { workers, deleteWorker, acceptWorkerRegistration, rejectWorkerRegistration, projects } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
   
   // Modals state
-  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedWorkerProfile, setSelectedWorkerProfile] = useState(null);
   const [workerToDelete, setWorkerToDelete] = useState(null);
   const [deletedWorkerIds, setDeletedWorkerIds] = useState([]);
   const [toastMessage, setToastMessage] = useState('');
-
-  // Form states for New Worker
-  const [newWorker, setNewWorker] = useState({ 
-    name: '', 
-    trade: '', 
-    site: '', 
-    attendance: 'Present', 
-    phone: '' 
-  });
 
   const allWorkersList = useMemo(() => {
     const nameToProjectMap = {};
@@ -121,22 +111,11 @@ function Workers() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-[#03020A] tracking-tight flex items-center gap-2">
-            <FiUsers className="text-[#7C3AED]" />
-            Site Workforce Directory
-          </h1>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowAddModal(true)}
-          className="dark-nav-pill px-5 py-3 rounded-full text-xs font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all cursor-pointer shrink-0"
-        >
-          <FiPlus className="text-[#BEF264] text-base" />
-          <span>Add New Worker</span>
-        </button>
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-[#03020A] tracking-tight flex items-center gap-2">
+          <FiUsers className="text-[#7C3AED]" />
+          Site Workforce Directory
+        </h1>
       </div>
 
       {/* Filter Trade Bar - Sleek Glassmorphism Select Dropdown */}
@@ -435,86 +414,6 @@ function Workers() {
                 <FiTrash2 className="text-xs" /> Yes, Delete Permanently
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* REGISTER NEW WORKER MODAL */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md p-6 rounded-[32px] border border-white shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-purple-100 pb-3">
-              <h3 className="text-lg font-extrabold text-[#03020A]">Register New Worker</h3>
-              <button type="button" onClick={() => setShowAddModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 cursor-pointer">✕</button>
-            </div>
-
-            <form onSubmit={handleAddWorker} className="space-y-3.5">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={newWorker.name}
-                  onChange={(e) => setNewWorker({ ...newWorker, name: e.target.value })}
-                  placeholder="Enter full name..."
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Role / Trade Specialization</label>
-                <input
-                  type="text"
-                  required
-                  value={newWorker.trade}
-                  onChange={(e) => setNewWorker({ ...newWorker, trade: e.target.value })}
-                  placeholder="Enter role or trade..."
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Site</label>
-                <input
-                  type="text"
-                  required
-                  value={newWorker.site}
-                  onChange={(e) => setNewWorker({ ...newWorker, site: e.target.value })}
-                  placeholder="Enter assigned site location..."
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Attendance Status</label>
-                  <select
-                    value={newWorker.attendance || 'Present'}
-                    onChange={(e) => setNewWorker({ ...newWorker, attendance: e.target.value })}
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-3 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
-                  >
-                    <option value="Present">Present</option>
-                    <option value="Absent">Absent</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Contact Info</label>
-                  <input
-                    type="text"
-                    value={newWorker.phone}
-                    onChange={(e) => setNewWorker({ ...newWorker, phone: e.target.value })}
-                    placeholder="Enter contact info..."
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#7C3AED]"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Cancel</button>
-                <button type="submit" className="dark-nav-pill px-5 py-2.5 rounded-full text-xs font-extrabold text-white shadow-md hover:bg-black transition-all cursor-pointer">Register Worker</button>
-              </div>
-            </form>
           </div>
         </div>
       )}
