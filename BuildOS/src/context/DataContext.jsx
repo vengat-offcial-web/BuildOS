@@ -46,7 +46,16 @@ const initialLeaveRequestsData = [
 
 export const DataProvider = ({ children }) => {
   const [projects, setProjects] = useState(() => safeGetStorage('buildos_projects', initialProjectsData));
-  const [workers, setWorkers] = useState(() => safeGetStorage('buildos_workers', initialWorkersData));
+  const [workers, setWorkers] = useState(() => {
+    const saved = safeGetStorage('buildos_workers', initialWorkersData);
+    if (!saved || !Array.isArray(saved) || saved.length === 0) return initialWorkersData;
+    const existingNames = new Set(saved.map(w => w.name?.toLowerCase().trim()));
+    const missingDefaults = initialWorkersData.filter(dw => !existingNames.has(dw.name.toLowerCase().trim()));
+    if (missingDefaults.length > 0) {
+      return [...missingDefaults, ...saved];
+    }
+    return saved;
+  });
   const [materials, setMaterials] = useState(() => safeGetStorage('buildos_materials', initialMaterialsData));
   const [machines, setMachines] = useState(() => safeGetStorage('buildos_machines', initialMachinesData));
   const [tasks, setTasks] = useState(() => safeGetStorage('buildos_tasks', initialTasksData));
