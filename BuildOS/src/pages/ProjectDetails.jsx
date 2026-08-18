@@ -115,19 +115,15 @@ function ProjectDetails() {
 
   const siteWorkers = workers.filter(w => project && project.name && (w.site.toLowerCase().includes(project.name.toLowerCase()) || w.site.toLowerCase().includes(project.location.toLowerCase()))).slice(0, 4);
 
-  const defaultTeamMembers = (project && project.teamMembers && project.teamMembers.length > 0)
+  const projectTeamMembers = (project && Array.isArray(project.teamMembers))
     ? project.teamMembers
-    : (siteWorkers.length > 0 ? siteWorkers : workers.slice(0, 4));
-
-  const projectTeamMembers = (project && project.teamMembers && project.teamMembers.length > 0)
-    ? project.teamMembers
-    : defaultTeamMembers;
+    : (siteWorkers.length > 0 ? siteWorkers : []);
 
   const handleOpenTeamModal = () => {
     if (!project) return;
-    const currentList = (project.teamMembers && project.teamMembers.length > 0)
+    const currentList = (project && Array.isArray(project.teamMembers))
       ? project.teamMembers
-      : defaultTeamMembers;
+      : (siteWorkers.length > 0 ? siteWorkers : []);
     setEditTeamMembers(currentList.map(m => ({
       name: m.name || '',
       trade: m.trade || m.role || 'Site Engineer',
@@ -430,7 +426,7 @@ function ProjectDetails() {
     );
   }
 
-  const activeWorkersCount = project.workforceRequired !== undefined && project.workforceRequired !== null ? project.workforceRequired : (siteWorkers.length || 4);
+  const activeWorkersCount = projectTeamMembers.length;
   const activeMachineryCount = project.machineryCount !== undefined && project.machineryCount !== null ? project.machineryCount : machines.length;
 
   return (
@@ -651,20 +647,28 @@ function ProjectDetails() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {projectTeamMembers.map((mem, index) => (
-              <Card key={index} hover={true} className="text-center p-6 space-y-3">
-                <div className="w-14 h-14 rounded-full bg-linear-to-tr from-[#E9D5FF] to-[#D9F99D] text-[#6B21A8] flex items-center justify-center font-extrabold text-lg mx-auto shadow-md border-2 border-white">
-                  {mem.name ? mem.name.charAt(0).toUpperCase() : 'W'}
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#03020A]">{mem.name}</h4>
-                  <p className="text-xs font-semibold text-purple-600">{mem.trade || mem.role || 'Site Engineer'}</p>
-                </div>
-                <p className="text-[11px] font-medium text-slate-500 bg-purple-50 py-1 px-3 rounded-full">
-                  {mem.phone || mem.contact || '+91 98765 00000'}
-                </p>
-              </Card>
-            ))}
+            {projectTeamMembers.length === 0 ? (
+              <div className="col-span-full glass-card p-8 rounded-3xl text-center space-y-2 border border-white">
+                <FiUsers className="text-2xl text-[#7C3AED] mx-auto" />
+                <p className="text-xs font-extrabold text-[#03020A]">No Site Personnel Assigned</p>
+                <p className="text-[11px] text-slate-500 font-semibold">Click "Edit Team" above to add site engineers or workers to this project.</p>
+              </div>
+            ) : (
+              projectTeamMembers.map((mem, index) => (
+                <Card key={index} hover={true} className="text-center p-6 space-y-3">
+                  <div className="w-14 h-14 rounded-full bg-linear-to-tr from-[#E9D5FF] to-[#D9F99D] text-[#6B21A8] flex items-center justify-center font-extrabold text-lg mx-auto shadow-md border-2 border-white">
+                    {mem.name ? mem.name.charAt(0).toUpperCase() : 'W'}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-[#03020A]">{mem.name}</h4>
+                    <p className="text-xs font-semibold text-purple-600">{mem.trade || mem.role || 'Site Engineer'}</p>
+                  </div>
+                  <p className="text-[11px] font-medium text-slate-500 bg-purple-50 py-1 px-3 rounded-full">
+                    {mem.phone || mem.contact || '+91 98765 00000'}
+                  </p>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       )}
