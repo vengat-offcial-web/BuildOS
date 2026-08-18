@@ -141,6 +141,11 @@ export const DataProvider = ({ children }) => {
     setNotifications([]);
   }, []);
 
+  const clearActivityFeed = useCallback(() => {
+    setActivityFeed([]);
+    safeSetStorage('buildos_activity', []);
+  }, []);
+
   // Action Handlers
   const addProject = useCallback((projectData) => {
     const newProj = {
@@ -689,6 +694,7 @@ export const DataProvider = ({ children }) => {
     markNotificationAsRead,
     markAllNotificationsAsRead,
     clearNotifications,
+    clearActivityFeed,
     addProject,
     updateProject,
     deleteProject,

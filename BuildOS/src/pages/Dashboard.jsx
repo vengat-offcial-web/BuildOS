@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { FiCalendar, FiPlus, FiArrowRight, FiActivity, FiCheckCircle, FiSearch, FiX, FiFilter, FiInbox } from 'react-icons/fi';
+import { FiCalendar, FiPlus, FiArrowRight, FiActivity, FiCheckCircle, FiSearch, FiX, FiFilter, FiInbox, FiTrash2 } from 'react-icons/fi';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { DashboardCards, Table, ProjectBentoCard } from '../components';
 import { useData } from '../context/useData';
@@ -10,7 +10,7 @@ function Dashboard() {
   const searchTerm = outletContext.searchTerm || '';
   const setSearchTerm = outletContext.setSearchTerm || (() => {});
 
-  const { projects = [], activityFeed = [] } = useData() || {};
+  const { projects = [], activityFeed = [], clearActivityFeed } = useData() || {};
 
   const [statusFilter, setStatusFilter] = useState('All');
 
@@ -203,7 +203,19 @@ function Dashboard() {
             <FiActivity className="text-[#7C3AED]" />
             Live Site Operations Feed
           </h3>
-          <span className="text-[11px] font-bold text-slate-500">Updated Real-Time</span>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-bold text-slate-500">Updated Real-Time</span>
+            {activityFeed && activityFeed.length > 0 && (
+              <button
+                type="button"
+                onClick={() => clearActivityFeed && clearActivityFeed()}
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1 cursor-pointer bg-rose-50 border border-rose-200 px-3 py-1 rounded-full transition-all"
+                title="Clear all activity feed history"
+              >
+                <FiTrash2 className="text-xs" /> Clear Feed
+              </button>
+            )}
+          </div>
         </div>
 
         {filteredFeed.length > 0 ? (
