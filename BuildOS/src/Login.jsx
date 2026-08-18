@@ -40,14 +40,6 @@ function Login() {
     const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const tradePills = [
-        'Site Engineer',
-        'Structural Specialist',
-        'Masonry Specialist',
-        'Electrical Engineer',
-        'Crane Operator'
-    ];
-
     // Redirect logged in users
     useEffect(() => {
         if (user) {
@@ -332,7 +324,7 @@ function Login() {
                                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                                     Worker Assigned Role / Trade <span className="text-rose-500">*</span>
                                 </label>
-                                <div className="relative mb-2">
+                                <div className="relative">
                                     <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-purple-500">
                                         <FaHelmet className="text-base" />
                                     </span>
@@ -341,27 +333,9 @@ function Login() {
                                         required
                                         value={regTrade}
                                         onChange={(e) => setRegTrade(e.target.value)}
-                                        placeholder="Enter or select your worker role"
+                                        placeholder="Enter your worker role"
                                         className="w-full bg-white/90 border border-purple-100 rounded-2xl py-3 pl-10 pr-4 text-[#03020A] placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all shadow-sm"
                                     />
-                                </div>
-
-                                {/* Trade Suggestion Pills */}
-                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                                    {tradePills.map((pill) => (
-                                        <button
-                                            key={pill}
-                                            type="button"
-                                            onClick={() => setRegTrade(pill)}
-                                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold shrink-0 transition-all cursor-pointer ${
-                                                regTrade === pill
-                                                    ? 'bg-[#7C3AED] text-white shadow-sm'
-                                                    : 'bg-white/80 text-slate-600 border border-purple-100 hover:bg-white'
-                                            }`}
-                                        >
-                                            {pill}
-                                        </button>
-                                    ))}
                                 </div>
                             </div>
 
