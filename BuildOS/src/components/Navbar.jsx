@@ -167,7 +167,6 @@ export function Navbar({
                                     >
                                         <div className="flex items-center justify-between gap-2">
                                             <div className="flex items-center gap-2">
-                                                <span className={`w-2 h-2 rounded-full ${n.unread ? "bg-[#7C3AED] animate-ping" : "bg-slate-300"}`}></span>
                                                 <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#F0FDC2] text-[#3F6212] border border-[#BEF264]">
                                                     {n.category}
                                                 </span>
