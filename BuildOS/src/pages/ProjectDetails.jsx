@@ -6,7 +6,6 @@ import { FiArrowLeft,FiMapPin,FiCalendar,FiDollarSign,FiCheckCircle,FiClock,FiUs
 import { FaBuilding } from 'react-icons/fa6';
 import { useData } from '../context/useData';
 import AssignProject from './AssignProject';
-import { initialEngineersData } from '../data';
 
 function ProjectDetails() {
   const { id } = useParams();
@@ -45,19 +44,27 @@ function ProjectDetails() {
 
   const filteredEngineers = useMemo(() => {
     const term = (editManager || '').toLowerCase().trim();
-    if (!term) return initialEngineersData;
-    return initialEngineersData.filter(eng =>
+    const activeEngineers = (workers || []).map(w => ({
+      name: w.name,
+      role: w.trade || 'Site Lead',
+      phone: w.phone || '+91 98765 00000'
+    }));
+
+    if (!term) return activeEngineers;
+    return activeEngineers.filter(eng =>
       eng.name.toLowerCase().includes(term) ||
       eng.role.toLowerCase().includes(term)
     );
-  }, [editManager]);
+  }, [editManager, workers]);
 
-  // Combined catalog of saved personnel
+  // Combined catalog of saved personnel derived strictly from active workers
   const savedPersonnelCatalog = useMemo(() => {
-    const combined = [
-      ...initialEngineersData.map(e => ({ name: e.name, trade: e.role, phone: e.phone, type: 'Engineer' })),
-      ...(workers || []).map(w => ({ name: w.name, trade: w.trade, phone: w.phone || '+91 98765 00000', type: 'Site Worker' }))
-    ];
+    const combined = (workers || []).map(w => ({
+      name: w.name,
+      trade: w.trade || 'Site Member',
+      phone: w.phone || '+91 98765 00000',
+      type: (w.trade?.toLowerCase().includes('engineer') || w.trade?.toLowerCase().includes('lead') || w.trade?.toLowerCase().includes('director')) ? 'Engineer' : 'Site Worker'
+    }));
     const seen = new Set();
     return combined.filter(item => {
       if (!item.name) return false;

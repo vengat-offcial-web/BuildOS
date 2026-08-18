@@ -20,20 +20,11 @@ import {
 import { FaBuilding } from 'react-icons/fa6';
 import { useData } from '../context/useData';
 
-const engineersDatabase = [
-  { id: 1, name: "Rajesh Kumar", role: "Lead Structural Engineer", phone: "+91 98765 43210", avatarBg: "from-[#E9D5FF] to-[#C4B5FD]" },
-  { id: 2, name: "Priya Sundaram", role: "Transit Infrastructure Lead", phone: "+91 98765 43220", avatarBg: "from-[#F0FDC2] to-[#D9F99D]" },
-  { id: 3, name: "Anand Verma", role: "Commercial Complex Specialist", phone: "+91 98765 43230", avatarBg: "from-[#D8B4FE] to-[#A78BFA]" },
-  { id: 4, name: "Kavitha R.", role: "High-Rise Site Director", phone: "+91 98765 43240", avatarBg: "from-[#FEF9C3] to-[#FEF08A]" },
-  { id: 5, name: "Suresh Babu", role: "Residential Township Engineer", phone: "+91 98765 43250", avatarBg: "from-[#E9D5FF] to-[#F0FDC2]" },
-  { id: 6, name: "Vikram Sethu", role: "Industrial Logistics Consultant", phone: "+91 98765 43260", avatarBg: "from-[#C4B5FD] to-[#8B5CF6]" }
-];
-
 const cityTags = ["Chennai", "Coimbatore", "Madurai", "Trichy", "Salem", "Hosur"];
 
 function AssignProject() {
   const navigate = useNavigate();
-  const { addProject } = useData();
+  const { addProject, workers } = useData();
 
   // Form State
   const [name, setName] = useState('');
@@ -54,13 +45,21 @@ function AssignProject() {
   const [submitting, setSubmitting] = useState(false);
   const [successToast, setSuccessToast] = useState(false);
 
-  // Filtered Engineers
+  // Filtered Engineers derived exclusively from live active workers
   const filteredEngineers = useMemo(() => {
-    return engineersDatabase.filter(e =>
+    const activeEngineers = (workers || []).map((w, idx) => ({
+      id: w.id || idx + 1,
+      name: w.name,
+      role: w.trade || 'Site Lead',
+      phone: w.phone || '+91 98765 00000',
+      avatarBg: "from-[#E9D5FF] to-[#C4B5FD]"
+    }));
+
+    return activeEngineers.filter(e =>
       e.name.toLowerCase().includes(engineerSearch.toLowerCase()) ||
       e.role.toLowerCase().includes(engineerSearch.toLowerCase())
     );
-  }, [engineerSearch]);
+  }, [engineerSearch, workers]);
 
   // Duration Calculator
   const durationText = useMemo(() => {
