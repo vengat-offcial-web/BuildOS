@@ -112,8 +112,8 @@ function Login() {
                         name: regName,
                         trade: regTrade,
                         site: 'Metro Link – B4',
-                        status: 'On Duty',
-                        attendance: '100%',
+                        status: 'Off Duty',
+                        attendance: 'Absent',
                         phone: '+91 98765 43210'
                     });
                 }

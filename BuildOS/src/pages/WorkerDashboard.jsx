@@ -23,8 +23,12 @@ import { FaHelmetSafety } from 'react-icons/fa6';
 
 function WorkerDashboard() {
     const { user } = useAuth();
-    const { addNotification, updateWorker, leaveRequests, addLeaveRequest, deleteLeaveRequest } = useData();
-    const [clockedIn, setClockedIn] = useState(true);
+    const { addNotification, updateWorker, workers, leaveRequests, addLeaveRequest, deleteLeaveRequest } = useData();
+
+    // Check if current logged in worker is already clocked in from context roster
+    const currentWorker = workers?.find(w => w.name?.toLowerCase() === user?.name?.toLowerCase());
+    const [clockedIn, setClockedIn] = useState(() => currentWorker ? currentWorker.status === 'On Duty' : false);
+
     const [tasks, setTasks] = useState([
         { id: 1, text: "Site inspection at Zone B4 - Metro Rail Link", status: "In Progress", urgent: true },
         { id: 2, text: "Verify concrete curing strength log (Day 3)", status: "Pending", urgent: false },
