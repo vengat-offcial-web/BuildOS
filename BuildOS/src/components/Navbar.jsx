@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FiSearch, FiBell, FiX, FiCheckCircle, FiCheck, FiTrash2, FiFolder, FiCheckSquare } from 'react-icons/fi';
 import { useData } from '../context/useData';
+import { useAuth } from '../context/useAuth';
 
 export function Navbar({
     searchValue,
@@ -21,13 +22,18 @@ export function Navbar({
         acceptWorkerRegistration,
         rejectWorkerRegistration
     } = useData();
+    const { user } = useAuth();
     const [showDrawer, setShowDrawer] = useState(false);
 
     const isWorkerPortal = !showSearch;
 
     const visibleNotifications = notifications ? notifications.filter(n => {
         if (isWorkerPortal) {
-            return n.target === 'worker';
+            if (n.target !== 'worker') return false;
+            if (n.recipient && user?.name) {
+                return n.recipient.toLowerCase().trim() === user.name.toLowerCase().trim();
+            }
+            return true;
         }
         return n.target === 'admin';
     }) : [];

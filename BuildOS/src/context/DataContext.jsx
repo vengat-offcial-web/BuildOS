@@ -113,7 +113,7 @@ export const DataProvider = ({ children }) => {
   }, []);
 
   // Notifications Handlers
-  const addNotification = useCallback((title, message, category = "Task Assignment", badge = "purple", target = "worker", leaveReqId = null) => {
+  const addNotification = useCallback((title, message, category = "Task Assignment", badge = "purple", target = "worker", leaveReqId = null, recipient = null) => {
     const newNotif = {
       id: Date.now(),
       title,
@@ -123,7 +123,8 @@ export const DataProvider = ({ children }) => {
       unread: true,
       badge,
       target,
-      leaveReqId
+      leaveReqId,
+      recipient
     };
     setNotifications(prev => [newNotif, ...prev]);
   }, []);
@@ -238,13 +239,29 @@ export const DataProvider = ({ children }) => {
     };
     setWorkers(prev => [newWorker, ...prev]);
     logActivity(`Worker Registered: ${newWorker.name}`, newWorker.site, 'Roster Updated', 'lime');
+
+    if (newWorker.approvalStatus === 'Pending Approval') {
+      addNotification(
+        `New Worker Registration: ${newWorker.name}`,
+        `Worker ${newWorker.name} (${newWorker.trade}, Contact: ${newWorker.phone || 'N/A'}) registered a new account and requires Admin approval.`,
+        "Worker Registration",
+        "purple",
+        "admin"
+      );
+    }
+
     return newWorker;
-  }, [logActivity]);
+  }, [logActivity, addNotification]);
 
   const acceptWorkerRegistration = useCallback((identifier) => {
     let targetName = '';
+    const idStr = String(identifier).toLowerCase().trim();
+
     setWorkers(prev => prev.map(w => {
-      if (w.id === Number(identifier) || w.name?.toLowerCase() === String(identifier).toLowerCase() || String(identifier).toLowerCase().includes(w.name?.toLowerCase())) {
+      const isMatch = w.id === Number(identifier) || 
+                      (w.name && w.name.toLowerCase().trim() === idStr) || 
+                      (w.name && idStr.includes(w.name.toLowerCase().trim()));
+      if (isMatch) {
         targetName = w.name;
         return { ...w, approvalStatus: 'Approved', status: 'Off Duty' };
       }
@@ -255,16 +272,18 @@ export const DataProvider = ({ children }) => {
     setNotifications(prev => prev.filter(n => !(
       n.category === "Worker Registration" && 
       n.target === "admin" && 
-      (targetName ? n.title.includes(targetName) || n.message.includes(targetName) : true)
+      (targetName ? n.title.toLowerCase().includes(targetName.toLowerCase()) || n.message.toLowerCase().includes(targetName.toLowerCase()) : true)
     )));
 
     if (targetName) {
       addNotification(
         "Worker Registration Accepted! ✓",
-        `Admin accepted your worker account registration. You can now clock into shifts on your dashboard.`,
+        `Admin accepted your worker account registration (${targetName}). You can now clock into shifts on your dashboard.`,
         "Worker Registration",
         "lime",
-        "worker"
+        "worker",
+        null,
+        targetName
       );
       logActivity(`Worker Account Accepted: ${targetName}`, 'Site Roster', 'Account Approved', 'lime');
     }
@@ -272,8 +291,13 @@ export const DataProvider = ({ children }) => {
 
   const rejectWorkerRegistration = useCallback((identifier) => {
     let targetName = '';
+    const idStr = String(identifier).toLowerCase().trim();
+
     setWorkers(prev => prev.map(w => {
-      if (w.id === Number(identifier) || w.name?.toLowerCase() === String(identifier).toLowerCase() || String(identifier).toLowerCase().includes(w.name?.toLowerCase())) {
+      const isMatch = w.id === Number(identifier) || 
+                      (w.name && w.name.toLowerCase().trim() === idStr) || 
+                      (w.name && idStr.includes(w.name.toLowerCase().trim()));
+      if (isMatch) {
         targetName = w.name;
         return { ...w, approvalStatus: 'Declined', status: 'Off Duty' };
       }
@@ -284,16 +308,18 @@ export const DataProvider = ({ children }) => {
     setNotifications(prev => prev.filter(n => !(
       n.category === "Worker Registration" && 
       n.target === "admin" && 
-      (targetName ? n.title.includes(targetName) || n.message.includes(targetName) : true)
+      (targetName ? n.title.toLowerCase().includes(targetName.toLowerCase()) || n.message.toLowerCase().includes(targetName.toLowerCase()) : true)
     )));
 
     if (targetName) {
       addNotification(
         "Worker Registration Declined ✕",
-        `Admin declined your registration request. Please contact your site supervisor.`,
+        `Admin declined your registration request for ${targetName}. Please contact your site supervisor.`,
         "Worker Registration",
         "purple",
-        "worker"
+        "worker",
+        null,
+        targetName
       );
       logActivity(`Worker Account Declined: ${targetName}`, 'Site Roster', 'Account Declined', 'purple');
     }

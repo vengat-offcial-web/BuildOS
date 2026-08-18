@@ -116,7 +116,7 @@ function Login() {
             setLoading(false);
 
             if (res.success) {
-                // Register newly joined worker in DataContext roster so Admin can see them
+                // Register newly joined worker in DataContext roster so Admin can see them and receive approval alert
                 if (addWorker) {
                     addWorker({
                         name: regName,
@@ -127,17 +127,6 @@ function Login() {
                         phone: regPhone.trim(),
                         approvalStatus: 'Pending Approval'
                     });
-                }
-
-                // Notify Admin about the newly registered worker requiring approval
-                if (addNotification) {
-                    addNotification(
-                        `New Worker Registration: ${regName}`,
-                        `Worker ${regName} (${regTrade}, Contact: ${regPhone.trim()}) registered a new account and requires Admin approval.`,
-                        "Worker Registration",
-                        "purple",
-                        "admin"
-                    );
                 }
 
                 setSuccessMsg(`Account created for ${regName}! Redirecting to Worker Dashboard...`);

@@ -72,6 +72,12 @@ function WorkerDashboard() {
     });
 
     const handleClockToggle = () => {
+        if (currentWorker && currentWorker.approvalStatus === 'Pending Approval') {
+            setToastMessage('Account Pending Approval! You cannot clock in until Admin accepts your registration.');
+            setTimeout(() => setToastMessage(''), 4000);
+            return;
+        }
+
         const nextState = !clockedIn;
         setClockedIn(nextState);
 
@@ -203,6 +209,19 @@ function WorkerDashboard() {
                 <div className="fixed top-20 right-6 z-50 bg-[#03020A] text-white border border-[#BEF264] px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in duration-200">
                     <FiCheckCircle className="text-[#BEF264] text-lg shrink-0" />
                     <span className="text-xs font-bold">{toastMessage}</span>
+                </div>
+            )}
+
+            {/* Pending Approval Notice Banner */}
+            {currentWorker && currentWorker.approvalStatus === 'Pending Approval' && (
+                <div className="bg-amber-50 border-2 border-amber-300 p-5 rounded-[28px] flex items-center gap-3 text-amber-900 shadow-sm animate-in fade-in duration-200">
+                    <FiAlertCircle className="text-amber-600 text-2xl shrink-0" />
+                    <div>
+                        <h4 className="text-xs font-extrabold text-amber-950 uppercase tracking-wider">Account Registration Pending Admin Approval</h4>
+                        <p className="text-xs font-semibold text-amber-800 mt-0.5 leading-relaxed">
+                            Your worker registration request for <strong className="text-amber-950 font-bold">{currentWorker.name}</strong> has been submitted and is currently awaiting Admin approval. Once Admin accepts your registration from the Admin Portal, you will be authorized to clock into shifts.
+                        </p>
+                    </div>
                 </div>
             )}
 
