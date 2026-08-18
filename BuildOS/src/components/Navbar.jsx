@@ -9,7 +9,18 @@ export function Navbar({
     onNotificationClick,
     showSearch = true
 }) {
-    const { notifications, markNotificationAsRead, markAllNotificationsAsRead, clearNotifications, leaveRequests, approveLeaveRequest, rejectLeaveRequest } = useData();
+    const { 
+        notifications, 
+        markNotificationAsRead, 
+        markAllNotificationsAsRead, 
+        clearNotifications, 
+        leaveRequests, 
+        approveLeaveRequest, 
+        rejectLeaveRequest,
+        workers,
+        acceptWorkerRegistration,
+        rejectWorkerRegistration
+    } = useData();
     const [showDrawer, setShowDrawer] = useState(false);
 
     const isWorkerPortal = !showSearch;
@@ -45,6 +56,16 @@ export function Navbar({
         if (targetReqId) {
             rejectLeaveRequest(targetReqId);
         }
+        markNotificationAsRead(n.id);
+    };
+
+    const handleAcceptWorker = (n) => {
+        acceptWorkerRegistration(n.title || n.message);
+        markNotificationAsRead(n.id);
+    };
+
+    const handleRejectWorker = (n) => {
+        rejectWorkerRegistration(n.title || n.message);
         markNotificationAsRead(n.id);
     };
 
@@ -192,6 +213,32 @@ export function Navbar({
                                                                 </button>
                                                             </>
                                                         )}
+                                                    </div>
+                                                )}
+
+                                                {n.category === 'Worker Registration' && !isWorkerPortal && (
+                                                    <div className="pt-2 flex items-center justify-end gap-2 border-t border-purple-100/60 mt-1">
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleRejectWorker(n);
+                                                            }}
+                                                            className="px-3 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer"
+                                                        >
+                                                            ✕ Decline
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleAcceptWorker(n);
+                                                            }}
+                                                            className="dark-nav-pill px-3 py-1 rounded-full text-[10px] font-extrabold text-white shadow-sm hover:bg-black transition-all flex items-center gap-1 cursor-pointer"
+                                                        >
+                                                            <FiCheck className="text-[#BEF264]" />
+                                                            <span>Accept Worker</span>
+                                                        </button>
                                                     </div>
                                                 )}
                                             </>

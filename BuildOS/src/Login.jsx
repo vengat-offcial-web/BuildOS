@@ -120,17 +120,18 @@ function Login() {
                         site: 'Not Assigned Yet',
                         status: 'Off Duty',
                         attendance: 'Absent',
-                        phone: regPhone.trim()
+                        phone: regPhone.trim(),
+                        approvalStatus: 'Pending Approval'
                     });
                 }
 
-                // Notify Admin about the newly registered worker
+                // Notify Admin about the newly registered worker requiring approval
                 if (addNotification) {
                     addNotification(
-                        `New Worker Registered: ${regName}`,
-                        `Worker ${regName} (${regTrade}) registered a new account. Contact: ${regPhone.trim()}. Site: Not Assigned Yet.`,
+                        `New Worker Registration: ${regName}`,
+                        `Worker ${regName} (${regTrade}, Contact: ${regPhone.trim()}) registered a new account and requires Admin approval.`,
                         "Worker Registration",
-                        "lime",
+                        "purple",
                         "admin"
                     );
                 }

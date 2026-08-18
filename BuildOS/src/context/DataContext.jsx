@@ -156,12 +156,71 @@ export const DataProvider = ({ children }) => {
       site: workerData.site || 'Not Assigned Yet',
       status: workerData.status || 'Off Duty',
       attendance: workerData.attendance || 'Absent',
-      phone: workerData.phone || ''
+      phone: workerData.phone || '',
+      approvalStatus: workerData.approvalStatus || 'Pending Approval'
     };
     setWorkers(prev => [newWorker, ...prev]);
     logActivity(`Worker Registered: ${newWorker.name}`, newWorker.site, 'Roster Updated', 'lime');
     return newWorker;
   }, [logActivity]);
+
+  const acceptWorkerRegistration = useCallback((identifier) => {
+    let targetName = '';
+    setWorkers(prev => prev.map(w => {
+      if (w.id === Number(identifier) || w.name?.toLowerCase() === String(identifier).toLowerCase() || String(identifier).toLowerCase().includes(w.name?.toLowerCase())) {
+        targetName = w.name;
+        return { ...w, approvalStatus: 'Approved', status: 'Off Duty' };
+      }
+      return w;
+    }));
+
+    // Remove notification from Admin drawer
+    setNotifications(prev => prev.filter(n => !(
+      n.category === "Worker Registration" && 
+      n.target === "admin" && 
+      (targetName ? n.title.includes(targetName) || n.message.includes(targetName) : true)
+    )));
+
+    if (targetName) {
+      addNotification(
+        "Worker Registration Accepted! ✓",
+        `Admin accepted your worker account registration. You can now clock into shifts on your dashboard.`,
+        "Worker Registration",
+        "lime",
+        "worker"
+      );
+      logActivity(`Worker Account Accepted: ${targetName}`, 'Site Roster', 'Account Approved', 'lime');
+    }
+  }, [addNotification, logActivity]);
+
+  const rejectWorkerRegistration = useCallback((identifier) => {
+    let targetName = '';
+    setWorkers(prev => prev.map(w => {
+      if (w.id === Number(identifier) || w.name?.toLowerCase() === String(identifier).toLowerCase() || String(identifier).toLowerCase().includes(w.name?.toLowerCase())) {
+        targetName = w.name;
+        return { ...w, approvalStatus: 'Declined', status: 'Off Duty' };
+      }
+      return w;
+    }));
+
+    // Remove notification from Admin drawer
+    setNotifications(prev => prev.filter(n => !(
+      n.category === "Worker Registration" && 
+      n.target === "admin" && 
+      (targetName ? n.title.includes(targetName) || n.message.includes(targetName) : true)
+    )));
+
+    if (targetName) {
+      addNotification(
+        "Worker Registration Declined ✕",
+        `Admin declined your registration request. Please contact your site supervisor.`,
+        "Worker Registration",
+        "purple",
+        "worker"
+      );
+      logActivity(`Worker Account Declined: ${targetName}`, 'Site Roster', 'Account Declined', 'purple');
+    }
+  }, [addNotification, logActivity]);
 
   const updateWorker = useCallback((id, updatedFields) => {
     setWorkers(prev => prev.map(w => (w.id === Number(id) || w.name?.toLowerCase() === String(id).toLowerCase()) ? { ...w, ...updatedFields } : w));
@@ -409,6 +468,8 @@ export const DataProvider = ({ children }) => {
     deleteProject,
     getProjectById,
     addWorker,
+    acceptWorkerRegistration,
+    rejectWorkerRegistration,
     updateWorker,
     deleteWorker,
     addMaterialOrder,
@@ -448,6 +509,8 @@ export const DataProvider = ({ children }) => {
     deleteProject,
     getProjectById,
     addWorker,
+    acceptWorkerRegistration,
+    rejectWorkerRegistration,
     updateWorker,
     deleteWorker,
     addMaterialOrder,

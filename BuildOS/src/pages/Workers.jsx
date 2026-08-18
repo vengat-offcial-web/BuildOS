@@ -7,7 +7,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Workers() {
-  const { workers, addWorker, deleteWorker } = useData();
+  const { workers, addWorker, deleteWorker, acceptWorkerRegistration, rejectWorkerRegistration } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
@@ -30,7 +30,7 @@ function Workers() {
 
   // Ensure Mathan and key site workers are in list
   const defaultExtraWorkers = [
-    { id: 901, name: "Mathan", trade: "Site Engineer", site: "Hyper Mall", status: "On Duty", attendance: "Present", phone: "896054050" }
+    { id: 901, name: "Mathan", trade: "Site Engineer", site: "Hyper Mall", status: "On Duty", attendance: "Present", phone: "896054050", approvalStatus: "Approved" }
   ];
 
   const allWorkersList = workers.filter(w => !deletedWorkerIds.includes(w.id) && !deletedWorkerIds.includes(w.name?.toLowerCase()));
@@ -59,7 +59,8 @@ function Workers() {
     addWorker({
       ...newWorker,
       attendance: finalAttendance,
-      status: finalAttendance === 'Present' ? 'On Duty' : 'Off Duty'
+      status: finalAttendance === 'Present' ? 'On Duty' : 'Off Duty',
+      approvalStatus: 'Approved'
     });
     setNewWorker({ name: '', trade: '', site: '', attendance: 'Present', phone: '' });
     setShowAddModal(false);
@@ -180,10 +181,49 @@ function Workers() {
                   </p>
                 </div>
               </div>
-              <Badge variant={w.status === 'On Duty' ? 'completed' : 'pending'}>
-                {w.status}
-              </Badge>
+              <div>
+                {w.approvalStatus === 'Pending Approval' ? (
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 shadow-xs">
+                    Pending Approval
+                  </span>
+                ) : (
+                  <Badge variant={w.status === 'On Duty' ? 'completed' : 'pending'}>
+                    {w.status}
+                  </Badge>
+                )}
+              </div>
             </div>
+
+            {/* Pending Approval Admin Action Bar */}
+            {w.approvalStatus === 'Pending Approval' && (
+              <div className="p-2.5 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-amber-800">New Worker Request:</span>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      rejectWorkerRegistration(w.id);
+                      setToastMessage(`Registration declined for '${w.name}'.`);
+                      setTimeout(() => setToastMessage(''), 3000);
+                    }}
+                    className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 hover:bg-rose-200 cursor-pointer"
+                  >
+                    Decline
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      acceptWorkerRegistration(w.id);
+                      setToastMessage(`Worker '${w.name}' accepted successfully!`);
+                      setTimeout(() => setToastMessage(''), 3000);
+                    }}
+                    className="dark-nav-pill px-3 py-1 rounded-full text-[10px] font-extrabold text-white shadow-xs hover:bg-black cursor-pointer flex items-center gap-1"
+                  >
+                    <FiCheckCircle className="text-[#BEF264]" /> Accept
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Middle Info Box */}
             <div className="bg-white/80 rounded-2xl p-3 border border-white space-y-2 text-xs font-medium text-slate-600">
