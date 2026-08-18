@@ -38,18 +38,16 @@ function Workers() {
     allWorkersList.unshift(defaultExtraWorkers[0]);
   }
 
-  // Dynamically derive trade categories from defaults + any custom roles entered by workers
-  const dynamicTradeFilters = useMemo(() => {
-    const defaultCategories = ['All', 'Site Engineer', 'Masonry', 'Steel', 'Crane', 'Electrical'];
-    const tradeSet = new Set(defaultCategories);
-    
+  // Dynamically derive trade stats with worker counts for the sleek dropdown filter
+  const tradeStats = useMemo(() => {
+    const counts = {};
     allWorkersList.forEach(w => {
       if (w.trade && w.trade.trim()) {
-        tradeSet.add(w.trade.trim());
+        const tr = w.trade.trim();
+        counts[tr] = (counts[tr] || 0) + 1;
       }
     });
-
-    return Array.from(tradeSet);
+    return counts;
   }, [allWorkersList]);
 
   // Submit Handler for New Worker
@@ -122,26 +120,44 @@ function Workers() {
         </button>
       </div>
 
-      {/* Filter Pills Bar */}
-      <div className="glass-card p-4 rounded-[28px] flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto w-full pb-1 scrollbar-thin">
-          <span className="text-xs font-bold text-slate-400 flex items-center gap-1 shrink-0 mr-1">
-            <FiFilter className="text-purple-500" /> Filter Trade:
+      {/* Filter Trade Bar - Sleek Glassmorphism Select Dropdown */}
+      <div className="glass-card p-4 rounded-[28px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center text-sm font-extrabold">
+              <FiFilter />
+            </div>
+            <span className="text-xs font-extrabold text-[#03020A]">Filter Trade:</span>
+          </div>
+
+          <select
+            value={tradeFilter}
+            onChange={(e) => setTradeFilter(e.target.value)}
+            className="bg-white/90 border border-purple-100 text-xs font-bold text-[#03020A] rounded-2xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-[#7C3AED] shadow-sm cursor-pointer hover:border-purple-200 transition-all min-w-[200px]"
+          >
+            <option value="All">All Trades ({allWorkersList.length} Personnel)</option>
+            {Object.entries(tradeStats).map(([tradeName, count]) => (
+              <option key={tradeName} value={tradeName}>
+                {tradeName} ({count} Worker{count !== 1 ? 's' : ''})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-3 self-end sm:self-auto text-xs">
+          <span className="font-semibold text-slate-500">
+            Showing <strong className="text-[#7C3AED] font-extrabold">{filteredWorkers.length}</strong> of {allWorkersList.length} workers
           </span>
-          {dynamicTradeFilters.map((tr) => (
+
+          {tradeFilter !== 'All' && (
             <button
-              key={tr}
               type="button"
-              onClick={() => setTradeFilter(tr)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                tradeFilter.toLowerCase() === tr.toLowerCase()
-                  ? 'bg-[#7C3AED] text-white shadow-md'
-                  : 'bg-white/80 text-slate-600 hover:bg-white hover:text-[#03020A]'
-              }`}
+              onClick={() => setTradeFilter('All')}
+              className="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all flex items-center gap-1 cursor-pointer shadow-xs"
             >
-              {tr}
+              <FiX className="text-xs" /> Reset
             </button>
-          ))}
+          )}
         </div>
       </div>
 
