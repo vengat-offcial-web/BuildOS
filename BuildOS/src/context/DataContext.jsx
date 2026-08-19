@@ -598,21 +598,24 @@ export const DataProvider = ({ children }) => {
       id: Date.now(),
       title: taskData.title,
       site: taskData.site || 'Marina Tower',
-      assignee: 'Vengadesh',
-      status: 'Pending',
+      assignee: taskData.assignee || 'General Team',
+      status: taskData.status || 'Pending',
       priority: taskData.priority || 'Medium',
       dueDate: taskData.dueDate || 'Tomorrow',
       overdue: false
     };
     setTasks(prev => [newTask, ...prev]);
-    logActivity(`Task Assigned: ${newTask.title}`, newTask.site, 'Checklist Updated', 'purple');
+    logActivity(`Task Assigned: ${newTask.title}`, newTask.site, `Assignee: ${newTask.assignee}`, 'purple');
 
     // Notify Workers about task assignment
     addNotification(
-      "New Task Assigned by Admin",
-      `Admin assigned new task: '${newTask.title}' for site ${newTask.site}`,
+      `New Task Assigned: ${newTask.title}`,
+      `Admin assigned new task '${newTask.title}' to ${newTask.assignee} for site ${newTask.site}. Due: ${newTask.dueDate}`,
       "Task Assignment",
-      "purple"
+      "purple",
+      "worker",
+      null,
+      newTask.assignee
     );
 
     return newTask;
@@ -627,6 +630,16 @@ export const DataProvider = ({ children }) => {
       }
       return t;
     }));
+  }, [logActivity]);
+
+  const deleteTask = useCallback((taskId) => {
+    setTasks(prev => prev.filter(t => t.id !== Number(taskId) && t.id !== taskId));
+    logActivity(`Task Removed`, `ID #${taskId}`, 'Deleted', 'purple');
+  }, [logActivity]);
+
+  const updateTask = useCallback((taskId, updatedFields) => {
+    setTasks(prev => prev.map(t => (t.id === Number(taskId) || t.id === taskId) ? { ...t, ...updatedFields } : t));
+    logActivity(`Task Updated`, `ID #${taskId}`, 'Details Updated', 'lime');
   }, [logActivity]);
 
   // Worker Notes & Chat Handlers
@@ -801,6 +814,8 @@ export const DataProvider = ({ children }) => {
     deleteMaterial,
     addTask,
     toggleTaskStatus,
+    deleteTask,
+    updateTask,
     addWorkerNote,
     deleteWorkerNote,
     togglePinNote,
@@ -842,6 +857,8 @@ export const DataProvider = ({ children }) => {
     deleteMaterial,
     addTask,
     toggleTaskStatus,
+    deleteTask,
+    updateTask,
     addWorkerNote,
     deleteWorkerNote,
     togglePinNote,

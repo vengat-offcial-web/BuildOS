@@ -1,24 +1,70 @@
 import React, { useState } from 'react';
 import { Badge } from '../components/ui';
-import { FiCheckSquare, FiPlus, FiAlertCircle, FiCalendar } from 'react-icons/fi';
+import { FiCheckSquare, FiPlus, FiAlertCircle, FiCalendar, FiTrash2, FiUserCheck, FiMapPin } from 'react-icons/fi';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Tasks() {
-  const { tasks, addTask, toggleTaskStatus, pendingTasksCount, overdueTasksCount } = useData();
+  const { tasks, addTask, toggleTaskStatus, deleteTask, pendingTasksCount, overdueTasksCount, workers, projects } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [statusTab, setStatusTab] = useState('All');
   const [showModal, setShowModal] = useState(false);
 
-  const [newTask, setNewTask] = useState({ title: '', site: '', priority: 'Medium', dueDate: '' });
+  // Available worker assignees catalog
+  const availableAssignees = React.useMemo(() => {
+    const list = (workers || []).map(w => ({
+      name: w.name,
+      trade: w.trade || 'Site Specialist',
+      site: w.site || ''
+    }));
+    // Include default site leads if list is short
+    const defaultLeads = [
+      { name: 'Rajesh Kumar', trade: 'Project Lead Engineer', site: 'Marina Tower' },
+      { name: 'Latha M.', trade: 'Quality Control Lead', site: 'Marina Tower' },
+      { name: 'Karthik R.', trade: 'Electrical Lead', site: 'Metro Line Extension' },
+      { name: 'Anandan S.', trade: 'Senior Technician', site: 'Marina Tower' },
+      { name: 'Ganesh K.', trade: 'Safety Officer', site: 'SkyView Apartments' },
+      { name: 'Selvam P.', trade: 'Masonry Supervisor', site: 'Green Valley Township' }
+    ];
+    
+    const combined = [...list];
+    defaultLeads.forEach(dl => {
+      if (!combined.some(c => c.name.toLowerCase().trim() === dl.name.toLowerCase().trim())) {
+        combined.push(dl);
+      }
+    });
+    return combined;
+  }, [workers]);
+
+  // Available construction sites catalog
+  const availableSites = React.useMemo(() => {
+    const projSites = (projects || []).map(p => p.name).filter(Boolean);
+    const defaultSites = ['Marina Tower', 'Metro Line Extension', 'SkyView Apartments', 'Green Valley Township', 'Hyper Mall'];
+    const merged = Array.from(new Set([...projSites, ...defaultSites]));
+    return merged;
+  }, [projects]);
+
+  const [newTask, setNewTask] = useState({ 
+    title: '', 
+    site: availableSites[0] || 'Marina Tower', 
+    assignee: availableAssignees[0]?.name || 'Rajesh Kumar', 
+    priority: 'Medium', 
+    dueDate: 'Tomorrow' 
+  });
 
   const handleAddTask = (e) => {
     e.preventDefault();
     if (!newTask.title) return;
 
     addTask(newTask);
-    setNewTask({ title: '', site: '', priority: 'Medium', dueDate: '' });
+    setNewTask({ 
+      title: '', 
+      site: availableSites[0] || 'Marina Tower', 
+      assignee: availableAssignees[0]?.name || 'Rajesh Kumar', 
+      priority: 'Medium', 
+      dueDate: 'Tomorrow' 
+    });
     setShowModal(false);
   };
 
@@ -107,7 +153,7 @@ function Tasks() {
                 </div>
                 <p className="text-xs font-semibold text-slate-500 flex items-center gap-3">
                   <span>Site: <strong className="text-[#03020A]">{t.site}</strong></span>
-                  <span>• Assigned: <strong className="text-purple-700">{t.assignee}</strong></span>
+                  <span>• Assigned to: <strong className="text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">{t.assignee || 'General Team'}</strong></span>
                 </p>
               </div>
             </div>
@@ -123,6 +169,20 @@ function Tasks() {
               <Badge variant={t.status === 'Completed' ? 'completed' : t.overdue ? 'overdue' : t.status === 'In Progress' ? 'in-progress' : 'pending'}>
                 {t.overdue ? 'Overdue' : t.status}
               </Badge>
+
+              {deleteTask && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteTask(t.id);
+                  }}
+                  className="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-rose-200 ml-1"
+                  title="Delete Task"
+                >
+                  <FiTrash2 className="text-xs" />
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -151,14 +211,37 @@ function Tasks() {
               </div>
 
               <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Personnel / Worker</label>
+                <div className="relative">
+                  <select
+                    value={newTask.assignee}
+                    onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none appearance-none cursor-pointer"
+                  >
+                    {availableAssignees.map(w => (
+                      <option key={w.name} value={w.name}>
+                        {w.name} ({w.trade}{w.site ? ` • ${w.site}` : ''})
+                      </option>
+                    ))}
+                  </select>
+                  <FiUserCheck className="absolute right-3 top-3 text-purple-600 pointer-events-none text-xs" />
+                </div>
+              </div>
+
+              <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">Construction Site</label>
-                <input
-                  type="text"
-                  value={newTask.site}
-                  onChange={(e) => setNewTask({ ...newTask, site: e.target.value })}
-                  placeholder="e.g. Marina Tower"
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
-                />
+                <div className="relative">
+                  <select
+                    value={newTask.site}
+                    onChange={(e) => setNewTask({ ...newTask, site: e.target.value })}
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none appearance-none cursor-pointer"
+                  >
+                    {availableSites.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  <FiMapPin className="absolute right-3 top-3 text-purple-600 pointer-events-none text-xs" />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -167,7 +250,7 @@ function Tasks() {
                   <select
                     value={newTask.priority}
                     onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold outline-none"
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold outline-none cursor-pointer"
                   >
                     <option value="High">High Priority</option>
                     <option value="Medium">Medium Priority</option>
@@ -188,7 +271,7 @@ function Tasks() {
 
               <div className="pt-2 flex justify-end gap-2">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md cursor-pointer">Create Task</button>
+                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md cursor-pointer">Create & Assign Task</button>
               </div>
             </form>
           </div>

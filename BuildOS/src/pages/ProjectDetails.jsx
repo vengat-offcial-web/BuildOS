@@ -9,6 +9,11 @@ import AssignProject from './AssignProject';
 
 function ProjectDetails() {
   const { id } = useParams();
+
+  if (id === 'new' || id === 'create') {
+    return <AssignProject />;
+  }
+
   const navigate = useNavigate();
   const { getProjectById, updateProject, workers, materials, tasks } = useData();
   const [activeTab, setActiveTab] = useState('overview');
@@ -83,11 +88,6 @@ function ProjectDetails() {
   // Task Edit Modal State
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editTasks, setEditTasks] = useState([]);
-
-  // Guard for route collision
-  if (id === 'new' || id === 'create') {
-    return <AssignProject />;
-  }
 
   const project = getProjectById(id);
 

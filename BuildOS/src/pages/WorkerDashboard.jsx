@@ -22,12 +22,13 @@ import {
 import { FaHelmetSafety } from 'react-icons/fa6';
 
 function WorkerDashboard() {
-    const { user } = useAuth();
     const { 
         addNotification, 
         updateWorker, 
         workers, 
         projects, 
+        tasks: globalTasks,
+        toggleTaskStatus,
         leaveRequests, 
         addLeaveRequest, 
         deleteLeaveRequest, 
@@ -40,11 +41,12 @@ function WorkerDashboard() {
     const currentWorker = workers?.find(w => w.name?.toLowerCase().trim() === user?.name?.toLowerCase().trim());
     const [clockedIn, setClockedIn] = useState(() => currentWorker ? currentWorker.status === 'On Duty' : false);
 
-    const [tasks, setTasks] = useState([
-        { id: 1, text: "Site inspection & quality check", status: "In Progress", urgent: true },
-        { id: 2, text: "Verify concrete curing strength log (Day 3)", status: "Pending", urgent: false },
-        { id: 3, text: "Safety gear & harness check before height work", status: "Pending", urgent: false },
-        { id: 4, text: "Submit daily shift log to supervisor", status: "Pending", urgent: false }
+    // Fallback tasks if no specific global task is assigned yet
+    const [localTasks, setLocalTasks] = useState([
+        { id: 'local-1', text: "Site inspection & quality check", status: "In Progress", urgent: true },
+        { id: 'local-2', text: "Verify concrete curing strength log (Day 3)", status: "Pending", urgent: false },
+        { id: 'local-3', text: "Safety gear & harness check before height work", status: "Pending", urgent: false },
+        { id: 'local-4', text: "Submit daily shift log to supervisor", status: "Pending", urgent: false }
     ]);
 
     // Modals state
@@ -149,25 +151,71 @@ function WorkerDashboard() {
         setTimeout(() => setToastMessage(''), 4000);
     };
 
+    // Evaluate worker's assigned tasks from global context
+    const workerAssignedTasks = useMemo(() => {
+        const workerNameClean = (user?.name || 'Marcoo').toLowerCase().trim();
+        const siteNameClean = (assignedProject?.name || '').toLowerCase().trim();
+
+        // Tasks specifically assigned to this worker or matching their assigned site
+        const matched = (globalTasks || []).filter(t => {
+            const assigneeClean = (t.assignee || '').toLowerCase().trim();
+            const taskSiteClean = (t.site || '').toLowerCase().trim();
+            
+            const matchesAssignee = assigneeClean && (
+                assigneeClean === workerNameClean ||
+                assigneeClean.includes(workerNameClean) ||
+                workerNameClean.includes(assigneeClean) ||
+                assigneeClean === 'general team' ||
+                assigneeClean === 'all workers'
+            );
+
+            const matchesSite = siteNameClean && taskSiteClean && (
+                taskSiteClean.includes(siteNameClean) ||
+                siteNameClean.includes(taskSiteClean)
+            );
+
+            return matchesAssignee || matchesSite;
+        });
+
+        return matched.map(t => ({
+            id: t.id,
+            text: t.title || t.name,
+            status: t.status,
+            urgent: t.priority === 'High' || t.overdue,
+            isGlobal: true,
+            site: t.site,
+            dueDate: t.dueDate
+        }));
+    }, [globalTasks, user, assignedProject]);
+
+    const displayTasks = useMemo(() => {
+        if (workerAssignedTasks.length > 0) {
+            return workerAssignedTasks;
+        }
+        return localTasks;
+    }, [workerAssignedTasks, localTasks]);
+
     // Checklist Submission state
     const [checklistSubmitted, setChecklistSubmitted] = useState(false);
 
     const toggleTask = (id) => {
-        let updatedTask = null;
-        setTasks(prev => prev.map(t => {
-            if (t.id === id) {
-                const nextStatus = t.status === "Completed" ? "Pending" : "Completed";
-                updatedTask = { ...t, status: nextStatus };
-                return updatedTask;
-            }
-            return t;
-        }));
+        const isGlobal = globalTasks && globalTasks.some(t => t.id === id);
+        if (isGlobal) {
+            toggleTaskStatus(id);
+        } else {
+            setLocalTasks(prev => prev.map(t => {
+                if (t.id === id) {
+                    return { ...t, status: t.status === "Completed" ? "Pending" : "Completed" };
+                }
+                return t;
+            }));
+        }
     };
 
     const handleChecklistSubmit = () => {
         const workerName = user?.name || 'Marcoo';
-        const doneCount = tasks.filter(t => t.status === "Completed").length;
-        const totalCount = tasks.length;
+        const doneCount = displayTasks.filter(t => t.status === "Completed").length;
+        const totalCount = displayTasks.length;
         const isAllDone = doneCount === totalCount;
 
         setChecklistSubmitted(true);
@@ -245,8 +293,8 @@ function WorkerDashboard() {
         setTimeout(() => setToastMessage(''), 3000);
     };
 
-    const completedCount = tasks.filter(t => t.status === "Completed").length;
-    const progressPercent = Math.round((completedCount / tasks.length) * 100);
+    const completedCount = displayTasks.filter(t => t.status === "Completed").length;
+    const progressPercent = displayTasks.length > 0 ? Math.round((completedCount / displayTasks.length) * 100) : 0;
 
     return (
         <div className="space-y-8 pb-8">
@@ -336,7 +384,7 @@ function WorkerDashboard() {
                 </div>
                 <DashboardCard 
                     title="Tasks Today" 
-                    value={`${completedCount} / ${tasks.length}`} 
+                    value={`${completedCount} / ${displayTasks.length}`} 
                     icon={FiCheckSquare} 
                     subtitle={`${progressPercent}% Completed`}
                     badgeType="lime"
@@ -367,12 +415,12 @@ function WorkerDashboard() {
                             </div>
                         </div>
                         <span className="text-xs font-bold text-[#3F6212] bg-[#F0FDC2] border border-[#BEF264] px-3 py-1 rounded-full">
-                            {completedCount} of {tasks.length} Done
+                            {completedCount} of {displayTasks.length} Done
                         </span>
                     </div>
 
                     <div className="space-y-3">
-                        {tasks.map((task) => (
+                        {displayTasks.map((task) => (
                             <div 
                                 key={task.id}
                                 onClick={() => toggleTask(task.id)}
