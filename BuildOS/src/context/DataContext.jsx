@@ -599,18 +599,19 @@ export const DataProvider = ({ children }) => {
       title: taskData.title,
       site: taskData.site || 'Marina Tower',
       assignee: taskData.assignee || 'General Team',
+      category: taskData.category || 'General Operations',
       status: taskData.status || 'Pending',
       priority: taskData.priority || 'Medium',
       dueDate: taskData.dueDate || 'Tomorrow',
       overdue: false
     };
     setTasks(prev => [newTask, ...prev]);
-    logActivity(`Task Assigned: ${newTask.title}`, newTask.site, `Assignee: ${newTask.assignee}`, 'purple');
+    logActivity(`Task Assigned: ${newTask.title}`, newTask.site, `Category: ${newTask.category} • Assignee: ${newTask.assignee}`, 'purple');
 
     // Notify Workers about task assignment
     addNotification(
       `New Task Assigned: ${newTask.title}`,
-      `Admin assigned new task '${newTask.title}' to ${newTask.assignee} for site ${newTask.site}. Due: ${newTask.dueDate}`,
+      `Admin assigned new task '${newTask.title}' (${newTask.category}) to ${newTask.assignee} for site ${newTask.site}. Due: ${newTask.dueDate}`,
       "Task Assignment",
       "purple",
       "worker",

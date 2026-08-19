@@ -11,16 +11,52 @@ import {
   FiEdit2, 
   FiCheckCircle, 
   FiX, 
-  FiSave 
+  FiSave,
+  FiShield,
+  FiLayers,
+  FiZap,
+  FiClipboard,
+  FiTag
 } from 'react-icons/fi';
+import { FaHelmetSafety } from 'react-icons/fa6';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
+
+const taskCategoriesList = [
+  'Safety Inspection',
+  'Concrete & Pouring',
+  'Electrical & Wiring',
+  'Scaffolding & Structure',
+  'Quality Inspection (QA/QC)',
+  'General Operations'
+];
+
+const getCategoryBadgeProps = (catName = '') => {
+  const c = catName.toLowerCase();
+  if (c.includes('safety')) {
+    return { icon: FiShield, style: 'bg-amber-50 text-amber-900 border-amber-200' };
+  }
+  if (c.includes('concrete') || c.includes('pouring')) {
+    return { icon: FiLayers, style: 'bg-blue-50 text-blue-900 border-blue-200' };
+  }
+  if (c.includes('electrical') || c.includes('wiring')) {
+    return { icon: FiZap, style: 'bg-yellow-50 text-yellow-900 border-yellow-300' };
+  }
+  if (c.includes('scaffold') || c.includes('structure')) {
+    return { icon: FaHelmetSafety, style: 'bg-indigo-50 text-indigo-900 border-indigo-200' };
+  }
+  if (c.includes('quality') || c.includes('qa')) {
+    return { icon: FiCheckCircle, style: 'bg-emerald-50 text-emerald-900 border-emerald-200' };
+  }
+  return { icon: FiClipboard, style: 'bg-purple-50 text-purple-900 border-purple-200' };
+};
 
 function Tasks() {
   const { tasks, addTask, updateTask, toggleTaskStatus, deleteTask, pendingTasksCount, overdueTasksCount, workers, projects } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [statusTab, setStatusTab] = useState('All');
+  const [categoryFilter, setCategoryFilter] = useState('All Categories');
   
   // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -72,6 +108,7 @@ function Tasks() {
     title: '', 
     site: availableSites[0] || 'Marina Tower', 
     assignee: availableAssignees[0]?.name || 'Rajesh Kumar', 
+    category: 'Safety Inspection',
     priority: 'Medium', 
     dueDate: 'Tomorrow' 
   });
@@ -92,6 +129,7 @@ function Tasks() {
       title: '', 
       site: availableSites[0] || 'Marina Tower', 
       assignee: availableAssignees[0]?.name || 'Rajesh Kumar', 
+      category: 'Safety Inspection',
       priority: 'Medium', 
       dueDate: 'Tomorrow' 
     });
@@ -105,6 +143,7 @@ function Tasks() {
       title: task.title || task.name || '',
       site: task.site || availableSites[0] || 'Marina Tower',
       assignee: task.assignee || availableAssignees[0]?.name || 'Rajesh Kumar',
+      category: task.category || 'General Operations',
       status: task.status || 'Pending',
       priority: task.priority || 'Medium',
       dueDate: task.dueDate || 'Tomorrow'
@@ -143,13 +182,18 @@ function Tasks() {
     const title = t.title || t.name || '';
     const site = t.site || '';
     const assignee = t.assignee || '';
+    const category = t.category || 'General Operations';
+
     const matchesSearch = !searchTerm || 
       title.toLowerCase().includes(searchTerm.toLowerCase()) || 
       site.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assignee.toLowerCase().includes(searchTerm.toLowerCase());
+      assignee.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesTab = statusTab === 'All' ? true : statusTab === 'Overdue' ? t.overdue : t.status === statusTab;
-    return matchesSearch && matchesTab;
+    const matchesCategory = categoryFilter === 'All Categories' ? true : category.toLowerCase() === categoryFilter.toLowerCase();
+
+    return matchesSearch && matchesTab && matchesCategory;
   });
 
   return (
@@ -184,22 +228,41 @@ function Tasks() {
         </button>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-purple-100">
-        {['All', 'In Progress', 'Pending', 'Completed', 'Overdue'].map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setStatusTab(tab)}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
-              statusTab === tab
-                ? 'bg-[#03020A] text-white shadow-md'
-                : 'bg-white/80 text-slate-600 hover:bg-white hover:text-[#03020A]'
-            }`}
+      {/* Filter Tabs & Category Filter Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-purple-100 pb-3">
+        {/* Status Filter Tabs */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          {['All', 'In Progress', 'Pending', 'Completed', 'Overdue'].map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setStatusTab(tab)}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                statusTab === tab
+                  ? 'bg-[#03020A] text-white shadow-md'
+                  : 'bg-white/80 text-slate-600 hover:bg-white hover:text-[#03020A]'
+              }`}
+            >
+              {tab} {tab === 'Overdue' && <span className="ml-1 text-[#FECDD3] font-extrabold">({overdueTasksCount})</span>}
+            </button>
+          ))}
+        </div>
+
+        {/* Category Filter Dropdown */}
+        <div className="flex items-center gap-2 shrink-0">
+          <FiTag className="text-purple-600 text-xs" />
+          <span className="text-xs font-extrabold text-slate-700">Domain Category:</span>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="bg-white/90 border border-purple-200 text-[#03020A] text-xs font-extrabold px-3 py-1.5 rounded-full shadow-sm outline-none cursor-pointer hover:border-purple-400 transition-all"
           >
-            {tab} {tab === 'Overdue' && <span className="ml-1 text-[#FECDD3] font-extrabold">({overdueTasksCount})</span>}
-          </button>
-        ))}
+            <option value="All Categories">All Categories</option>
+            {taskCategoriesList.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Tasks List */}
@@ -209,83 +272,97 @@ function Tasks() {
             <FiCheckSquare className="text-4xl text-purple-300 mx-auto" />
             <h3 className="text-base font-extrabold text-[#03020A]">No Tasks Found</h3>
             <p className="text-xs text-slate-500 font-semibold max-w-sm mx-auto">
-              No tasks match your current search or status tab filter. Click "Create New Task" to add a task.
+              No tasks match your current search, status, or category filter. Click "Create New Task" to add a task.
             </p>
           </div>
         ) : (
-          filteredTasks.map((t) => (
-            <div 
-              key={t.id}
-              onClick={() => toggleTaskStatus(t.id)}
-              className={`glass-card p-5 rounded-[24px] border transition-all hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer ${
-                t.overdue ? 'bg-rose-50/40 border-rose-200' : 'border-white'
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg font-bold shrink-0 ${
-                  t.status === 'Completed' ? 'bg-[#F0FDC2] text-[#3F6212]' : t.overdue ? 'bg-rose-100 text-rose-700' : 'bg-purple-100 text-[#7C3AED]'
-                }`}>
-                  {t.overdue ? <FiAlertCircle /> : <FiCheckSquare />}
-                </div>
+          filteredTasks.map((t) => {
+            const catProps = getCategoryBadgeProps(t.category);
+            const CatIcon = catProps.icon;
 
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h3 className={`text-sm font-extrabold ${t.status === 'Completed' ? 'line-through text-slate-400' : 'text-[#03020A]'}`}>
-                      {t.title || t.name}
-                    </h3>
-                    <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
-                      t.priority === 'High' ? 'bg-rose-100 text-rose-800' : 'bg-purple-100 text-purple-800'
-                    }`}>
-                      {t.priority} Priority
-                    </span>
+            return (
+              <div 
+                key={t.id}
+                onClick={() => toggleTaskStatus(t.id)}
+                className={`glass-card p-5 rounded-[24px] border transition-all hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer ${
+                  t.overdue ? 'bg-rose-50/40 border-rose-200' : 'border-white'
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg font-bold shrink-0 ${
+                    t.status === 'Completed' ? 'bg-[#F0FDC2] text-[#3F6212]' : t.overdue ? 'bg-rose-100 text-rose-700' : 'bg-purple-100 text-[#7C3AED]'
+                  }`}>
+                    {t.overdue ? <FiAlertCircle /> : <FiCheckSquare />}
                   </div>
-                  <p className="text-xs font-semibold text-slate-500 flex flex-wrap items-center gap-3">
-                    <span>Site: <strong className="text-[#03020A]">{t.site}</strong></span>
-                    <span>• Assigned to: <strong className="text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">{t.assignee || 'General Team'}</strong></span>
-                  </p>
+
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className={`text-sm font-extrabold ${t.status === 'Completed' ? 'line-through text-slate-400' : 'text-[#03020A]'}`}>
+                        {t.title || t.name}
+                      </h3>
+                      
+                      {/* Priority Badge */}
+                      <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                        t.priority === 'High' ? 'bg-rose-100 text-rose-800' : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {t.priority} Priority
+                      </span>
+
+                      {/* Domain Category Badge */}
+                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${catProps.style}`}>
+                        <CatIcon className="text-[10px]" />
+                        <span>{t.category || 'General Operations'}</span>
+                      </span>
+                    </div>
+
+                    <p className="text-xs font-semibold text-slate-500 flex flex-wrap items-center gap-3">
+                      <span>Site: <strong className="text-[#03020A]">{t.site}</strong></span>
+                      <span>• Assigned to: <strong className="text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">{t.assignee || 'General Team'}</strong></span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold uppercase text-slate-400">Target Date</p>
+                    <p className={`text-xs font-bold flex items-center gap-1 ${t.overdue ? 'text-rose-600' : 'text-[#03020A]'}`}>
+                      <FiCalendar /> {t.dueDate}
+                    </p>
+                  </div>
+
+                  <Badge variant={t.status === 'Completed' ? 'completed' : t.overdue ? 'overdue' : t.status === 'In Progress' ? 'in-progress' : 'pending'}>
+                    {t.overdue ? 'Overdue' : t.status}
+                  </Badge>
+
+                  {/* Edit Task Action Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenEditModal(t);
+                    }}
+                    className="w-8 h-8 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 flex items-center justify-center transition-all cursor-pointer border border-purple-200 ml-1"
+                    title="Edit Task Details"
+                  >
+                    <FiEdit2 className="text-xs" />
+                  </button>
+
+                  {/* Delete Task Action Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenDeleteModal(t);
+                    }}
+                    className="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-rose-200"
+                    title="Delete Task"
+                  >
+                    <FiTrash2 className="text-xs" />
+                  </button>
                 </div>
               </div>
-
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="text-right">
-                  <p className="text-[10px] font-bold uppercase text-slate-400">Target Date</p>
-                  <p className={`text-xs font-bold flex items-center gap-1 ${t.overdue ? 'text-rose-600' : 'text-[#03020A]'}`}>
-                    <FiCalendar /> {t.dueDate}
-                  </p>
-                </div>
-
-                <Badge variant={t.status === 'Completed' ? 'completed' : t.overdue ? 'overdue' : t.status === 'In Progress' ? 'in-progress' : 'pending'}>
-                  {t.overdue ? 'Overdue' : t.status}
-                </Badge>
-
-                {/* Edit Task Action Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenEditModal(t);
-                  }}
-                  className="w-8 h-8 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 flex items-center justify-center transition-all cursor-pointer border border-purple-200 ml-1"
-                  title="Edit Task Details"
-                >
-                  <FiEdit2 className="text-xs" />
-                </button>
-
-                {/* Delete Task Action Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenDeleteModal(t);
-                  }}
-                  className="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-all cursor-pointer border border-rose-200"
-                  title="Delete Task"
-                >
-                  <FiTrash2 className="text-xs" />
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -313,21 +390,37 @@ function Tasks() {
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Personnel / Worker</label>
-                <div className="relative">
-                  <select
-                    value={newTask.assignee}
-                    onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none appearance-none cursor-pointer"
-                  >
-                    {availableAssignees.map(w => (
-                      <option key={w.name} value={w.name}>
-                        {w.name} ({w.trade}{w.site ? ` • ${w.site}` : ''})
-                      </option>
-                    ))}
-                  </select>
-                  <FiUserCheck className="absolute right-3 top-3 text-purple-600 pointer-events-none text-xs" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Domain Category</label>
+                  <div className="relative">
+                    <select
+                      value={newTask.category}
+                      onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
+                      className="w-full bg-white border border-purple-100 rounded-2xl px-3 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none cursor-pointer"
+                    >
+                      {taskCategoriesList.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Personnel</label>
+                  <div className="relative">
+                    <select
+                      value={newTask.assignee}
+                      onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
+                      className="w-full bg-white border border-purple-100 rounded-2xl px-3 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none cursor-pointer"
+                    >
+                      {availableAssignees.map(w => (
+                        <option key={w.name} value={w.name}>
+                          {w.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -409,21 +502,33 @@ function Tasks() {
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Personnel / Worker</label>
-                <div className="relative">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Domain Category</label>
+                  <select
+                    value={editingTask.category}
+                    onChange={(e) => setEditingTask({ ...editingTask, category: e.target.value })}
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-3 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none cursor-pointer"
+                  >
+                    {taskCategoriesList.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Personnel</label>
                   <select
                     value={editingTask.assignee}
                     onChange={(e) => setEditingTask({ ...editingTask, assignee: e.target.value })}
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none appearance-none cursor-pointer"
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-3 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none cursor-pointer"
                   >
                     {availableAssignees.map(w => (
                       <option key={w.name} value={w.name}>
-                        {w.name} ({w.trade}{w.site ? ` • ${w.site}` : ''})
+                        {w.name}
                       </option>
                     ))}
                   </select>
-                  <FiUserCheck className="absolute right-3 top-3 text-purple-600 pointer-events-none text-xs" />
                 </div>
               </div>
 

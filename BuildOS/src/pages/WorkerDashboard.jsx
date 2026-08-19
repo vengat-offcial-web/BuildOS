@@ -181,6 +181,7 @@ function WorkerDashboard() {
             id: t.id,
             text: t.title || t.name,
             status: t.status,
+            category: t.category || 'General Operations',
             urgent: t.priority === 'High' || t.overdue,
             isGlobal: true,
             site: t.site,
@@ -444,6 +445,11 @@ function WorkerDashboard() {
                                 </div>
                                 
                                 <div className="flex items-center gap-2 shrink-0">
+                                    {task.category && (
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200">
+                                            {task.category}
+                                        </span>
+                                    )}
                                     {task.urgent && task.status !== "Completed" && (
                                         <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFE4E6] text-[#9F1239] border border-[#FECDD3]">
                                             URGENT
