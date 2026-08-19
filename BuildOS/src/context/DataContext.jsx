@@ -638,9 +638,33 @@ export const DataProvider = ({ children }) => {
   }, [logActivity]);
 
   const updateTask = useCallback((taskId, updatedFields) => {
-    setTasks(prev => prev.map(t => (t.id === Number(taskId) || t.id === taskId) ? { ...t, ...updatedFields } : t));
-    logActivity(`Task Updated`, `ID #${taskId}`, 'Details Updated', 'lime');
-  }, [logActivity]);
+    let targetTask = null;
+    setTasks(prev => prev.map(t => {
+      if (t.id === Number(taskId) || t.id === taskId) {
+        targetTask = { ...t, ...updatedFields };
+        if (updatedFields.status === 'Completed') {
+          targetTask.overdue = false;
+        }
+        return targetTask;
+      }
+      return t;
+    }));
+
+    if (targetTask) {
+      logActivity(`Task Updated: ${targetTask.title}`, targetTask.site, `Status: ${targetTask.status}`, 'lime');
+      if (targetTask.assignee) {
+        addNotification(
+          `Task Details Updated: ${targetTask.title}`,
+          `Admin updated task details for '${targetTask.title}' (${targetTask.status}, Priority: ${targetTask.priority})`,
+          "Task Assignment",
+          "purple",
+          "worker",
+          null,
+          targetTask.assignee
+        );
+      }
+    }
+  }, [logActivity, addNotification]);
 
   // Worker Notes & Chat Handlers
   const addWorkerNote = useCallback((noteData) => {
