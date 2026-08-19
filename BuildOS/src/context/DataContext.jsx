@@ -478,6 +478,20 @@ export const DataProvider = ({ children }) => {
     setMaterials(prev => prev.map(m => (m.id === Number(id) || m.name.toLowerCase() === String(id).toLowerCase()) ? { ...m, ...updatedFields } : m));
   }, []);
 
+  const deleteMaterial = useCallback((idOrName) => {
+    setMaterials(prev => {
+      const filtered = prev.filter(m => {
+        if (!m) return false;
+        if (m.id === Number(idOrName) || m.id === idOrName) return false;
+        if (m.name && m.name.toLowerCase().trim() === String(idOrName).toLowerCase().trim()) return false;
+        return true;
+      });
+      safeSetStorage('buildos_materials', filtered);
+      return filtered;
+    });
+    logActivity(`Material Removed`, `ID/Name: ${idOrName}`, 'Inventory Updated', 'purple');
+  }, [logActivity]);
+
   const addMachine = useCallback((machineData) => {
     const newMac = {
       id: Date.now(),
@@ -701,6 +715,7 @@ export const DataProvider = ({ children }) => {
     deleteWorker,
     addMaterialOrder,
     updateMaterial,
+    deleteMaterial,
     addMachine,
     addTask,
     toggleTaskStatus,
@@ -743,6 +758,7 @@ export const DataProvider = ({ children }) => {
     deleteWorker,
     addMaterialOrder,
     updateMaterial,
+    deleteMaterial,
     addMachine,
     addTask,
     toggleTaskStatus,

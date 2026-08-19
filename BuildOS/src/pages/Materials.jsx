@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { Card, Badge } from '../components/ui';
-import { FiLayers, FiPlus, FiFilter } from 'react-icons/fi';
+import { FiLayers, FiPlus, FiFilter, FiTrash2 } from 'react-icons/fi';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 function Materials() {
-  const { materials, addMaterialOrder } = useData();
+  const { materials, addMaterialOrder, deleteMaterial } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -110,23 +110,33 @@ function Materials() {
       {/* Inventory Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((mat) => (
-          <Card key={mat.id} hover={true} className="space-y-4">
-            <div className="flex items-start justify-between">
+          <Card key={mat.id} hover={true} className="space-y-4 relative group">
+            <div className="flex items-start justify-between gap-2">
               <div>
                 <span className="text-[10px] font-bold uppercase text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-100">
                   {mat.category}
                 </span>
                 <h3 className="text-sm font-extrabold text-[#03020A] mt-2">{mat.name}</h3>
               </div>
-              <Badge variant={
-                mat.status === 'Low Stock Alert' || mat.status === 'Reorder Required' || mat.availablePct < 30
-                  ? 'overdue'
-                  : mat.status === 'In Use' || (mat.availablePct >= 30 && mat.availablePct < 50)
-                    ? 'pending'
-                    : 'completed'
-              }>
-                {mat.status}
-              </Badge>
+              <div className="flex items-center gap-2 shrink-0">
+                <Badge variant={
+                  mat.status === 'Low Stock Alert' || mat.status === 'Reorder Required' || mat.availablePct < 30
+                    ? 'overdue'
+                    : mat.status === 'In Use' || (mat.availablePct >= 30 && mat.availablePct < 50)
+                      ? 'pending'
+                      : 'completed'
+                }>
+                  {mat.status}
+                </Badge>
+                <button
+                  type="button"
+                  onClick={() => deleteMaterial(mat.id)}
+                  title="Remove material from inventory"
+                  className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 transition-all cursor-pointer shadow-xs flex items-center justify-center shrink-0"
+                >
+                  <FiTrash2 className="text-xs" />
+                </button>
+              </div>
             </div>
 
             <div className="bg-white/80 rounded-2xl p-3 border border-white space-y-2 text-xs font-medium text-slate-600">
