@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Card, Badge, ProgressBar } from '../components/ui';
+import { Card, Badge } from '../components/ui';
 import { FiLayers, FiPlus, FiFilter } from 'react-icons/fi';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
@@ -104,14 +103,6 @@ function Materials() {
                 <span>Estimated Unit Cost:</span>
                 <span className="font-bold text-slate-800">{mat.unitCost}</span>
               </div>
-            </div>
-
-            <div className="pt-2">
-              <ProgressBar
-                progress={mat.availablePct}
-                variant={mat.availablePct < 30 ? 'dark' : mat.availablePct > 80 ? 'lime' : 'purple'}
-                size="sm"
-              />
             </div>
           </Card>
         ))}
