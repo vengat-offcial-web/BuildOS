@@ -475,8 +475,18 @@ export const DataProvider = ({ children }) => {
   }, [logActivity]);
 
   const updateMaterial = useCallback((id, updatedFields) => {
-    setMaterials(prev => prev.map(m => (m.id === Number(id) || m.name.toLowerCase() === String(id).toLowerCase()) ? { ...m, ...updatedFields } : m));
-  }, []);
+    setMaterials(prev => {
+      const updated = prev.map(m => {
+        if (m.id === Number(id) || m.id === id || (m.name && m.name.toLowerCase().trim() === String(id).toLowerCase().trim())) {
+          return { ...m, ...updatedFields };
+        }
+        return m;
+      });
+      safeSetStorage('buildos_materials', updated);
+      return updated;
+    });
+    logActivity(`Material Updated`, `ID: ${id}`, 'Inventory Updated', 'purple');
+  }, [logActivity]);
 
   const deleteMaterial = useCallback((idOrName) => {
     let removedName = '';
