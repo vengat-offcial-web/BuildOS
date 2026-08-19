@@ -13,7 +13,7 @@ function Materials() {
 
   const [newOrder, setNewOrder] = useState({
     name: '',
-    category: 'Concrete & Cement',
+    category: '',
     totalStock: '',
     siteAllocated: '',
     unitCost: '',
@@ -26,16 +26,16 @@ function Materials() {
 
     addMaterialOrder({
       name: newOrder.name,
-      category: newOrder.category || 'Concrete & Cement',
-      totalStock: newOrder.totalStock || '300 cum',
-      siteAllocated: newOrder.siteAllocated || 'Hyper Mall (450 cu.m)',
-      unitCost: newOrder.unitCost || '$85/cu.m',
+      category: newOrder.category.trim() || 'Concrete & Cement',
+      totalStock: newOrder.totalStock.trim() || '300 cum',
+      siteAllocated: newOrder.siteAllocated.trim() || 'Hyper Mall (450 cu.m)',
+      unitCost: newOrder.unitCost.trim() || '$85/cu.m',
       status: newOrder.status || 'Low Stock Alert'
     });
 
     setNewOrder({
       name: '',
-      category: 'Concrete & Cement',
+      category: '',
       totalStock: '',
       siteAllocated: '',
       unitCost: '',
@@ -165,17 +165,14 @@ function Materials() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1.5">Category Tag</label>
-                  <select
+                  <input
+                    type="text"
+                    required
                     value={newOrder.category}
                     onChange={(e) => setNewOrder({ ...newOrder, category: e.target.value })}
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all cursor-pointer"
-                  >
-                    <option value="Concrete & Cement">Concrete & Cement</option>
-                    <option value="Steel & Metals">Steel & Metals</option>
-                    <option value="Facade & Glass">Facade & Glass</option>
-                    <option value="Masonry">Masonry</option>
-                    <option value="General Construction">General Construction</option>
-                  </select>
+                    placeholder="Enter material category (e.g. Concrete & Cement)"
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
+                  />
                 </div>
 
                 <div>
@@ -201,7 +198,7 @@ function Materials() {
                   required
                   value={newOrder.name}
                   onChange={(e) => setNewOrder({ ...newOrder, name: e.target.value })}
-                  placeholder="e.g. Ready-Mix Concrete Grade 40"
+                  placeholder="Enter material name (e.g. Ready-Mix Concrete Grade 40)"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
@@ -215,7 +212,7 @@ function Materials() {
                     required
                     value={newOrder.totalStock}
                     onChange={(e) => setNewOrder({ ...newOrder, totalStock: e.target.value })}
-                    placeholder="e.g. 300 cum"
+                    placeholder="Enter total stock on-hand (e.g. 300 cum)"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -227,7 +224,7 @@ function Materials() {
                     required
                     value={newOrder.unitCost}
                     onChange={(e) => setNewOrder({ ...newOrder, unitCost: e.target.value })}
-                    placeholder="e.g. $85/cu.m"
+                    placeholder="Enter unit cost (e.g. $85/cu.m)"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -241,7 +238,7 @@ function Materials() {
                   required
                   value={newOrder.siteAllocated}
                   onChange={(e) => setNewOrder({ ...newOrder, siteAllocated: e.target.value })}
-                  placeholder="e.g. Hyper Mall (450 cu.m)"
+                  placeholder="Enter allocated site & quantity (e.g. Hyper Mall - 450 cu.m)"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
