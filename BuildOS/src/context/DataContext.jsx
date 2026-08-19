@@ -44,6 +44,18 @@ const initialLeaveRequestsData = [
   }
 ];
 
+const deduplicateMaterials = (matList) => {
+  if (!Array.isArray(matList)) return [];
+  const seen = new Set();
+  return matList.filter(item => {
+    if (!item) return false;
+    const key = (item.name || '').toLowerCase().trim();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
 export const DataProvider = ({ children }) => {
   const [projects, setProjects] = useState(() => safeGetStorage('buildos_projects', initialProjectsData));
   const [workers, setWorkers] = useState(() => {
@@ -51,7 +63,11 @@ export const DataProvider = ({ children }) => {
     if (saved && Array.isArray(saved)) return saved;
     return initialWorkersData;
   });
-  const [materials, setMaterials] = useState(() => safeGetStorage('buildos_materials', initialMaterialsData));
+  const [materials, setMaterials] = useState(() => {
+    const saved = safeGetStorage('buildos_materials', initialMaterialsData);
+    const list = Array.isArray(saved) && saved.length > 0 ? saved : initialMaterialsData;
+    return deduplicateMaterials(list);
+  });
   const [machines, setMachines] = useState(() => safeGetStorage('buildos_machines', initialMachinesData));
   const [tasks, setTasks] = useState(() => safeGetStorage('buildos_tasks', initialTasksData));
   const [activityFeed, setActivityFeed] = useState(() => safeGetStorage('buildos_activity', initialActivityData));
@@ -423,9 +439,12 @@ export const DataProvider = ({ children }) => {
   }, [logActivity]);
 
   const addMaterialOrder = useCallback((orderData) => {
+    const nameClean = orderData.name?.trim();
+    if (!nameClean) return null;
+
     const newMat = {
       id: Date.now(),
-      name: orderData.name?.trim() || "Ready-Mix Concrete Grade 40",
+      name: nameClean,
       category: orderData.category?.trim() || "Concrete & Cement",
       totalStock: orderData.totalStock?.trim() || orderData.quantity?.trim() || "300 cum",
       availablePct: orderData.availablePct !== undefined ? Number(orderData.availablePct) : 100,
@@ -433,7 +452,24 @@ export const DataProvider = ({ children }) => {
       status: orderData.status?.trim() || "Low Stock Alert",
       unitCost: orderData.unitCost?.trim() || "$85/cu.m"
     };
-    setMaterials(prev => [newMat, ...prev]);
+
+    setMaterials(prev => {
+      const cleanPrev = deduplicateMaterials(prev);
+      const existingIndex = cleanPrev.findIndex(m => m.name.toLowerCase().trim() === nameClean.toLowerCase());
+
+      if (existingIndex !== -1) {
+        const updated = [...cleanPrev];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          ...newMat,
+          id: updated[existingIndex].id
+        };
+        return updated;
+      } else {
+        return [...cleanPrev, newMat];
+      }
+    });
+
     logActivity(`Material Dispatched: ${newMat.name}`, newMat.siteAllocated, 'Stock Updated', 'purple');
     return newMat;
   }, [logActivity]);

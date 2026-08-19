@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, Badge } from '../components/ui';
 import { FiLayers, FiPlus, FiFilter } from 'react-icons/fi';
 import { useOutletContext } from 'react-router-dom';
@@ -44,11 +44,21 @@ function Materials() {
     setShowOrderModal(false);
   };
 
-  const filtered = materials.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || (m.siteAllocated && m.siteAllocated.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = categoryFilter === 'All' || (m.category && m.category.toLowerCase().includes(categoryFilter.toLowerCase()));
-    return matchesSearch && matchesCategory;
-  });
+  const filtered = useMemo(() => {
+    const seen = new Set();
+    return (materials || []).filter(m => {
+      if (!m || !m.name) return false;
+      const key = m.name.toLowerCase().trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+
+      const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            (m.siteAllocated && m.siteAllocated.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCategory = categoryFilter === 'All' || 
+                              (m.category && m.category.toLowerCase().includes(categoryFilter.toLowerCase()));
+      return matchesSearch && matchesCategory;
+    });
+  }, [materials, searchTerm, categoryFilter]);
 
   return (
     <div className="space-y-8 pb-8">
