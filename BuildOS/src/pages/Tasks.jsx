@@ -51,6 +51,65 @@ const getCategoryBadgeProps = (catName = '') => {
   return { icon: FiClipboard, style: 'bg-purple-50 text-purple-900 border-purple-200' };
 };
 
+const formatFriendlyDate = (dateVal) => {
+  if (!dateVal) return 'Tomorrow';
+  if (dateVal === 'Today' || dateVal === 'Tomorrow') return dateVal;
+
+  try {
+    const parts = dateVal.split('-');
+    if (parts.length === 3) {
+      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const target = new Date(d);
+      target.setHours(0,0,0,0);
+
+      const diffTime = target.getTime() - today.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Tomorrow';
+
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  } catch {}
+  return dateVal;
+};
+
+const toIsoDate = (friendlyStr) => {
+  const today = new Date();
+  if (!friendlyStr || friendlyStr === 'Today') {
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  if (friendlyStr === 'Tomorrow') {
+    const tmr = new Date(today);
+    tmr.setDate(tmr.getDate() + 1);
+    const yyyy = tmr.getFullYear();
+    const mm = String(tmr.getMonth() + 1).padStart(2, '0');
+    const dd = String(tmr.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  try {
+    const parsed = new Date(friendlyStr);
+    if (!isNaN(parsed.getTime())) {
+      const yyyy = parsed.getFullYear();
+      const mm = String(parsed.getMonth() + 1).padStart(2, '0');
+      const dd = String(parsed.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+  } catch {}
+
+  const tmr = new Date(today);
+  tmr.setDate(tmr.getDate() + 1);
+  const yyyy = tmr.getFullYear();
+  const mm = String(tmr.getMonth() + 1).padStart(2, '0');
+  const dd = String(tmr.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 function Tasks() {
   const { tasks, addTask, updateTask, toggleTaskStatus, deleteTask, pendingTasksCount, overdueTasksCount, workers, projects } = useData();
   const outletContext = useOutletContext() || {};
@@ -385,7 +444,7 @@ function Tasks() {
                   required
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                  placeholder="e.g. Inspect rebar binding on Floor 12"
+                  placeholder="Task title (e.g. Inspect rebar binding on Floor 12)"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
                 />
               </div>
@@ -453,15 +512,45 @@ function Tasks() {
                     <option value="Low">Low Priority</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Due Date</label>
-                  <input
-                    type="text"
-                    value={newTask.dueDate}
-                    onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                    placeholder="e.g. Tomorrow"
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
-                  />
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Target Due Date</label>
+                  <div className="space-y-1.5">
+                    <input
+                      type="date"
+                      value={toIsoDate(newTask.dueDate)}
+                      onChange={(e) => setNewTask({ ...newTask, dueDate: formatFriendlyDate(e.target.value) })}
+                      className="w-full bg-white border border-purple-100 rounded-2xl px-3 py-2 text-xs font-bold text-[#03020A] focus:ring-2 focus:ring-[#A78BFA] outline-none cursor-pointer"
+                    />
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {['Today', 'Tomorrow', 'In 3 Days', 'Next Week'].map(preset => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => {
+                            if (preset === 'In 3 Days') {
+                              const d = new Date();
+                              d.setDate(d.getDate() + 3);
+                              setNewTask({ ...newTask, dueDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+                            } else if (preset === 'Next Week') {
+                              const d = new Date();
+                              d.setDate(d.getDate() + 7);
+                              setNewTask({ ...newTask, dueDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+                            } else {
+                              setNewTask({ ...newTask, dueDate: preset });
+                            }
+                          }}
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold transition-all cursor-pointer ${
+                            newTask.dueDate === preset
+                              ? 'bg-[#7C3AED] text-white shadow-sm'
+                              : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200'
+                          }`}
+                        >
+                          {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -578,13 +667,42 @@ function Tasks() {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">Target Due Date</label>
-                <input
-                  type="text"
-                  value={editingTask.dueDate}
-                  onChange={(e) => setEditingTask({ ...editingTask, dueDate: e.target.value })}
-                  placeholder="e.g. Aug 25, 2026"
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
-                />
+                <div className="space-y-1.5">
+                  <input
+                    type="date"
+                    value={toIsoDate(editingTask.dueDate)}
+                    onChange={(e) => setEditingTask({ ...editingTask, dueDate: formatFriendlyDate(e.target.value) })}
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-3 py-2 text-xs font-bold text-[#03020A] focus:ring-2 focus:ring-[#A78BFA] outline-none cursor-pointer"
+                  />
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {['Today', 'Tomorrow', 'In 3 Days', 'Next Week'].map(preset => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => {
+                          if (preset === 'In 3 Days') {
+                            const d = new Date();
+                            d.setDate(d.getDate() + 3);
+                            setEditingTask({ ...editingTask, dueDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+                          } else if (preset === 'Next Week') {
+                            const d = new Date();
+                            d.setDate(d.getDate() + 7);
+                            setEditingTask({ ...editingTask, dueDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+                          } else {
+                            setEditingTask({ ...editingTask, dueDate: preset });
+                          }
+                        }}
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold transition-all cursor-pointer ${
+                          editingTask.dueDate === preset
+                            ? 'bg-[#7C3AED] text-white shadow-sm'
+                            : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200'
+                        }`}
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="pt-2 flex justify-end gap-2">
