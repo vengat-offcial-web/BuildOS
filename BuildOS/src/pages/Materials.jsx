@@ -200,7 +200,7 @@ function Materials() {
                 <Badge variant={
                   mat.status === 'Low Stock Alert' || mat.status === 'Reorder Required' || mat.availablePct < 30
                     ? 'overdue'
-                    : mat.status === 'In Use' || (mat.availablePct >= 30 && mat.availablePct < 50)
+                    : (mat.availablePct >= 30 && mat.availablePct < 50)
                       ? 'pending'
                       : 'completed'
                 }>
@@ -290,7 +290,6 @@ function Materials() {
                   >
                     <option value="Low Stock Alert">Low Stock Alert</option>
                     <option value="Stocked">Stocked</option>
-                    <option value="In Use">In Use</option>
                     <option value="Reorder Required">Reorder Required</option>
                   </select>
                 </div>
@@ -418,7 +417,6 @@ function Materials() {
                   >
                     <option value="Low Stock Alert">Low Stock Alert</option>
                     <option value="Stocked">Stocked</option>
-                    <option value="In Use">In Use</option>
                     <option value="Reorder Required">Reorder Required</option>
                   </select>
                 </div>
