@@ -16,8 +16,7 @@ function Materials() {
     category: '',
     totalStock: '',
     siteAllocated: '',
-    unitCost: '',
-    status: 'Low Stock Alert'
+    unitCost: ''
   });
 
   const handleOrderSubmit = (e) => {
@@ -30,7 +29,7 @@ function Materials() {
       totalStock: newOrder.totalStock.trim() || '300 cum',
       siteAllocated: newOrder.siteAllocated.trim() || 'Hyper Mall (450 cu.m)',
       unitCost: newOrder.unitCost.trim() || '$85/cu.m',
-      status: newOrder.status || 'Low Stock Alert'
+      status: 'Stocked'
     });
 
     setNewOrder({
@@ -38,8 +37,7 @@ function Materials() {
       category: '',
       totalStock: '',
       siteAllocated: '',
-      unitCost: '',
-      status: 'Low Stock Alert'
+      unitCost: ''
     });
     setShowOrderModal(false);
   };
@@ -161,33 +159,17 @@ function Materials() {
             </div>
 
             <form onSubmit={handleOrderSubmit} className="space-y-4">
-              {/* Category & Status Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Category Tag</label>
-                  <input
-                    type="text"
-                    required
-                    value={newOrder.category}
-                    onChange={(e) => setNewOrder({ ...newOrder, category: e.target.value })}
-                    placeholder="Enter material category"
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Stock Alert Status</label>
-                  <select
-                    value={newOrder.status}
-                    onChange={(e) => setNewOrder({ ...newOrder, status: e.target.value })}
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all cursor-pointer"
-                  >
-                    <option value="Low Stock Alert">Low Stock Alert</option>
-                    <option value="Stocked">Stocked</option>
-                    <option value="In Use">In Use</option>
-                    <option value="Reorder Required">Reorder Required</option>
-                  </select>
-                </div>
+              {/* Category Tag Field */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1.5">Category Tag</label>
+                <input
+                  type="text"
+                  required
+                  value={newOrder.category}
+                  onChange={(e) => setNewOrder({ ...newOrder, category: e.target.value })}
+                  placeholder="Enter material category"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
+                />
               </div>
 
               {/* Material Name Field */}
