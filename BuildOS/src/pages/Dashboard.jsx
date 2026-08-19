@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { FiCalendar, FiPlus, FiArrowRight, FiActivity, FiCheckCircle, FiSearch, FiX, FiFilter, FiInbox, FiTrash2 } from 'react-icons/fi';
+import { FiCalendar, FiPlus, FiArrowRight, FiCheckCircle, FiSearch, FiX, FiFilter, FiInbox } from 'react-icons/fi';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { DashboardCards, Table, ProjectBentoCard } from '../components';
 import { useData } from '../context/useData';
@@ -10,7 +10,7 @@ function Dashboard() {
   const searchTerm = outletContext.searchTerm || '';
   const setSearchTerm = outletContext.setSearchTerm || (() => {});
 
-  const { projects = [], activityFeed = [], clearActivityFeed } = useData() || {};
+  const { projects = [] } = useData() || {};
 
   const [statusFilter, setStatusFilter] = useState('All');
 
@@ -29,17 +29,6 @@ function Dashboard() {
       return matchesSearch && matchesStatus;
     });
   }, [projects, searchTerm, statusFilter]);
-
-  // Filter activity feed based on search input
-  const filteredFeed = useMemo(() => {
-    const term = searchTerm.toLowerCase().trim();
-    if (!term) return activityFeed;
-    return activityFeed.filter(f =>
-      (f.title && f.title.toLowerCase().includes(term)) ||
-      (f.site && f.site.toLowerCase().includes(term)) ||
-      (f.status && f.status.toLowerCase().includes(term))
-    );
-  }, [activityFeed, searchTerm]);
 
   const handleKpiCardClick = (filterTarget) => {
     if (filterTarget === 'Workers') {
@@ -195,55 +184,6 @@ function Dashboard() {
 
       {/* Projects Table Overview (Live Filtered) */}
       <Table projectsData={filteredProjects} />
-
-      {/* Live Site Operations Feed (Full Width & Live Filtered) */}
-      <div className="glass-card p-6 rounded-[28px] border border-white">
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-purple-100">
-          <h3 className="text-lg font-extrabold text-[#03020A] flex items-center gap-2">
-            <FiActivity className="text-[#7C3AED]" />
-            Live Site Operations Feed
-          </h3>
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] font-bold text-slate-500">Updated Real-Time</span>
-            {activityFeed && activityFeed.length > 0 && (
-              <button
-                type="button"
-                onClick={() => clearActivityFeed && clearActivityFeed()}
-                className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1 cursor-pointer bg-rose-50 border border-rose-200 px-3 py-1 rounded-full transition-all"
-                title="Clear all activity feed history"
-              >
-                <FiTrash2 className="text-xs" /> Clear Feed
-              </button>
-            )}
-          </div>
-        </div>
-
-        {filteredFeed.length > 0 ? (
-          <div className="space-y-3">
-            {filteredFeed.map((feed, i) => (
-              <div key={i} className="bg-white/80 p-3.5 rounded-2xl border border-white flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center text-xs font-bold shrink-0">
-                    <FiCheckCircle />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-[#03020A]">{feed.title}</h4>
-                    <p className="text-[11px] text-slate-500 font-medium">{feed.site}</p>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E9D5FF] text-[#6B21A8]">
-                    {feed.status}
-                  </span>
-                  <p className="text-[10px] text-slate-400 font-semibold mt-1">{feed.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs font-semibold text-slate-400 text-center py-4">No activity feed entries match "{searchTerm}"</p>
-        )}
-      </div>
     </div>
   );
 }
