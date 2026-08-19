@@ -22,8 +22,11 @@ import {
 import { FaHelmetSafety } from 'react-icons/fa6';
 
 function WorkerDashboard() {
+    const { user } = useAuth();
     const { 
+        notifications,
         addNotification, 
+        markNotificationAsRead,
         updateWorker, 
         workers, 
         projects, 
@@ -36,6 +39,32 @@ function WorkerDashboard() {
         addWorkerNote, 
         deleteWorkerNote 
     } = useData();
+
+    // Automatically trigger notification toast banner when worker logs in / visits dashboard if a new task was assigned
+    React.useEffect(() => {
+        if (!user?.name || !notifications || !Array.isArray(notifications)) return;
+
+        const userNameClean = user.name.toLowerCase().trim();
+
+        // Find unread notification targeted specifically to this logged-in worker
+        const latestTaskNotif = notifications.find(n => {
+            if (!n || !n.unread) return false;
+            if (n.target !== 'worker') return false;
+            if (n.recipient && n.recipient.toLowerCase().trim() === userNameClean) {
+                return true;
+            }
+            return false;
+        });
+
+        if (latestTaskNotif) {
+            setToastMessage(`🔔 ${latestTaskNotif.title}: ${latestTaskNotif.message}`);
+            // Auto mark as read after worker sees the notification toast
+            const timer = setTimeout(() => {
+                markNotificationAsRead(latestTaskNotif.id);
+            }, 6000);
+            return () => clearTimeout(timer);
+        }
+    }, [user, notifications, markNotificationAsRead]);
 
     // Check if current logged in worker is already clocked in from context roster
     const currentWorker = workers?.find(w => w.name?.toLowerCase().trim() === user?.name?.toLowerCase().trim());
