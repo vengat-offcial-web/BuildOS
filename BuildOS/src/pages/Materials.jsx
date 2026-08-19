@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Card, Badge } from '../components/ui';
-import { FiLayers, FiPlus, FiFilter, FiTrash2, FiEdit2 } from 'react-icons/fi';
+import { FiLayers, FiPlus, FiFilter, FiTrash2, FiEdit2, FiX } from 'react-icons/fi';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../context/useData';
 
@@ -89,6 +89,18 @@ function Materials() {
     setEditingMaterial(null);
   };
 
+  // Derive category counts dynamically for the dropdown filter
+  const categoryStats = useMemo(() => {
+    const counts = {};
+    (materials || []).forEach(m => {
+      if (m && m.category && m.category.trim()) {
+        const cat = m.category.trim();
+        counts[cat] = (counts[cat] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [materials]);
+
   const filtered = useMemo(() => {
     const seen = new Set();
     return (materials || []).filter(m => {
@@ -100,7 +112,8 @@ function Materials() {
       const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                             (m.siteAllocated && m.siteAllocated.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = categoryFilter === 'All' || 
-                              (m.category && m.category.toLowerCase().includes(categoryFilter.toLowerCase()));
+                              (m.category && m.category.toLowerCase().includes(categoryFilter.toLowerCase())) ||
+                              (m.category && categoryFilter.toLowerCase().includes(m.category.toLowerCase()));
       return matchesSearch && matchesCategory;
     });
   }, [materials, searchTerm, categoryFilter]);
@@ -129,26 +142,46 @@ function Materials() {
         </button>
       </div>
 
-      {/* Filter Pills Bar */}
-      <div className="glass-card p-4 rounded-[28px] flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto w-full">
-          <span className="text-xs font-bold text-slate-400 flex items-center gap-1 shrink-0 mr-1">
-            <FiFilter className="text-purple-500" /> Filter Category:
+      {/* Filter Category Bar - Sleek Glassmorphism Select Dropdown matching Workers Page */}
+      <div className="glass-card p-4 rounded-[28px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Left Side: Showing items count & Reset button */}
+        <div className="flex items-center gap-3 text-xs">
+          <span className="font-semibold text-slate-500">
+            Showing <strong className="text-[#7C3AED] font-extrabold">{filtered.length}</strong> of {(materials || []).length} materials
           </span>
-          {['All', 'Concrete', 'Steel', 'Facade', 'Masonry'].map((cat) => (
+
+          {categoryFilter !== 'All' && (
             <button
-              key={cat}
               type="button"
-              onClick={() => setCategoryFilter(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                categoryFilter === cat
-                  ? 'bg-[#7C3AED] text-white shadow-md'
-                  : 'bg-white/80 text-slate-600 hover:bg-white hover:text-[#03020A]'
-              }`}
+              onClick={() => setCategoryFilter('All')}
+              className="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all flex items-center gap-1 cursor-pointer shadow-xs"
             >
-              {cat}
+              <FiX className="text-xs" /> Reset
             </button>
-          ))}
+          )}
+        </div>
+
+        {/* Right Side: Filter Category Dropdown */}
+        <div className="flex items-center gap-3 flex-wrap self-end sm:self-auto">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-[#7C3AED]/10 text-[#7C3AED] flex items-center justify-center text-sm font-extrabold">
+              <FiFilter />
+            </div>
+            <span className="text-xs font-extrabold text-[#03020A]">Filter Category:</span>
+          </div>
+
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="bg-white/90 border border-purple-100 text-xs font-bold text-[#03020A] rounded-2xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-[#7C3AED] shadow-sm cursor-pointer hover:border-purple-200 transition-all min-w-[200px]"
+          >
+            <option value="All">All Categories ({(materials || []).length} Items)</option>
+            {Object.entries(categoryStats).map(([catName, count]) => (
+              <option key={catName} value={catName}>
+                {catName} ({count} Item{count !== 1 ? 's' : ''})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
