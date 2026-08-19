@@ -121,6 +121,75 @@ export const DataProvider = ({ children }) => {
     });
   }, [projects]);
 
+  // Automatically sync material site allocations with project state whenever materials change
+  useEffect(() => {
+    if (!materials || materials.length === 0 || !projects || projects.length === 0) return;
+
+    setProjects(prevProjects => {
+      let changed = false;
+
+      const updatedProjects = prevProjects.map(proj => {
+        if (!proj || !proj.name) return proj;
+        const projNameClean = proj.name.toLowerCase().trim();
+        const projLocClean = (proj.location || '').toLowerCase().trim();
+
+        // Find all materials allocated to this project
+        const matchingMaterials = materials.filter(m => {
+          if (!m || !m.siteAllocated) return false;
+          const siteAllocLower = m.siteAllocated.toLowerCase().trim();
+          const cleanSiteName = siteAllocLower.split('(')[0].trim();
+          return (projNameClean && siteAllocLower.includes(projNameClean)) || 
+                 (projNameClean && cleanSiteName.includes(projNameClean)) ||
+                 (cleanSiteName && projNameClean.includes(cleanSiteName)) ||
+                 (projLocClean && siteAllocLower.includes(projLocClean));
+        });
+
+        if (matchingMaterials.length === 0) return proj;
+
+        const currentAllocated = Array.isArray(proj.allocatedMaterials) ? [...proj.allocatedMaterials] : [];
+        let projectChanged = false;
+
+        matchingMaterials.forEach(m => {
+          const match = m.siteAllocated.match(/\((.*?)\)/);
+          const matQuantity = match ? match[1].trim() : (m.totalStock || '100 Units');
+          const matStatus = m.status || 'Stocked';
+
+          const existingIndex = currentAllocated.findIndex(
+            alloc => alloc && alloc.name && alloc.name.toLowerCase().trim() === m.name.toLowerCase().trim()
+          );
+
+          if (existingIndex !== -1) {
+            const existing = currentAllocated[existingIndex];
+            if (existing.quantity !== matQuantity || existing.status !== matStatus) {
+              currentAllocated[existingIndex] = {
+                ...existing,
+                quantity: matQuantity,
+                status: matStatus
+              };
+              projectChanged = true;
+            }
+          } else {
+            currentAllocated.push({
+              id: m.id || Date.now(),
+              name: m.name,
+              quantity: matQuantity,
+              status: matStatus
+            });
+            projectChanged = true;
+          }
+        });
+
+        if (projectChanged) {
+          changed = true;
+          return { ...proj, allocatedMaterials: currentAllocated };
+        }
+        return proj;
+      });
+
+      return changed ? updatedProjects : prevProjects;
+    });
+  }, [materials]);
+
   // Helper log activity generator
   const logActivity = useCallback((title, site, status, badge = 'lime') => {
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

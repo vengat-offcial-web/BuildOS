@@ -187,12 +187,49 @@ function ProjectDetails() {
   ];
 
   const projectAllocatedMaterials = useMemo(() => {
-    const rawAlloc = (project && project.allocatedMaterials && project.allocatedMaterials.length > 0)
+    const projNameClean = (project?.name || '').toLowerCase().trim();
+    const projLocClean = (project?.location || '').toLowerCase().trim();
+
+    // Live materials allocated to this site from global materials state
+    const liveSiteMaterials = (materials || []).filter(m => {
+      if (!m || !m.siteAllocated) return false;
+      const siteAllocLower = m.siteAllocated.toLowerCase().trim();
+      const cleanSiteName = siteAllocLower.split('(')[0].trim();
+      return (projNameClean && siteAllocLower.includes(projNameClean)) || 
+             (projNameClean && cleanSiteName.includes(projNameClean)) ||
+             (cleanSiteName && projNameClean.includes(cleanSiteName)) ||
+             (projLocClean && siteAllocLower.includes(projLocClean));
+    }).map(m => {
+      const match = m.siteAllocated.match(/\((.*?)\)/);
+      const qty = match ? match[1].trim() : (m.totalStock || '100 Units');
+      return {
+        id: m.id,
+        name: m.name,
+        quantity: qty,
+        status: m.status
+      };
+    });
+
+    const currentAlloc = (project && project.allocatedMaterials && project.allocatedMaterials.length > 0)
       ? project.allocatedMaterials
-      : defaultAllocatedMaterials;
+      : [];
 
     const activeMaterialNames = new Set((materials || []).map(m => m.name?.toLowerCase().trim()));
-    return rawAlloc.filter(m => m.name && activeMaterialNames.has(m.name.toLowerCase().trim()));
+    const validCurrentAlloc = currentAlloc.filter(m => m.name && activeMaterialNames.has(m.name.toLowerCase().trim()));
+
+    const combinedMap = new Map();
+    validCurrentAlloc.forEach(item => {
+      if (item && item.name) combinedMap.set(item.name.toLowerCase().trim(), item);
+    });
+    liveSiteMaterials.forEach(item => {
+      if (item && item.name) combinedMap.set(item.name.toLowerCase().trim(), item);
+    });
+
+    if (combinedMap.size === 0) {
+      return defaultAllocatedMaterials.filter(m => activeMaterialNames.has(m.name.toLowerCase().trim()));
+    }
+
+    return Array.from(combinedMap.values());
   }, [project, materials]);
 
   const handleOpenMaterialsModal = () => {
