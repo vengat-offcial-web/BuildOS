@@ -130,29 +130,32 @@ function Tasks() {
     setTimeout(() => setToastMessage(''), 3500);
   };
 
-  // Available worker assignees catalog
+  // Available worker assignees strictly derived from live active registered workers roster
   const availableAssignees = React.useMemo(() => {
-    const list = (workers || []).map(w => ({
-      name: w.name,
-      trade: w.trade || 'Site Specialist',
-      site: w.site || ''
-    }));
-    const defaultLeads = [
-      { name: 'Rajesh Kumar', trade: 'Project Lead Engineer', site: 'Marina Tower' },
-      { name: 'Latha M.', trade: 'Quality Control Lead', site: 'Marina Tower' },
-      { name: 'Karthik R.', trade: 'Electrical Lead', site: 'Metro Line Extension' },
-      { name: 'Anandan S.', trade: 'Senior Technician', site: 'Marina Tower' },
-      { name: 'Ganesh K.', trade: 'Safety Officer', site: 'SkyView Apartments' },
-      { name: 'Selvam P.', trade: 'Masonry Supervisor', site: 'Green Valley Township' }
-    ];
-    
-    const combined = [...list];
-    defaultLeads.forEach(dl => {
-      if (!combined.some(c => c.name.toLowerCase().trim() === dl.name.toLowerCase().trim())) {
-        combined.push(dl);
+    if (!workers || !Array.isArray(workers)) return [];
+
+    const seen = new Set();
+    const result = [];
+
+    workers.forEach(w => {
+      if (!w || !w.name) return;
+      const cleanName = w.name.trim();
+      const key = cleanName.toLowerCase();
+
+      // Exclude declined worker accounts
+      if (w.approvalStatus === 'Declined') return;
+
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push({
+          name: cleanName,
+          trade: w.trade || 'Site Specialist',
+          site: w.site || ''
+        });
       }
     });
-    return combined;
+
+    return result;
   }, [workers]);
 
   // Available construction sites catalog
@@ -166,7 +169,7 @@ function Tasks() {
   const [newTask, setNewTask] = useState({ 
     title: '', 
     site: availableSites[0] || 'Marina Tower', 
-    assignee: availableAssignees[0]?.name || 'Rajesh Kumar', 
+    assignee: availableAssignees[0]?.name || '', 
     category: 'Safety Inspection',
     priority: 'Medium', 
     dueDate: 'Tomorrow' 
@@ -187,7 +190,7 @@ function Tasks() {
     setNewTask({ 
       title: '', 
       site: availableSites[0] || 'Marina Tower', 
-      assignee: availableAssignees[0]?.name || 'Rajesh Kumar', 
+      assignee: availableAssignees[0]?.name || '', 
       category: 'Safety Inspection',
       priority: 'Medium', 
       dueDate: 'Tomorrow' 
@@ -201,7 +204,7 @@ function Tasks() {
       id: task.id,
       title: task.title || task.name || '',
       site: task.site || availableSites[0] || 'Marina Tower',
-      assignee: task.assignee || availableAssignees[0]?.name || 'Rajesh Kumar',
+      assignee: task.assignee || availableAssignees[0]?.name || '', 
       category: task.category || 'General Operations',
       status: task.status || 'Pending',
       priority: task.priority || 'Medium',
