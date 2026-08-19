@@ -11,20 +11,42 @@ function Materials() {
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [showOrderModal, setShowOrderModal] = useState(false);
 
-  const [newOrder, setNewOrder] = useState({ name: '', quantity: '', site: '' });
+  const [newOrder, setNewOrder] = useState({
+    name: '',
+    category: 'Concrete & Cement',
+    totalStock: '',
+    siteAllocated: '',
+    unitCost: '',
+    status: 'Low Stock Alert'
+  });
 
   const handleOrderSubmit = (e) => {
     e.preventDefault();
-    if (!newOrder.name) return;
+    if (!newOrder.name.trim()) return;
 
-    addMaterialOrder(newOrder);
-    setNewOrder({ name: '', quantity: '', site: '' });
+    addMaterialOrder({
+      name: newOrder.name,
+      category: newOrder.category || 'Concrete & Cement',
+      totalStock: newOrder.totalStock || '300 cum',
+      siteAllocated: newOrder.siteAllocated || 'Hyper Mall (450 cu.m)',
+      unitCost: newOrder.unitCost || '$85/cu.m',
+      status: newOrder.status || 'Low Stock Alert'
+    });
+
+    setNewOrder({
+      name: '',
+      category: 'Concrete & Cement',
+      totalStock: '',
+      siteAllocated: '',
+      unitCost: '',
+      status: 'Low Stock Alert'
+    });
     setShowOrderModal(false);
   };
 
   const filtered = materials.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || m.siteAllocated.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'All' || m.category.includes(categoryFilter);
+    const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || (m.siteAllocated && m.siteAllocated.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory = categoryFilter === 'All' || (m.category && m.category.toLowerCase().includes(categoryFilter.toLowerCase()));
     return matchesSearch && matchesCategory;
   });
 
@@ -86,7 +108,13 @@ function Materials() {
                 </span>
                 <h3 className="text-sm font-extrabold text-[#03020A] mt-2">{mat.name}</h3>
               </div>
-              <Badge variant={mat.availablePct < 30 ? 'overdue' : mat.availablePct < 50 ? 'pending' : 'completed'}>
+              <Badge variant={
+                mat.status === 'Low Stock Alert' || mat.status === 'Reorder Required' || mat.availablePct < 30
+                  ? 'overdue'
+                  : mat.status === 'In Use' || (mat.availablePct >= 30 && mat.availablePct < 50)
+                    ? 'pending'
+                    : 'completed'
+              }>
                 {mat.status}
               </Badge>
             </div>
@@ -109,53 +137,131 @@ function Materials() {
         ))}
       </div>
 
-      {/* Order Modal */}
+      {/* Order Modal Popup */}
       {showOrderModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md p-6 rounded-[32px] border border-white shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-purple-100 pb-3">
-              <h3 className="text-lg font-extrabold text-[#03020A]">Order Site Materials</h3>
-              <button type="button" onClick={() => setShowOrderModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 cursor-pointer">✕</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="glass-card w-full max-w-lg p-6 sm:p-8 rounded-[32px] border border-white shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-purple-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-purple-100 text-[#7C3AED] text-lg font-bold">
+                  <FiLayers />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-[#03020A] tracking-tight">New Material Order</h3>
+                  <p className="text-xs font-semibold text-slate-500">Dispatch supply order & allocate site inventory</p>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setShowOrderModal(false)} 
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-all flex items-center justify-center font-bold text-sm cursor-pointer"
+              >
+                ✕
+              </button>
             </div>
 
             <form onSubmit={handleOrderSubmit} className="space-y-4">
+              {/* Category & Status Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Category Tag</label>
+                  <select
+                    value={newOrder.category}
+                    onChange={(e) => setNewOrder({ ...newOrder, category: e.target.value })}
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all cursor-pointer"
+                  >
+                    <option value="Concrete & Cement">Concrete & Cement</option>
+                    <option value="Steel & Metals">Steel & Metals</option>
+                    <option value="Facade & Glass">Facade & Glass</option>
+                    <option value="Masonry">Masonry</option>
+                    <option value="General Construction">General Construction</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Stock Alert Status</label>
+                  <select
+                    value={newOrder.status}
+                    onChange={(e) => setNewOrder({ ...newOrder, status: e.target.value })}
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all cursor-pointer"
+                  >
+                    <option value="Low Stock Alert">Low Stock Alert</option>
+                    <option value="Stocked">Stocked</option>
+                    <option value="In Use">In Use</option>
+                    <option value="Reorder Required">Reorder Required</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Material Name Field */}
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Material Name</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1.5">Material Name</label>
                 <input
                   type="text"
                   required
                   value={newOrder.name}
                   onChange={(e) => setNewOrder({ ...newOrder, name: e.target.value })}
-                  placeholder="e.g. Ready-Mix Concrete Grade 50"
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                  placeholder="e.g. Ready-Mix Concrete Grade 40"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
 
+              {/* Total On-Hand & Unit Cost Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Total On-Hand</label>
+                  <input
+                    type="text"
+                    required
+                    value={newOrder.totalStock}
+                    onChange={(e) => setNewOrder({ ...newOrder, totalStock: e.target.value })}
+                    placeholder="e.g. 300 cum"
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Estimated Unit Cost</label>
+                  <input
+                    type="text"
+                    required
+                    value={newOrder.unitCost}
+                    onChange={(e) => setNewOrder({ ...newOrder, unitCost: e.target.value })}
+                    placeholder="e.g. $85/cu.m"
+                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Allocated Site Field */}
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Order Quantity</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1.5">Allocated Site</label>
                 <input
                   type="text"
-                  value={newOrder.quantity}
-                  onChange={(e) => setNewOrder({ ...newOrder, quantity: e.target.value })}
-                  placeholder="e.g. 250 cu.m"
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                  required
+                  value={newOrder.siteAllocated}
+                  onChange={(e) => setNewOrder({ ...newOrder, siteAllocated: e.target.value })}
+                  placeholder="e.g. Hyper Mall (450 cu.m)"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Delivery Destination Site</label>
-                <input
-                  type="text"
-                  value={newOrder.site}
-                  onChange={(e) => setNewOrder({ ...newOrder, site: e.target.value })}
-                  placeholder="e.g. Marina Tower"
-                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
-                />
-              </div>
-
-              <div className="pt-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowOrderModal(false)} className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 cursor-pointer">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#7C3AED] text-white shadow-md cursor-pointer">Dispatch Order</button>
+              {/* Action Buttons */}
+              <div className="pt-3 flex items-center justify-end gap-3 border-t border-purple-100/60 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowOrderModal(false)}
+                  className="px-5 py-2.5 rounded-full text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="dark-nav-pill px-6 py-2.5 rounded-full text-xs font-extrabold text-white shadow-lg hover:bg-black transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <FiPlus className="text-[#BEF264] text-sm" />
+                  <span>Dispatch Material Order</span>
+                </button>
               </div>
             </form>
           </div>

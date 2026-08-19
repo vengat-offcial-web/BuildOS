@@ -425,13 +425,13 @@ export const DataProvider = ({ children }) => {
   const addMaterialOrder = useCallback((orderData) => {
     const newMat = {
       id: Date.now(),
-      name: orderData.name,
-      category: "General Construction",
-      totalStock: orderData.quantity || "500 Units",
-      availablePct: 100,
-      siteAllocated: orderData.site || "Marina Tower",
-      status: "Stocked",
-      unitCost: "$120/Unit"
+      name: orderData.name?.trim() || "Ready-Mix Concrete Grade 40",
+      category: orderData.category?.trim() || "Concrete & Cement",
+      totalStock: orderData.totalStock?.trim() || orderData.quantity?.trim() || "300 cum",
+      availablePct: orderData.availablePct !== undefined ? Number(orderData.availablePct) : 100,
+      siteAllocated: orderData.siteAllocated?.trim() || orderData.site?.trim() || "Hyper Mall (450 cu.m)",
+      status: orderData.status?.trim() || "Low Stock Alert",
+      unitCost: orderData.unitCost?.trim() || "$85/cu.m"
     };
     setMaterials(prev => [newMat, ...prev]);
     logActivity(`Material Dispatched: ${newMat.name}`, newMat.siteAllocated, 'Stock Updated', 'purple');
