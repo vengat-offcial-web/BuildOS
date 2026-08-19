@@ -249,7 +249,8 @@ function Tasks() {
       assignee.toLowerCase().includes(searchTerm.toLowerCase()) ||
       category.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesTab = statusTab === 'All' ? true : statusTab === 'Overdue' ? t.overdue : t.status === statusTab;
+    const isOverdueTask = t.status !== 'Completed' && (t.overdue || t.status === 'Overdue');
+    const matchesTab = statusTab === 'All' ? true : statusTab === 'Overdue' ? isOverdueTask : t.status === statusTab;
     const matchesCategory = categoryFilter === 'All Categories' ? true : category.toLowerCase() === categoryFilter.toLowerCase();
 
     return matchesSearch && matchesTab && matchesCategory;

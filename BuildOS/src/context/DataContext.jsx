@@ -593,17 +593,47 @@ export const DataProvider = ({ children }) => {
     logActivity(`Material Removed Everywhere`, `ID/Name: ${idOrName}`, 'Purged from Inventory & Projects', 'purple');
   }, [logActivity]);
 
+const checkIsOverdue = (dueDateStr, status) => {
+  if (status === 'Completed') return false;
+  if (!dueDateStr) return false;
+  
+  const clean = dueDateStr.toLowerCase().trim();
+  if (clean === 'today' || clean === 'tomorrow') return false;
+  if (clean === 'yesterday') return true;
+
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const parts = dueDateStr.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      d.setHours(0, 0, 0, 0);
+      return d < today;
+    }
+
+    const parsed = new Date(dueDateStr);
+    if (!isNaN(parsed.getTime())) {
+      parsed.setHours(0, 0, 0, 0);
+      return parsed < today;
+    }
+  } catch {}
+
+  return false;
+};
+
   const addTask = useCallback((taskData) => {
+    const isOver = checkIsOverdue(taskData.dueDate, taskData.status || 'Pending');
     const newTask = {
       id: Date.now(),
       title: taskData.title,
       site: taskData.site || 'Marina Tower',
       assignee: taskData.assignee || 'General Team',
       category: taskData.category || 'General Operations',
-      status: taskData.status || 'Pending',
+      status: isOver ? 'Overdue' : (taskData.status || 'Pending'),
       priority: taskData.priority || 'Medium',
       dueDate: taskData.dueDate || 'Tomorrow',
-      overdue: false
+      overdue: isOver
     };
     setTasks(prev => [newTask, ...prev]);
     logActivity(`Task Assigned: ${newTask.title}`, newTask.site, `Category: ${newTask.category} • Assignee: ${newTask.assignee}`, 'purple');
@@ -626,8 +656,10 @@ export const DataProvider = ({ children }) => {
     setTasks(prev => prev.map(t => {
       if (t.id === taskId) {
         const nextStatus = t.status === 'Completed' ? 'Pending' : 'Completed';
-        logActivity(`Task Status Changed`, t.site, nextStatus, 'lime');
-        return { ...t, status: nextStatus, overdue: false };
+        const isOver = checkIsOverdue(t.dueDate, nextStatus);
+        const finalStatus = (nextStatus === 'Pending' && isOver) ? 'Overdue' : nextStatus;
+        logActivity(`Task Status Changed`, t.site, finalStatus, 'lime');
+        return { ...t, status: finalStatus, overdue: finalStatus === 'Completed' ? false : isOver };
       }
       return t;
     }));
@@ -642,10 +674,20 @@ export const DataProvider = ({ children }) => {
     let targetTask = null;
     setTasks(prev => prev.map(t => {
       if (t.id === Number(taskId) || t.id === taskId) {
-        targetTask = { ...t, ...updatedFields };
-        if (updatedFields.status === 'Completed') {
-          targetTask.overdue = false;
+        const merged = { ...t, ...updatedFields };
+        const isOver = checkIsOverdue(merged.dueDate, merged.status);
+
+        merged.overdue = isOver;
+        if (merged.status === 'Completed') {
+          merged.overdue = false;
+        } else if (isOver) {
+          merged.status = 'Overdue';
+        } else if (merged.status === 'Overdue' && !isOver) {
+          // Date was postponed to a future date! Clear Overdue status back to Pending
+          merged.status = 'Pending';
         }
+
+        targetTask = merged;
         return targetTask;
       }
       return t;
@@ -656,7 +698,7 @@ export const DataProvider = ({ children }) => {
       if (targetTask.assignee) {
         addNotification(
           `Task Details Updated: ${targetTask.title}`,
-          `Admin updated task details for '${targetTask.title}' (${targetTask.status}, Priority: ${targetTask.priority})`,
+          `Admin updated task details for '${targetTask.title}' (${targetTask.status}, Priority: ${targetTask.priority}, Due: ${targetTask.dueDate})`,
           "Task Assignment",
           "purple",
           "worker",
@@ -809,7 +851,7 @@ export const DataProvider = ({ children }) => {
   // Derived Dynamic Counts
   const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'In Progress').length, [projects]);
   const pendingTasksCount = useMemo(() => tasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [tasks]);
-  const overdueTasksCount = useMemo(() => tasks.filter(t => t.overdue).length, [tasks]);
+  const overdueTasksCount = useMemo(() => tasks.filter(t => t.status !== 'Completed' && (t.overdue || checkIsOverdue(t.dueDate, t.status))).length, [tasks]);
 
   const contextValue = useMemo(() => ({
     projects,
