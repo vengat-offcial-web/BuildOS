@@ -848,16 +848,29 @@ const checkIsOverdue = (dueDateStr, status) => {
     setLeaveRequests(prev => prev.filter(r => r.id !== Number(reqId)));
   }, []);
 
-  // Derived Dynamic Counts
+  // Derived Dynamic Tasks & Counts
+  const enrichedTasks = useMemo(() => {
+    return tasks.map(t => {
+      if (t.status === 'Completed') {
+        return { ...t, overdue: false };
+      }
+      const isOver = checkIsOverdue(t.dueDate, t.status);
+      return {
+        ...t,
+        overdue: Boolean(t.overdue || isOver || t.status === 'Overdue')
+      };
+    });
+  }, [tasks]);
+
   const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'In Progress').length, [projects]);
-  const pendingTasksCount = useMemo(() => tasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [tasks]);
-  const overdueTasksCount = useMemo(() => tasks.filter(t => t.status !== 'Completed' && (t.overdue || checkIsOverdue(t.dueDate, t.status))).length, [tasks]);
+  const pendingTasksCount = useMemo(() => enrichedTasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [enrichedTasks]);
+  const overdueTasksCount = useMemo(() => enrichedTasks.filter(t => t.overdue).length, [enrichedTasks]);
 
   const contextValue = useMemo(() => ({
     projects,
     workers,
     materials,
-    tasks,
+    tasks: enrichedTasks,
     activityFeed,
     notifications,
     workerNotes,
@@ -900,7 +913,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     projects,
     workers,
     materials,
-    tasks,
+    enrichedTasks,
     activityFeed,
     notifications,
     workerNotes,
