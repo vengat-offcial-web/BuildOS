@@ -444,7 +444,7 @@ function Tasks() {
                   required
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                  placeholder="Task title (e.g. Inspect rebar binding on Floor 12)"
+                  placeholder="Enter task title"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-[#A78BFA] outline-none"
                 />
               </div>
