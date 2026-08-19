@@ -603,14 +603,44 @@ export const DataProvider = ({ children }) => {
       category: machineData.category || 'Heavy Equipment',
       site: machineData.site || 'Marina Tower',
       operator: machineData.operator || 'Unassigned',
-      status: 'Operational',
-      healthPct: 100,
-      fuelLevel: '100%',
-      hoursUsed: '0 hrs'
+      status: machineData.status || 'Operational',
+      healthPct: machineData.healthPct !== undefined ? Number(machineData.healthPct) : 100,
+      fuelLevel: machineData.fuelLevel || '100%',
+      hoursUsed: machineData.hoursUsed || '0 hrs'
     };
     setMachines(prev => [newMac, ...prev]);
     logActivity(`Equipment Deployed: ${newMac.name}`, newMac.site, 'Fleet Active', 'lime');
     return newMac;
+  }, [logActivity]);
+
+  const updateMachine = useCallback((id, updatedFields) => {
+    setMachines(prev => {
+      const updated = prev.map(m => {
+        if (m.id === Number(id) || m.id === id) {
+          return { ...m, ...updatedFields };
+        }
+        return m;
+      });
+      safeSetStorage('buildos_machines', updated);
+      return updated;
+    });
+    logActivity(`Telemetry Updated`, `ID #${id}`, 'Fleet Telemetry Sync', 'lime');
+  }, [logActivity]);
+
+  const deleteMachine = useCallback((id) => {
+    let removedName = '';
+    setMachines(prev => {
+      const filtered = prev.filter(m => {
+        if (m.id === Number(id) || m.id === id) {
+          removedName = m.name;
+          return false;
+        }
+        return true;
+      });
+      safeSetStorage('buildos_machines', filtered);
+      return filtered;
+    });
+    logActivity(`Equipment Decommissioned: ${removedName || id}`, `ID #${id}`, 'Purged from Fleet', 'purple');
   }, [logActivity]);
 
   const addTask = useCallback((taskData) => {
@@ -821,6 +851,8 @@ export const DataProvider = ({ children }) => {
     updateMaterial,
     deleteMaterial,
     addMachine,
+    updateMachine,
+    deleteMachine,
     addTask,
     toggleTaskStatus,
     addWorkerNote,
@@ -864,6 +896,8 @@ export const DataProvider = ({ children }) => {
     updateMaterial,
     deleteMaterial,
     addMachine,
+    updateMachine,
+    deleteMachine,
     addTask,
     toggleTaskStatus,
     addWorkerNote,
