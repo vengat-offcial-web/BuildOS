@@ -170,7 +170,7 @@ function Materials() {
                     required
                     value={newOrder.category}
                     onChange={(e) => setNewOrder({ ...newOrder, category: e.target.value })}
-                    placeholder="Enter material category (e.g. Concrete & Cement)"
+                    placeholder="Enter material category"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -198,7 +198,7 @@ function Materials() {
                   required
                   value={newOrder.name}
                   onChange={(e) => setNewOrder({ ...newOrder, name: e.target.value })}
-                  placeholder="Enter material name (e.g. Ready-Mix Concrete Grade 40)"
+                  placeholder="Enter material name"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
@@ -212,7 +212,7 @@ function Materials() {
                     required
                     value={newOrder.totalStock}
                     onChange={(e) => setNewOrder({ ...newOrder, totalStock: e.target.value })}
-                    placeholder="Enter total stock on-hand (e.g. 300 cum)"
+                    placeholder="Enter total stock on-hand"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -224,7 +224,7 @@ function Materials() {
                     required
                     value={newOrder.unitCost}
                     onChange={(e) => setNewOrder({ ...newOrder, unitCost: e.target.value })}
-                    placeholder="Enter unit cost (e.g. $85/cu.m)"
+                    placeholder="Enter unit cost"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -238,7 +238,7 @@ function Materials() {
                   required
                   value={newOrder.siteAllocated}
                   onChange={(e) => setNewOrder({ ...newOrder, siteAllocated: e.target.value })}
-                  placeholder="Enter allocated site & quantity (e.g. Hyper Mall - 450 cu.m)"
+                  placeholder="Enter allocated site & quantity"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
