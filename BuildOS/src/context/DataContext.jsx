@@ -479,17 +479,42 @@ export const DataProvider = ({ children }) => {
   }, []);
 
   const deleteMaterial = useCallback((idOrName) => {
+    let removedName = '';
     setMaterials(prev => {
       const filtered = prev.filter(m => {
         if (!m) return false;
-        if (m.id === Number(idOrName) || m.id === idOrName) return false;
-        if (m.name && m.name.toLowerCase().trim() === String(idOrName).toLowerCase().trim()) return false;
+        const matchId = m.id === Number(idOrName) || m.id === idOrName;
+        const matchName = m.name && m.name.toLowerCase().trim() === String(idOrName).toLowerCase().trim();
+        if (matchId || matchName) {
+          removedName = m.name;
+          return false;
+        }
         return true;
       });
       safeSetStorage('buildos_materials', filtered);
       return filtered;
     });
-    logActivity(`Material Removed`, `ID/Name: ${idOrName}`, 'Inventory Updated', 'purple');
+
+    // Also purge this material from all project allocations across the entire application
+    setProjects(prevProjects => {
+      const targetName = String(removedName || idOrName).toLowerCase().trim();
+      const updatedProjects = prevProjects.map(p => {
+        if (p.allocatedMaterials && Array.isArray(p.allocatedMaterials)) {
+          const newAlloc = p.allocatedMaterials.filter(m => {
+            const mName = m.name?.toLowerCase().trim();
+            return mName !== targetName && m.id !== idOrName && m.id !== Number(idOrName);
+          });
+          if (newAlloc.length !== p.allocatedMaterials.length) {
+            return { ...p, allocatedMaterials: newAlloc };
+          }
+        }
+        return p;
+      });
+      safeSetStorage('buildos_projects', updatedProjects);
+      return updatedProjects;
+    });
+
+    logActivity(`Material Removed Everywhere`, `ID/Name: ${idOrName}`, 'Purged from Inventory & Projects', 'purple');
   }, [logActivity]);
 
   const addMachine = useCallback((machineData) => {

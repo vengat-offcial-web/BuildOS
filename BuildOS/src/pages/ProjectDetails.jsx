@@ -186,9 +186,14 @@ function ProjectDetails() {
     { id: 3, name: "Structural Double-Glazed Panels", quantity: "240 Units", status: "Low Stock Alert" }
   ];
 
-  const projectAllocatedMaterials = (project && project.allocatedMaterials && project.allocatedMaterials.length > 0)
-    ? project.allocatedMaterials
-    : defaultAllocatedMaterials;
+  const projectAllocatedMaterials = useMemo(() => {
+    const rawAlloc = (project && project.allocatedMaterials && project.allocatedMaterials.length > 0)
+      ? project.allocatedMaterials
+      : defaultAllocatedMaterials;
+
+    const activeMaterialNames = new Set((materials || []).map(m => m.name?.toLowerCase().trim()));
+    return rawAlloc.filter(m => m.name && activeMaterialNames.has(m.name.toLowerCase().trim()));
+  }, [project, materials]);
 
   const handleOpenMaterialsModal = () => {
     if (!project) return;
