@@ -27,6 +27,11 @@ function ProjectDetails() {
   const [editDeadline, setEditDeadline] = useState('');
   const [editWorkers, setEditWorkers] = useState('');
   const [showEngineerSuggestions, setShowEngineerSuggestions] = useState(false);
+  const [workerSearchQuery, setWorkerSearchQuery] = useState('');
+  const [matSearchQuery, setMatSearchQuery] = useState('');
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [editTeamMembers, setEditTeamMembers] = useState([]);
+  const [showWorkerSearchDropdown, setShowWorkerSearchDropdown] = useState(false);
 
   const filteredEngineers = useMemo(() => {
     const term = (editManager || '').toLowerCase().trim();
@@ -88,6 +93,11 @@ function ProjectDetails() {
   // Task Edit Modal State
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editTasks, setEditTasks] = useState([]);
+
+  // Material Edit Modal State
+  const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
+  const [editAllocatedMaterials, setEditAllocatedMaterials] = useState([]);
+  const [showMatSearchDropdown, setShowMatSearchDropdown] = useState(false);
 
   const project = getProjectById(id);
 
