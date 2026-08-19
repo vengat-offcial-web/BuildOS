@@ -649,7 +649,7 @@ function WorkerDashboard() {
                                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] outline-none focus:ring-2 focus:ring-[#A78BFA]"
                                 >
                                     <option value="Scaffolding Hazard">Unstable Scaffolding / Height Hazard</option>
-                                    <option value="Equipment Failure">Machinery / Power Tool Defect</option>
+                                    <option value="Equipment Failure">Equipment & Power Tool Defect</option>
                                     <option value="PPE Missing">Missing Safety Gear / PPE Issue</option>
                                     <option value="Electrical Hazard">Exposed Electrical Wiring</option>
                                     <option value="General Hazard">General Site Safety Obstruction</option>

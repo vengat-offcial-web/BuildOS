@@ -21,26 +21,7 @@ function ProjectDetails() {
   const [editBudget, setEditBudget] = useState('');
   const [editDeadline, setEditDeadline] = useState('');
   const [editWorkers, setEditWorkers] = useState('');
-  const [editMachinery, setEditMachinery] = useState('');
   const [showEngineerSuggestions, setShowEngineerSuggestions] = useState(false);
-
-  // Site Team Roster Edit Modal State
-  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
-  const [editTeamMembers, setEditTeamMembers] = useState([]);
-  const [workerSearchQuery, setWorkerSearchQuery] = useState('');
-  const [showWorkerSearchDropdown, setShowWorkerSearchDropdown] = useState(false);
-
-  // Material Allocation Modal State
-  const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
-  const [editAllocatedMaterials, setEditAllocatedMaterials] = useState([]);
-  const [matSearchQuery, setMatSearchQuery] = useState('');
-  const [showMatSearchDropdown, setShowMatSearchDropdown] = useState(false);
-
-  // Heavy Machinery Modal State
-  const [isMachineModalOpen, setIsMachineModalOpen] = useState(false);
-  const [editAssignedMachinery, setEditAssignedMachinery] = useState([]);
-  const [macSearchQuery, setMacSearchQuery] = useState('');
-  const [showMacSearchDropdown, setShowMacSearchDropdown] = useState(false);
 
   const filteredEngineers = useMemo(() => {
     const term = (editManager || '').toLowerCase().trim();
@@ -94,10 +75,6 @@ function ProjectDetails() {
       m.status.toLowerCase().includes(q)
     );
   }, [matSearchQuery, materials]);
-
-  const searchedMachineCandidates = useMemo(() => {
-    return [];
-  }, []);
 
   // Milestone Edit Modal State
   const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
@@ -279,70 +256,6 @@ function ProjectDetails() {
     setIsMaterialModalOpen(false);
   };
 
-  const defaultAssignedMachinery = [
-    { id: 1, name: "Potain Tower Crane TC-80", healthPct: 98, status: "Operational" },
-    { id: 2, name: "CAT 320 Hydraulic Excavator", healthPct: 94, status: "Operational" },
-    { id: 3, name: "Schwing Stetter Concrete Pump", healthPct: 78, status: "Maintenance Due" }
-  ];
-
-  const projectAssignedMachinery = (project && project.assignedMachinery && project.assignedMachinery.length > 0)
-    ? project.assignedMachinery
-    : defaultAssignedMachinery;
-
-  const handleOpenMachinesModal = () => {
-    if (!project) return;
-    const currentList = (project.assignedMachinery && project.assignedMachinery.length > 0)
-      ? project.assignedMachinery
-      : defaultAssignedMachinery;
-    setEditAssignedMachinery(currentList.map(m => ({
-      name: m.name || '',
-      healthPct: m.healthPct !== undefined ? m.healthPct : 95,
-      status: m.status || 'Operational'
-    })));
-    setMacSearchQuery('');
-    setShowMacSearchDropdown(false);
-    setIsMachineModalOpen(true);
-  };
-
-  const handleUpdateAssignedMachineField = (index, field, value) => {
-    setEditAssignedMachinery(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
-  };
-
-  const handleRemoveAssignedMachine = (index) => {
-    setEditAssignedMachinery(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleAddBlankMachine = () => {
-    setEditAssignedMachinery(prev => [...prev, { name: '', healthPct: 95, status: 'Operational' }]);
-  };
-
-  const handleSelectSavedMachine = (candidate) => {
-    const exists = editAssignedMachinery.some(m => m.name.toLowerCase().trim() === candidate.name.toLowerCase().trim());
-    if (!exists) {
-      setEditAssignedMachinery(prev => [...prev, {
-        name: candidate.name,
-        healthPct: candidate.healthPct !== undefined ? candidate.healthPct : 95,
-        status: candidate.status || 'Operational'
-      }]);
-    }
-    setMacSearchQuery('');
-    setShowMacSearchDropdown(false);
-  };
-
-  const handleSaveMachines = (e) => {
-    e.preventDefault();
-    const validMachines = editAssignedMachinery.filter(m => m.name.trim() !== '');
-    updateProject(project.id, {
-      assignedMachinery: validMachines,
-      machineryCount: validMachines.length
-    });
-    setIsMachineModalOpen(false);
-  };
-
   const handleOpenEdit = () => {
     if (!project) return;
     setEditName(project.name || '');
@@ -352,7 +265,6 @@ function ProjectDetails() {
     setEditBudget(currentBudget);
     setEditDeadline(project.deadline || 'Feb 15, 2027');
     setEditWorkers(project.workforceRequired !== undefined && project.workforceRequired !== null ? String(project.workforceRequired) : String(siteWorkers.length || 4));
-    setEditMachinery(project.machineryCount !== undefined && project.machineryCount !== null ? String(project.machineryCount) : '4');
     setIsEditing(true);
   };
 
@@ -365,8 +277,7 @@ function ProjectDetails() {
       manager: editManager.trim(),
       budget: editBudget.trim(),
       deadline: editDeadline.trim(),
-      workforceRequired: parseInt(editWorkers, 10) || 0,
-      machineryCount: parseInt(editMachinery, 10) || 0
+      workforceRequired: parseInt(editWorkers, 10) || 0
     });
     setIsEditing(false);
   };
@@ -470,7 +381,6 @@ function ProjectDetails() {
   }
 
   const activeWorkersCount = projectTeamMembers.length;
-  const activeMachineryCount = project.machineryCount !== undefined && project.machineryCount !== null ? project.machineryCount : 4;
 
   return (
     <div className="space-y-8 pb-8">
@@ -541,13 +451,6 @@ function ProjectDetails() {
               <p className="text-sm font-extrabold text-[#03020A] mt-0.5 flex items-center gap-1">
                 <FiUsers className="text-purple-600" />
                 {activeWorkersCount} Assigned
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase text-slate-400">Machinery</p>
-              <p className="text-sm font-extrabold text-[#03020A] mt-0.5 flex items-center gap-1">
-                <FiTruck className="text-purple-600" />
-                {activeMachineryCount} Active
               </p>
             </div>
             <div>
@@ -748,36 +651,6 @@ function ProjectDetails() {
               ))}
             </div>
           </Card>
-
-          <Card hover={false}>
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-purple-100">
-              <h3 className="text-lg font-extrabold text-[#03020A] flex items-center gap-2">
-                <FiTruck className="text-[#7C3AED]" />
-                Heavy Machinery On-Site
-              </h3>
-              <button
-                type="button"
-                onClick={handleOpenMachinesModal}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-purple-50 hover:bg-purple-100 text-[#7C3AED] hover:text-purple-900 border border-purple-100 text-xs font-bold transition-all cursor-pointer shadow-sm"
-              >
-                <FiEdit2 className="text-xs text-[#7C3AED]" />
-                <span>Edit</span>
-              </button>
-            </div>
-            <div className="space-y-4">
-              {projectAssignedMachinery.map((mac, i) => (
-                <div key={i} className="bg-white/80 p-4 rounded-2xl border border-white flex items-center justify-between">
-                  <div>
-                    <h4 className="text-xs font-bold text-[#03020A]">{mac.name}</h4>
-                    <p className="text-[11px] text-slate-500 font-semibold">Health: {mac.healthPct !== undefined ? mac.healthPct : 95}%</p>
-                  </div>
-                  <Badge variant={mac.status === 'Operational' ? 'completed' : mac.status === 'Maintenance Due' ? 'pending' : 'in-progress'}>
-                    {mac.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </Card>
         </div>
       )}
 
@@ -913,17 +786,6 @@ function ProjectDetails() {
                     onChange={(e) => setEditWorkers(e.target.value)}
                     className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
                     placeholder="Workers count"
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Active Machinery</label>
-                  <input
-                    type="number"
-                    value={editMachinery}
-                    onChange={(e) => setEditMachinery(e.target.value)}
-                    className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                    placeholder="Machinery count"
                     min="0"
                   />
                 </div>
@@ -1535,188 +1397,6 @@ function ProjectDetails() {
                 >
                   <FiSave className="text-sm text-[#BEF264]" />
                   <span>Save Allocation & Deduct Stock</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Heavy Machinery On-Site Modal */}
-      {isMachineModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white/95 backdrop-blur-xl border border-purple-100 rounded-[32px] p-6 md:p-8 max-w-2xl w-full shadow-2xl space-y-6 relative max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-purple-100 pb-4 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-2xl bg-purple-100 text-[#7C3AED]">
-                  <FiTruck className="text-lg" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-extrabold text-[#03020A]">Edit Heavy Machinery On-Site</h3>
-                  <p className="text-xs font-semibold text-slate-500">Search fleet, assign heavy equipment & update health</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsMachineModalOpen(false)}
-                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer"
-              >
-                <FiX className="text-lg" />
-              </button>
-            </div>
-
-            {/* Quick Search & Auto-Fill from Saved Heavy Machinery Fleet */}
-            <div className="relative shrink-0">
-              <label className="block text-xs font-extrabold text-[#7C3AED] mb-1.5 flex items-center gap-1.5">
-                <FiSearch className="text-xs" />
-                <span>Search & Assign Heavy Machinery</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={macSearchQuery}
-                  onChange={(e) => {
-                    setMacSearchQuery(e.target.value);
-                    setShowMacSearchDropdown(true);
-                  }}
-                  onFocus={() => setShowMacSearchDropdown(true)}
-                  className="w-full bg-purple-50/50 border border-purple-200 text-xs font-semibold rounded-2xl p-3 pl-10 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                  placeholder="Search machine by name, category or status..."
-                />
-                <FiSearch className="absolute left-3.5 top-3.5 text-purple-400 text-sm" />
-              </div>
-
-              {/* Autocomplete Search Dropdown */}
-              {showMacSearchDropdown && searchedMachineCandidates.length > 0 && (
-                <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-white/95 backdrop-blur-xl border border-purple-100 rounded-2xl shadow-xl max-h-52 overflow-y-auto p-1.5 animate-in fade-in duration-150">
-                  <div className="text-[10px] font-extrabold text-purple-700 px-3 py-1 uppercase tracking-wider flex items-center justify-between border-b border-purple-100/60 mb-1">
-                    <span>Saved Heavy Machinery Fleet ({searchedMachineCandidates.length})</span>
-                    <button
-                      type="button"
-                      onClick={() => setShowMacSearchDropdown(false)}
-                      className="text-slate-400 hover:text-slate-600 text-xs"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  {searchedMachineCandidates.map((cand, idx) => {
-                    const isAlreadyAssigned = editAssignedMachinery.some(m => m.name.toLowerCase().trim() === cand.name.toLowerCase().trim());
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleSelectSavedMachine(cand)}
-                        disabled={isAlreadyAssigned}
-                        className={`w-full text-left px-3 py-2 rounded-xl transition-all flex items-center justify-between gap-2 cursor-pointer ${
-                          isAlreadyAssigned ? 'bg-slate-50 opacity-60 cursor-not-allowed' : 'hover:bg-purple-50 group'
-                        }`}
-                      >
-                        <div>
-                          <p className="text-xs font-extrabold text-[#03020A] group-hover:text-[#7C3AED]">{cand.name}</p>
-                          <p className="text-[10px] font-semibold text-slate-500">{cand.category} • Health: {cand.healthPct}%</p>
-                        </div>
-                        <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full ${
-                          isAlreadyAssigned ? 'bg-slate-200 text-slate-500' : 'bg-purple-100 text-purple-700 group-hover:bg-[#7C3AED] group-hover:text-white'
-                        }`}>
-                          {isAlreadyAssigned ? 'Assigned' : '+ Assign Machine'}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Modal Form List */}
-            <form onSubmit={handleSaveMachines} className="space-y-4 overflow-y-auto flex-1 pr-1">
-              <div className="space-y-3">
-                {editAssignedMachinery.map((m, idx) => (
-                  <div key={idx} className="bg-purple-50/40 p-4 rounded-2xl border border-purple-100/80 space-y-3 relative">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="w-6 h-6 rounded-lg bg-[#7C3AED] text-white flex items-center justify-center text-xs font-extrabold">
-                        {idx + 1}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveAssignedMachine(idx)}
-                        title="Delete Machinery"
-                        className="text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-full border border-rose-100 transition-all flex items-center gap-1 cursor-pointer"
-                      >
-                        <FiTrash2 className="text-xs" />
-                        <span>Remove</span>
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Machine Name</label>
-                        <input
-                          type="text"
-                          value={m.name}
-                          onChange={(e) => handleUpdateAssignedMachineField(idx, 'name', e.target.value)}
-                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
-                          placeholder="e.g. Potain Tower Crane TC-80"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Health Percentage (%)</label>
-                        <input
-                          type="number"
-                          value={m.healthPct}
-                          onChange={(e) => handleUpdateAssignedMachineField(idx, 'healthPct', parseInt(e.target.value, 10) || 0)}
-                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
-                          placeholder="e.g. 98"
-                          min="0"
-                          max="100"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Operational Status</label>
-                        <select
-                          value={m.status}
-                          onChange={(e) => handleUpdateAssignedMachineField(idx, 'status', e.target.value)}
-                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] cursor-pointer"
-                        >
-                          <option value="Operational">Operational</option>
-                          <option value="Maintenance Due">Maintenance Due</option>
-                          <option value="In Transit">In Transit</option>
-                          <option value="Idle">Idle</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleAddBlankMachine}
-                className="w-full py-3 border-2 border-dashed border-purple-200 hover:border-[#7C3AED] bg-purple-50/40 hover:bg-purple-50 text-[#7C3AED] text-xs font-extrabold rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <FiPlus className="text-sm" />
-                <span>Add Custom Heavy Machinery</span>
-              </button>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-purple-100 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsMachineModalOpen(false)}
-                  className="px-5 py-2.5 rounded-full border border-purple-100 text-xs font-bold text-slate-600 hover:bg-purple-50 transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-full bg-[#03020A] hover:bg-[#7C3AED] text-white text-[#BEF264] font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
-                >
-                  <FiSave className="text-sm text-[#BEF264]" />
-                  <span>Save Machinery Roster</span>
                 </button>
               </div>
             </form>
