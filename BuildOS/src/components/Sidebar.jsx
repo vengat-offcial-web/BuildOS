@@ -6,7 +6,6 @@ import {
     FiFolder,
     FiUsers,
     FiLayers,
-    FiTruck,
     FiCheckSquare,
     FiBarChart2,
     FiSettings,
@@ -22,7 +21,6 @@ const adminMenuItems = [
     { name: "Projects", path: "/projects", icon: FiFolder },
     { name: "Workers", path: "/workers", icon: FiUsers },
     { name: "Materials", path: "/materials", icon: FiLayers },
-    { name: "Machines", path: "/machines", icon: FiTruck },
     { name: "Tasks", path: "/tasks", icon: FiCheckSquare },
     { name: "Reports", path: "/reports", icon: FiBarChart2 },
     { name: "Settings", path: "/settings", icon: FiSettings }

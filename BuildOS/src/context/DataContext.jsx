@@ -3,7 +3,6 @@ import {
   initialProjectsData,
   initialWorkersData,
   initialMaterialsData,
-  initialMachinesData,
   initialTasksData,
   initialActivityData,
   initialNotificationsData,
@@ -68,7 +67,6 @@ export const DataProvider = ({ children }) => {
     const list = Array.isArray(saved) && saved.length > 0 ? saved : initialMaterialsData;
     return deduplicateMaterials(list);
   });
-  const [machines, setMachines] = useState(() => safeGetStorage('buildos_machines', initialMachinesData));
   const [tasks, setTasks] = useState(() => safeGetStorage('buildos_tasks', initialTasksData));
   const [activityFeed, setActivityFeed] = useState(() => safeGetStorage('buildos_activity', initialActivityData));
   const [notifications, setNotifications] = useState(() => safeGetStorage('buildos_notifications', initialNotificationsData));
@@ -79,7 +77,6 @@ export const DataProvider = ({ children }) => {
   useEffect(() => { safeSetStorage('buildos_projects', projects); }, [projects]);
   useEffect(() => { safeSetStorage('buildos_workers', workers); }, [workers]);
   useEffect(() => { safeSetStorage('buildos_materials', materials); }, [materials]);
-  useEffect(() => { safeSetStorage('buildos_machines', machines); }, [machines]);
   useEffect(() => { safeSetStorage('buildos_tasks', tasks); }, [tasks]);
   useEffect(() => { safeSetStorage('buildos_activity', activityFeed); }, [activityFeed]);
   useEffect(() => { safeSetStorage('buildos_notifications', notifications); }, [notifications]);
@@ -596,53 +593,6 @@ export const DataProvider = ({ children }) => {
     logActivity(`Material Removed Everywhere`, `ID/Name: ${idOrName}`, 'Purged from Inventory & Projects', 'purple');
   }, [logActivity]);
 
-  const addMachine = useCallback((machineData) => {
-    const newMac = {
-      id: Date.now(),
-      name: machineData.name,
-      category: machineData.category || 'Heavy Equipment',
-      site: machineData.site || 'Marina Tower',
-      operator: machineData.operator || 'Unassigned',
-      status: machineData.status || 'Operational',
-      healthPct: machineData.healthPct !== undefined ? Number(machineData.healthPct) : 100,
-      fuelLevel: machineData.fuelLevel || '100%',
-      hoursUsed: machineData.hoursUsed || '0 hrs'
-    };
-    setMachines(prev => [newMac, ...prev]);
-    logActivity(`Equipment Deployed: ${newMac.name}`, newMac.site, 'Fleet Active', 'lime');
-    return newMac;
-  }, [logActivity]);
-
-  const updateMachine = useCallback((id, updatedFields) => {
-    setMachines(prev => {
-      const updated = prev.map(m => {
-        if (m.id === Number(id) || m.id === id) {
-          return { ...m, ...updatedFields };
-        }
-        return m;
-      });
-      safeSetStorage('buildos_machines', updated);
-      return updated;
-    });
-    logActivity(`Telemetry Updated`, `ID #${id}`, 'Fleet Telemetry Sync', 'lime');
-  }, [logActivity]);
-
-  const deleteMachine = useCallback((id) => {
-    let removedName = '';
-    setMachines(prev => {
-      const filtered = prev.filter(m => {
-        if (m.id === Number(id) || m.id === id) {
-          removedName = m.name;
-          return false;
-        }
-        return true;
-      });
-      safeSetStorage('buildos_machines', filtered);
-      return filtered;
-    });
-    logActivity(`Equipment Decommissioned: ${removedName || id}`, `ID #${id}`, 'Purged from Fleet', 'purple');
-  }, [logActivity]);
-
   const addTask = useCallback((taskData) => {
     const newTask = {
       id: Date.now(),
@@ -827,7 +777,6 @@ export const DataProvider = ({ children }) => {
     projects,
     workers,
     materials,
-    machines,
     tasks,
     activityFeed,
     notifications,
@@ -850,9 +799,6 @@ export const DataProvider = ({ children }) => {
     addMaterialOrder,
     updateMaterial,
     deleteMaterial,
-    addMachine,
-    updateMachine,
-    deleteMachine,
     addTask,
     toggleTaskStatus,
     addWorkerNote,
@@ -872,7 +818,6 @@ export const DataProvider = ({ children }) => {
     projects,
     workers,
     materials,
-    machines,
     tasks,
     activityFeed,
     notifications,
@@ -895,9 +840,6 @@ export const DataProvider = ({ children }) => {
     addMaterialOrder,
     updateMaterial,
     deleteMaterial,
-    addMachine,
-    updateMachine,
-    deleteMachine,
     addTask,
     toggleTaskStatus,
     addWorkerNote,

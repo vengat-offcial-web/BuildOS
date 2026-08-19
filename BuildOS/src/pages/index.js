@@ -4,7 +4,6 @@ export { default as ProjectDetails } from "./ProjectDetails";
 export { default as AssignProject } from "./AssignProject";
 export { default as Workers } from "./Workers";
 export { default as Materials } from "./Materials";
-export { default as Machines } from "./Machines";
 export { default as Tasks } from "./Tasks";
 export { default as Reports } from "./Reports";
 export { default as Settings } from "./Settings";

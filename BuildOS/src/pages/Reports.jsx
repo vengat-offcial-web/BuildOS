@@ -182,7 +182,7 @@ function Reports() {
               {[
                 { name: "Monthly Site Audit & Budget Summary", period: "July 2026", author: "Vengadesh (Director)", size: "4.2 MB PDF" },
                 { name: "Safety Compliance & Incident Zero Log", period: "Q2 2026", author: "Srinivasan M. (Safety)", size: "2.8 MB PDF" },
-                { name: "Heavy Machinery Fuel & Telemetry Audit", period: "July 2026", author: "Fleet Manager", size: "1.5 MB CSV" }
+                { name: "Logistics & Site Resource Supply Audit", period: "July 2026", author: "Site Supervisor", size: "1.5 MB CSV" }
               ].map((rep, index) => (
                 <tr key={index} className="hover:bg-purple-50/50 transition-colors">
                   <td className="py-3.5 px-4 font-bold text-[#03020A]">{rep.name}</td>

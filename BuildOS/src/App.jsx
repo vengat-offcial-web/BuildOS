@@ -5,7 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import WorkerLayout from './layouts/WorkerLayout';
 import Login from './Login';
-import { Dashboard,Projects,ProjectDetails,AssignProject,Workers,Materials,Machines,Tasks,Reports,Settings,WorkerDashboard,WorkerSettings} from './pages/index';
+import { Dashboard,Projects,ProjectDetails,AssignProject,Workers,Materials,Tasks,Reports,Settings,WorkerDashboard,WorkerSettings} from './pages/index';
 
 // Root redirect handler based on current user role
 function RootRedirect() {
@@ -41,7 +41,6 @@ function App() {
                                 <Route path="/projects/:id" element={<ProjectDetails />} />
                                 <Route path="/workers" element={<Workers />} />
                                 <Route path="/materials" element={<Materials />} />
-                                <Route path="/machines" element={<Machines />} />
                                 <Route path="/tasks" element={<Tasks />} />
                                 <Route path="/reports" element={<Reports />} />
                                 <Route path="/settings" element={<Settings />} />

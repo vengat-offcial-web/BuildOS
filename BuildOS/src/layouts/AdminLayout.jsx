@@ -7,7 +7,6 @@ function getSearchPlaceholder(pathname) {
     if (pathname.startsWith('/projects')) return 'Search Projects...';
     if (pathname.startsWith('/workers')) return 'Search Workers...';
     if (pathname.startsWith('/materials')) return 'Search Materials...';
-    if (pathname.startsWith('/machines')) return 'Search Machinery...';
     if (pathname.startsWith('/tasks')) return 'Search Tasks...';
     if (pathname.startsWith('/reports')) return 'Search Reports...';
     if (pathname.startsWith('/settings')) return 'Search Settings...';

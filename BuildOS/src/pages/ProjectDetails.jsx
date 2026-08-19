@@ -10,7 +10,7 @@ import AssignProject from './AssignProject';
 function ProjectDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProjectById, updateProject, workers, materials, machines, tasks } = useData();
+  const { getProjectById, updateProject, workers, materials, tasks } = useData();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Edit Modal State
@@ -96,14 +96,8 @@ function ProjectDetails() {
   }, [matSearchQuery, materials]);
 
   const searchedMachineCandidates = useMemo(() => {
-    const q = macSearchQuery.toLowerCase().trim();
-    if (!q) return machines;
-    return machines.filter(m =>
-      m.name.toLowerCase().includes(q) ||
-      (m.category && m.category.toLowerCase().includes(q)) ||
-      (m.status && m.status.toLowerCase().includes(q))
-    );
-  }, [macSearchQuery, machines]);
+    return [];
+  }, []);
 
   // Milestone Edit Modal State
   const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
@@ -358,7 +352,7 @@ function ProjectDetails() {
     setEditBudget(currentBudget);
     setEditDeadline(project.deadline || 'Feb 15, 2027');
     setEditWorkers(project.workforceRequired !== undefined && project.workforceRequired !== null ? String(project.workforceRequired) : String(siteWorkers.length || 4));
-    setEditMachinery(project.machineryCount !== undefined && project.machineryCount !== null ? String(project.machineryCount) : String(machines.length || 4));
+    setEditMachinery(project.machineryCount !== undefined && project.machineryCount !== null ? String(project.machineryCount) : '4');
     setIsEditing(true);
   };
 
@@ -476,7 +470,7 @@ function ProjectDetails() {
   }
 
   const activeWorkersCount = projectTeamMembers.length;
-  const activeMachineryCount = project.machineryCount !== undefined && project.machineryCount !== null ? project.machineryCount : machines.length;
+  const activeMachineryCount = project.machineryCount !== undefined && project.machineryCount !== null ? project.machineryCount : 4;
 
   return (
     <div className="space-y-8 pb-8">
@@ -1576,7 +1570,7 @@ function ProjectDetails() {
             <div className="relative shrink-0">
               <label className="block text-xs font-extrabold text-[#7C3AED] mb-1.5 flex items-center gap-1.5">
                 <FiSearch className="text-xs" />
-                <span>Search & Assign from Heavy Machinery Fleet (Machinery Page)</span>
+                <span>Search & Assign Heavy Machinery</span>
               </label>
               <div className="relative">
                 <input
