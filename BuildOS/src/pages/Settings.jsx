@@ -5,6 +5,7 @@ import {
   FiSettings, 
   FiUser, 
   FiCheck, 
+  FiSave,
   FiCamera, 
   FiUpload, 
   FiTrash2, 
@@ -288,8 +289,17 @@ function Settings() {
               type="submit"
               className="dark-nav-pill px-6 py-3 rounded-full text-xs font-extrabold text-white shadow-md hover:bg-black transition-all cursor-pointer flex items-center gap-2"
             >
-              <FiCheck className="text-sm text-[#BEF264]" />
-              <span>Save Profile Changes</span>
+              {savedSuccess ? (
+                <>
+                  <FiCheck className="text-sm text-[#BEF264]" />
+                  <span className="text-[#BEF264]">Profile Changes Saved!</span>
+                </>
+              ) : (
+                <>
+                  <FiSave className="text-sm text-[#BEF264]" />
+                  <span>Save Profile Changes</span>
+                </>
+              )}
             </button>
           </div>
         </form>
