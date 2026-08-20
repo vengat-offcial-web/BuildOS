@@ -19,7 +19,7 @@ import {
   FiTag
 } from 'react-icons/fi';
 import { FaHelmetSafety } from 'react-icons/fa6';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useLocation } from 'react-router-dom';
 import { useData } from '../context/useData';
 
 const taskCategoriesList = [
@@ -114,8 +114,16 @@ function Tasks() {
   const { tasks, addTask, updateTask, toggleTaskStatus, deleteTask, pendingTasksCount, overdueTasksCount, workers, projects } = useData();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
-  const [statusTab, setStatusTab] = useState('All');
+  const location = useLocation();
+  const initialStatusTab = location.state?.filterStatus || 'All';
+  const [statusTab, setStatusTab] = useState(initialStatusTab);
   const [categoryFilter, setCategoryFilter] = useState('All Categories');
+
+  React.useEffect(() => {
+    if (location.state?.filterStatus) {
+      setStatusTab(location.state.filterStatus);
+    }
+  }, [location.state]);
   
   // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);

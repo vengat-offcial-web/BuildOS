@@ -34,6 +34,8 @@ function Dashboard() {
   const handleKpiCardClick = (filterTarget) => {
     if (filterTarget === 'Workers') {
       navigate('/workers');
+    } else if (filterTarget === 'Pending Tasks' || filterTarget === 'Tasks') {
+      navigate('/tasks', { state: { filterStatus: 'Pending' } });
     } else if (filterTarget) {
       setStatusFilter(filterTarget);
     }
