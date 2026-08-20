@@ -121,8 +121,11 @@ export const AuthProvider = ({ children }) => {
             const existingWorker = (currentAccounts || []).find(w => w.email?.toLowerCase().trim() === cleanEmail);
 
             if (existingWorker) {
-                if (existingWorker.password === password) {
-                    setUser(existingWorker);
+                const profileCache = safeGetStorage(`buildos_worker_profile_${cleanEmail}`, null);
+                const activeAccount = profileCache ? { ...existingWorker, ...profileCache } : existingWorker;
+
+                if (activeAccount.password === password || existingWorker.password === password) {
+                    setUser(activeAccount);
                     return { success: true, role: 'worker' };
                 } else {
                     return { success: false, error: 'Incorrect password for this worker account.' };
@@ -179,10 +182,38 @@ export const AuthProvider = ({ children }) => {
         setUser((prevUser) => {
             if (!prevUser) return null;
             const updated = { ...prevUser, ...updatedFields };
+            const oldEmailClean = (prevUser.email || '').toLowerCase().trim();
+            const newEmailClean = (updated.email || oldEmailClean).toLowerCase().trim();
+
             if (updated.role === 'worker') {
-                const profileKey = `buildos_worker_profile_${prevUser.email.toLowerCase()}`;
+                const profileKey = `buildos_worker_profile_${oldEmailClean}`;
                 safeSetStorage(profileKey, updated);
+                if (oldEmailClean !== newEmailClean) {
+                    safeSetStorage(`buildos_worker_profile_${newEmailClean}`, updated);
+                }
+
+                // Synchronize password and account details with registeredWorkers state & buildos_worker_accounts storage
+                setRegisteredWorkers((prevAccounts) => {
+                    const currentAccounts = Array.isArray(prevAccounts) && prevAccounts.length > 0
+                        ? prevAccounts
+                        : safeGetStorage('buildos_worker_accounts', []);
+
+                    let matchFound = false;
+                    const updatedList = (currentAccounts || []).map(acc => {
+                        const accEmail = (acc.email || '').toLowerCase().trim();
+                        if (accEmail === oldEmailClean || accEmail === newEmailClean) {
+                            matchFound = true;
+                            return { ...acc, ...updatedFields };
+                        }
+                        return acc;
+                    });
+
+                    const finalList = matchFound ? updatedList : [updated, ...updatedList];
+                    safeSetStorage('buildos_worker_accounts', finalList);
+                    return finalList;
+                });
             }
+
             safeSetStorage('buildos_user', updated);
             return updated;
         });
