@@ -8,8 +8,7 @@ export function DashboardCards({ items, onCardClick }) {
         totalProjectsCount = 0,
         activeProjectsCount = 0,
         totalWorkersCount = 0,
-        pendingTasksCount = 0,
-        overdueTasksCount = 0
+        pendingProjectsCount = 0
     } = useData() || {};
 
     const defaultCards = [
@@ -44,12 +43,12 @@ export function DashboardCards({ items, onCardClick }) {
             filterStatus: "Workers"
         },
         {
-            id: 'pending-tasks',
-            title: "Pending Tasks",
-            value: String(pendingTasksCount),
+            id: 'pending-projects',
+            title: "Pending Projects",
+            value: String(pendingProjectsCount),
             icon: FiClock,
-            subtitle: `${overdueTasksCount} overdue`,
-            badgeType: "rose",
+            subtitle: "Upcoming site developments",
+            badgeType: "purple",
             accentColor: "dark",
             filterStatus: "Pending"
         }

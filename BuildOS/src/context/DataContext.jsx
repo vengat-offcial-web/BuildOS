@@ -1030,6 +1030,7 @@ const checkIsOverdue = (dueDateStr, status) => {
   }, [tasks]);
 
   const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'In Progress').length, [projects]);
+  const pendingProjectsCount = useMemo(() => projects.filter(p => p.status === 'Pending' || p.status === 'Planning').length, [projects]);
   const nonCancelledProjectsCount = useMemo(() => projects.filter(p => p.status !== 'Cancelled').length, [projects]);
   const pendingTasksCount = useMemo(() => enrichedTasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [enrichedTasks]);
   const overdueTasksCount = useMemo(() => enrichedTasks.filter(t => t.overdue).length, [enrichedTasks]);
@@ -1075,6 +1076,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     deleteLeaveRequest,
     totalProjectsCount: nonCancelledProjectsCount,
     activeProjectsCount,
+    pendingProjectsCount,
     totalWorkersCount: workers.length,
     pendingTasksCount,
     overdueTasksCount

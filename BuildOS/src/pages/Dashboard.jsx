@@ -26,7 +26,7 @@ function Dashboard() {
         (p.status && p.status.toLowerCase().includes(term)) ||
         (p.description && p.description.toLowerCase().includes(term))
       );
-      const matchesStatus = statusFilter === 'All' || p.status === statusFilter;
+      const matchesStatus = statusFilter === 'All' || p.status === statusFilter || (statusFilter === 'Pending' && p.status === 'Planning');
       return matchesSearch && matchesStatus;
     });
   }, [projects, searchTerm, statusFilter]);
