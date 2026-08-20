@@ -421,7 +421,7 @@ function ProjectDetails() {
             </button>
           ) : (
             <span className="bg-rose-100 text-rose-800 border border-rose-300 text-xs font-extrabold px-3 py-1 rounded-full">
-              Project Cancelled by Admin
+              Project Cancelled
             </span>
           )}
 
@@ -433,19 +433,6 @@ function ProjectDetails() {
           </span>
         </div>
       </div>
-
-      {/* Cancelled Alert Banner */}
-      {project.status === "Cancelled" && (
-        <div className="bg-rose-50 border-2 border-rose-300 p-5 rounded-[28px] flex items-center gap-3 text-rose-900 shadow-sm animate-in fade-in duration-200">
-          <FiTrash2 className="text-rose-600 text-2xl shrink-0" />
-          <div>
-            <h4 className="text-xs font-extrabold text-rose-950 uppercase tracking-wider">Project Cancelled by Admin</h4>
-            <p className="text-xs font-semibold text-rose-800 mt-0.5 leading-relaxed">
-              This project has been officially cancelled. It has been removed from active Dashboard project lists, and all assigned site workers have been notified with status: <strong className="text-rose-950 font-extrabold">"your assigned project was cancelled by admin"</strong>.
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Hero Project Card */}
       <div className="glass-hero-purple p-8 rounded-4xl border border-white/90 shadow-[0_14px_36px_rgba(167,139,250,0.15)] relative overflow-hidden">
@@ -650,6 +637,13 @@ function ProjectDetails() {
                   <div>
                     <h4 className="text-sm font-bold text-[#03020A]">{mem.name}</h4>
                     <p className="text-xs font-semibold text-purple-600">{mem.trade || mem.role || 'Site Engineer'}</p>
+                    {project.status === 'Cancelled' && (
+                      <div className="mt-1.5 bg-rose-50 border border-rose-200 p-1.5 rounded-xl">
+                        <span className="text-[10px] font-extrabold text-rose-700 block">
+                          your assigned project was cancelled by admin
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <p className="text-[11px] font-medium text-slate-500 bg-purple-50 py-1 px-3 rounded-full">
                     {mem.phone || mem.contact || '+91 98765 00000'}
