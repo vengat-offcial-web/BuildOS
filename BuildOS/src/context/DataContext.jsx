@@ -108,8 +108,10 @@ export const DataProvider = ({ children }) => {
     });
 
     setWorkers(prevWorkers => {
+      const list = Array.isArray(prevWorkers) ? prevWorkers : initialWorkersData;
       let updated = false;
-      const cleanedWorkers = prevWorkers.map(w => {
+      const cleanedWorkers = list.map(w => {
+        if (!w) return w;
         const siteClean = (w.site || '').toLowerCase().trim();
         if (siteClean.includes('theme park')) {
           updated = true;
@@ -124,7 +126,7 @@ export const DataProvider = ({ children }) => {
         return w;
       });
       if (updated) safeSetStorage('buildos_workers', cleanedWorkers);
-      return updated;
+      return updated ? cleanedWorkers : list;
     });
   }, []);
 
@@ -152,9 +154,10 @@ export const DataProvider = ({ children }) => {
     });
 
     setWorkers(prevWorkers => {
-      if (!prevWorkers || prevWorkers.length === 0) return prevWorkers;
+      const list = Array.isArray(prevWorkers) ? prevWorkers : initialWorkersData;
+      if (!list || list.length === 0) return list;
       let needsUpdate = false;
-      const updated = prevWorkers.map(w => {
+      const updated = list.map(w => {
         if (!w) return w;
         let newWorker = w;
 
@@ -1072,7 +1075,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     deleteLeaveRequest,
     totalProjectsCount: nonCancelledProjectsCount,
     activeProjectsCount,
-    totalWorkersCount: workers.length + 120, // offset for 128 realistic team
+    totalWorkersCount: workers.length,
     pendingTasksCount,
     overdueTasksCount
   }), [
