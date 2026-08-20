@@ -1435,13 +1435,17 @@ function ProjectDetails() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-full bg-[#03020A] hover:bg-[#7C3AED] text-white text-[#BEF264] font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-2.5 rounded-full bg-[#03020A] hover:bg-[#7C3AED] text-white font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <FiSave className="text-sm text-[#BEF264]" />
                   <span>Save Allocation & Deduct Stock</span>
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
       {/* Cancel Project Confirmation Modal */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
