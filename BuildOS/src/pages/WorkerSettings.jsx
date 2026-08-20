@@ -5,7 +5,6 @@ import {
     FiUser,
     FiMail,
     FiLock,
-    FiSun,
     FiSave,
     FiCheckCircle,
     FiAlertCircle,
@@ -75,7 +74,7 @@ function WorkerSettings() {
         <div className="space-y-6 max-w-4xl pb-8">
             <PageHeader
                 title="Worker Profile & Settings"
-                description="Update your personal information, email address, security credentials, and portal theme preferences."
+                description="Update your personal information, email address, and security credentials."
                 variant="purple"
             />
 
@@ -198,36 +197,6 @@ function WorkerSettings() {
                                 />
                             </div>
                         </div>
-                    </div>
-                </Card>
-
-                {/* Theme Preferences Card */}
-                <Card hover={false} className="space-y-5">
-                    <div className="flex items-center gap-2 border-b border-purple-100 pb-3">
-                        <FiSun className="text-[#7C3AED] text-base" />
-                        <h3 className="text-base font-extrabold text-[#03020A]">Theme Palette Preference</h3>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {[
-                            { id: 'purple', name: 'Lavender Purple', color: 'bg-[#E9D5FF] text-[#6B21A8] border-[#D8B4FE]' },
-                            { id: 'lime', name: 'Pastel Lime', color: 'bg-[#F0FDC2] text-[#3F6212] border-[#BEF264]' },
-                            { id: 'dark', name: 'Dark Bento', color: 'bg-[#03020A] text-white border-white/20' },
-                            { id: 'light', name: 'Clean White', color: 'bg-white text-[#03020A] border-purple-100' }
-                        ].map((t) => (
-                            <button
-                                key={t.id}
-                                type="button"
-                                onClick={() => setTheme(t.id)}
-                                className={`p-3.5 rounded-2xl border text-center transition-all cursor-pointer ${t.color} ${
-                                    theme === t.id
-                                        ? 'ring-2 ring-[#7C3AED] font-extrabold scale-[1.02] shadow-sm'
-                                        : 'opacity-80 hover:opacity-100'
-                                }`}
-                            >
-                                <p className="text-xs">{t.name}</p>
-                            </button>
-                        ))}
                     </div>
                 </Card>
 
