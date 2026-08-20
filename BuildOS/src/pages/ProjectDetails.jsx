@@ -674,8 +674,8 @@ function ProjectDetails() {
 
       {/* Tab 3: Materials & Equipment */}
       {activeTab === 'resources' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card hover={false}>
+        <div className="w-full space-y-6">
+          <Card hover={false} className="w-full">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-purple-100">
               <h3 className="text-lg font-extrabold text-[#03020A] flex items-center gap-2">
                 <FiLayers className="text-[#7C3AED]" />
