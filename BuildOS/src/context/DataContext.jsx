@@ -83,6 +83,51 @@ export const DataProvider = ({ children }) => {
   useEffect(() => { safeSetStorage('buildos_worker_notes', workerNotes); }, [workerNotes]);
   useEffect(() => { safeSetStorage('buildos_leave_requests', leaveRequests); }, [leaveRequests]);
 
+  // Automatically purge Theme Park project and its connected details if present
+  useEffect(() => {
+    setProjects(prevProjects => {
+      const themeParkExists = prevProjects.some(p => p.name && p.name.toLowerCase().trim().includes('theme park'));
+      if (themeParkExists) {
+        const cleaned = prevProjects.filter(p => !(p.name && p.name.toLowerCase().trim().includes('theme park')));
+        safeSetStorage('buildos_projects', cleaned);
+        return cleaned;
+      }
+      return prevProjects;
+    });
+
+    setTasks(prevTasks => {
+      const cleanedTasks = prevTasks.filter(t => !(t.site && t.site.toLowerCase().trim().includes('theme park')));
+      safeSetStorage('buildos_tasks', cleanedTasks);
+      return cleanedTasks;
+    });
+
+    setMaterials(prevMaterials => {
+      const cleanedMaterials = prevMaterials.filter(m => !(m.siteAllocated && m.siteAllocated.toLowerCase().trim().includes('theme park')));
+      safeSetStorage('buildos_materials', cleanedMaterials);
+      return cleanedMaterials;
+    });
+
+    setWorkers(prevWorkers => {
+      let updated = false;
+      const cleanedWorkers = prevWorkers.map(w => {
+        const siteClean = (w.site || '').toLowerCase().trim();
+        if (siteClean.includes('theme park')) {
+          updated = true;
+          return {
+            ...w,
+            site: 'Not Assigned Yet',
+            cancellationNotice: 'your assigned project was cancelled by admin',
+            statusNote: 'your assigned project was cancelled by admin',
+            siteStatus: 'Cancelled by Admin'
+          };
+        }
+        return w;
+      });
+      if (updated) safeSetStorage('buildos_workers', cleanedWorkers);
+      return updated;
+    });
+  }, []);
+
   // Automatically sync worker sites with assigned projects whenever projects or workers change
   useEffect(() => {
     if (!projects || projects.length === 0) return;
@@ -303,25 +348,19 @@ export const DataProvider = ({ children }) => {
     logActivity(`Project Updated`, `ID #${id}`, 'Changes Saved', 'lime');
   }, [logActivity]);
 
-  const deleteProject = useCallback((id) => {
-    setProjects(prev => prev.filter(p => p.id !== Number(id)));
-    logActivity(`Project Deleted`, `ID #${id}`, 'Removed', 'purple');
-  }, [logActivity]);
-
   const cancelProject = useCallback((id) => {
     const numId = Number(id);
     let cancelledProjName = '';
     let cancelledProjLoc = '';
 
+    // 1. Find target project details and remove project from state
     setProjects(prevProjects => {
-      const updated = prevProjects.map(p => {
-        if (p.id === numId || p.id === id) {
-          cancelledProjName = p.name;
-          cancelledProjLoc = p.location;
-          return { ...p, status: 'Cancelled', progress: 0 };
-        }
-        return p;
-      });
+      const targetProj = prevProjects.find(p => p.id === numId || p.id === id);
+      if (targetProj) {
+        cancelledProjName = targetProj.name;
+        cancelledProjLoc = targetProj.location;
+      }
+      const updated = prevProjects.filter(p => p.id !== numId && p.id !== id);
       safeSetStorage('buildos_projects', updated);
       return updated;
     });
@@ -329,13 +368,42 @@ export const DataProvider = ({ children }) => {
     if (cancelledProjName) {
       const targetNameClean = cancelledProjName.toLowerCase().trim();
 
-      // Update workers assigned to this project with cancellation notice
+      // 2. Automatically remove all tasks linked to this cancelled project
+      setTasks(prevTasks => {
+        const remainingTasks = prevTasks.filter(t => {
+          if (!t) return false;
+          const taskSiteClean = (t.site || '').toLowerCase().trim();
+          if (taskSiteClean && (taskSiteClean.includes(targetNameClean) || targetNameClean.includes(taskSiteClean))) {
+            return false;
+          }
+          return true;
+        });
+        safeSetStorage('buildos_tasks', remainingTasks);
+        return remainingTasks;
+      });
+
+      // 3. Automatically remove all material stock allocations linked to this cancelled project
+      setMaterials(prevMaterials => {
+        const remainingMaterials = prevMaterials.filter(m => {
+          if (!m || !m.siteAllocated) return true;
+          const matSiteClean = m.siteAllocated.toLowerCase().trim();
+          if (matSiteClean.includes(targetNameClean) || targetNameClean.includes(matSiteClean)) {
+            return false;
+          }
+          return true;
+        });
+        safeSetStorage('buildos_materials', remainingMaterials);
+        return remainingMaterials;
+      });
+
+      // 4. Update workers assigned to this project: unassign site & attach cancellation notice
       setWorkers(prevWorkers => {
         const updatedWorkers = prevWorkers.map(w => {
           const workerSiteClean = (w.site || '').toLowerCase().trim();
           if (workerSiteClean && (workerSiteClean.includes(targetNameClean) || targetNameClean.includes(workerSiteClean))) {
             return {
               ...w,
+              site: 'Not Assigned Yet',
               cancellationNotice: `your assigned project was cancelled by admin`,
               statusNote: `your assigned project was cancelled by admin`,
               siteStatus: `Cancelled by Admin`
@@ -347,18 +415,22 @@ export const DataProvider = ({ children }) => {
         return updatedWorkers;
       });
 
-      // Dispatch notification for workers
+      // 5. Dispatch notification for workers
       addNotification(
         `Project Cancelled: ${cancelledProjName}`,
-        `your assigned project was cancelled by admin. Please contact site supervisor for re-assignment.`,
+        `your assigned project was cancelled by admin. Associated site tasks and material allocations have been automatically removed.`,
         "Project Cancellation",
         "purple",
         "worker"
       );
 
-      logActivity(`Project Cancelled: ${cancelledProjName}`, cancelledProjLoc || 'Site', 'Status: Cancelled by Admin', 'purple');
+      logActivity(`Project Cancelled & Auto-Purged: ${cancelledProjName}`, cancelledProjLoc || 'Site', 'Project, Tasks & Materials Cleared', 'purple');
     }
   }, [addNotification, logActivity]);
+
+  const deleteProject = useCallback((id) => {
+    cancelProject(id);
+  }, [cancelProject]);
 
   const getProjectById = useCallback((id) => {
     const numId = parseInt(id, 10);
