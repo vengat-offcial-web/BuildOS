@@ -9,17 +9,39 @@ import { useData } from '../context/useData';
 import { useAuth } from '../context/useAuth';
 
 function Workers() {
-  const { workers, deleteWorker, acceptWorkerRegistration, rejectWorkerRegistration, projects } = useData();
+  const { workers, addWorker, deleteWorker, acceptWorkerRegistration, rejectWorkerRegistration, projects } = useData();
   const { deleteWorkerAccount } = useAuth();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const [tradeFilter, setTradeFilter] = useState('All');
   
   // Modals state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newWorkerForm, setNewWorkerForm] = useState({ name: '', trade: '', site: '', phone: '' });
   const [selectedWorkerProfile, setSelectedWorkerProfile] = useState(null);
   const [workerToDelete, setWorkerToDelete] = useState(null);
   const [deletedWorkerIds, setDeletedWorkerIds] = useState([]);
   const [toastMessage, setToastMessage] = useState('');
+
+  const handleAddWorkerSubmit = (e) => {
+    e.preventDefault();
+    if (!newWorkerForm.name.trim()) return;
+
+    addWorker({
+      name: newWorkerForm.name.trim(),
+      trade: newWorkerForm.trade.trim() || 'General Site Specialist',
+      site: newWorkerForm.site.trim() || 'Not Assigned Yet',
+      phone: newWorkerForm.phone.trim() || '+91 98765 00000',
+      status: 'Off Duty',
+      attendance: 'Absent',
+      approvalStatus: 'Approved'
+    });
+
+    setToastMessage(`Worker '${newWorkerForm.name}' added successfully!`);
+    setShowAddModal(false);
+    setNewWorkerForm({ name: '', trade: '', site: '', phone: '' });
+    setTimeout(() => setToastMessage(''), 4000);
+  };
 
   const allWorkersList = useMemo(() => {
     const nameToProjectMap = {};
@@ -101,11 +123,25 @@ function Workers() {
       )}
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-[#03020A] tracking-tight flex items-center gap-2">
-          <FiUsers className="text-[#7C3AED]" />
-          Site Workforce Directory
-        </h1>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#03020A] tracking-tight flex items-center gap-2">
+            <FiUsers className="text-[#7C3AED]" />
+            Site Workforce Directory
+          </h1>
+          <p className="text-xs font-semibold text-slate-500 mt-1">
+            Total {allWorkersList.length} registered site personnel • 96% active attendance today
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowAddModal(true)}
+          className="dark-nav-pill px-5 py-3 rounded-full text-xs font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all cursor-pointer shrink-0"
+        >
+          <FiPlus className="text-[#BEF264] text-base" />
+          <span>Add New Worker</span>
+        </button>
       </div>
 
       {/* Filter Trade Bar - Sleek Glassmorphism Select Dropdown */}
@@ -116,13 +152,16 @@ function Workers() {
             Showing <strong className="text-[#7C3AED] font-extrabold">{filteredWorkers.length}</strong> of {allWorkersList.length} workers
           </span>
 
-          {tradeFilter !== 'All' && (
+          {(tradeFilter !== 'All' || searchTerm) && (
             <button
               type="button"
-              onClick={() => setTradeFilter('All')}
+              onClick={() => {
+                setTradeFilter('All');
+                if (outletContext.setSearchTerm) outletContext.setSearchTerm('');
+              }}
               className="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all flex items-center gap-1 cursor-pointer shadow-xs"
             >
-              <FiX className="text-xs" /> Reset
+              <FiX className="text-xs" /> Reset Filters
             </button>
           )}
         </div>
@@ -152,8 +191,9 @@ function Workers() {
       </div>
 
       {/* Workers Roster Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredWorkers.map((w) => (
+      {filteredWorkers.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredWorkers.map((w) => (
           <Card key={w.id} hover={true} className="space-y-4 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -268,6 +308,123 @@ function Workers() {
           </Card>
         ))}
       </div>
+      ) : (
+        <div className="glass-card p-8 rounded-[28px] text-center space-y-3 border border-white">
+          <FiUsers className="text-3xl text-purple-400 mx-auto" />
+          <h3 className="text-sm font-bold text-[#03020A]">No Workers Found</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            No worker records matched your search query or trade filter. Try clearing your filters or adding a new worker to the directory.
+          </p>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setTradeFilter('All');
+                if (outletContext.setSearchTerm) outletContext.setSearchTerm('');
+              }}
+              className="px-4 py-2 rounded-full text-xs font-extrabold bg-purple-100 text-[#7C3AED] hover:bg-purple-200 cursor-pointer"
+            >
+              Reset Filters
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="dark-nav-pill px-5 py-2 rounded-full text-xs font-extrabold text-white cursor-pointer"
+            >
+              + Add New Worker
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* REGISTER NEW WORKER MODAL */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="glass-card w-full max-w-md p-6 rounded-[32px] border border-white shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center text-sm font-bold">
+                  <FiUsers />
+                </div>
+                <h3 className="text-base font-extrabold text-[#03020A]">Register New Site Worker</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all flex items-center justify-center cursor-pointer"
+              >
+                <FiX />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddWorkerSubmit} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={newWorkerForm.name}
+                  onChange={(e) => setNewWorkerForm({ ...newWorkerForm, name: e.target.value })}
+                  placeholder="e.g. Annamalai"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Trade Specialization / Role</label>
+                <input
+                  type="text"
+                  value={newWorkerForm.trade}
+                  onChange={(e) => setNewWorkerForm({ ...newWorkerForm, trade: e.target.value })}
+                  placeholder="e.g. Site Supervisor / Structural Lead"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Assigned Construction Site</label>
+                <select
+                  value={newWorkerForm.site}
+                  onChange={(e) => setNewWorkerForm({ ...newWorkerForm, site: e.target.value })}
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] focus:ring-2 focus:ring-[#A78BFA] outline-none cursor-pointer"
+                >
+                  <option value="Not Assigned Yet">Not Assigned Yet</option>
+                  {(projects || []).filter(p => p.status !== 'Cancelled').map(p => (
+                    <option key={p.id} value={p.name}>{p.name} ({p.location})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Phone / Contact Number</label>
+                <input
+                  type="text"
+                  value={newWorkerForm.phone}
+                  onChange={(e) => setNewWorkerForm({ ...newWorkerForm, phone: e.target.value })}
+                  placeholder="e.g. 9198564253"
+                  className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#03020A] focus:ring-2 focus:ring-[#A78BFA] outline-none"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="dark-nav-pill px-5 py-2.5 rounded-full text-xs font-extrabold text-white shadow-md hover:bg-black transition-all cursor-pointer"
+                >
+                  Register Worker
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* VIEW WORKER PROFILE DETAILS MODAL */}
       {selectedWorkerProfile && (

@@ -59,7 +59,7 @@ export const DataProvider = ({ children }) => {
   const [projects, setProjects] = useState(() => safeGetStorage('buildos_projects', initialProjectsData));
   const [workers, setWorkers] = useState(() => {
     const saved = safeGetStorage('buildos_workers', null);
-    if (saved && Array.isArray(saved)) return saved;
+    if (saved && Array.isArray(saved) && saved.length > 0) return saved;
     return initialWorkersData;
   });
   const [materials, setMaterials] = useState(() => {
