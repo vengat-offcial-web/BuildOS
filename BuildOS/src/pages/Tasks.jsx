@@ -346,8 +346,7 @@ function Tasks() {
             return (
               <div 
                 key={t.id}
-                onClick={() => toggleTaskStatus(t.id)}
-                className={`glass-card p-5 rounded-[24px] border transition-all hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer ${
+                className={`glass-card p-5 rounded-[24px] border transition-all hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 ${
                   t.overdue ? 'bg-rose-50/40 border-rose-200' : 'border-white'
                 }`}
               >
@@ -393,9 +392,11 @@ function Tasks() {
                     </p>
                   </div>
 
-                  <Badge variant={t.status === 'Completed' ? 'completed' : t.overdue ? 'overdue' : t.status === 'In Progress' ? 'in-progress' : 'pending'}>
-                    {t.overdue ? 'Overdue' : t.status}
-                  </Badge>
+                  <div title="Task status is updated directly by assigned worker via Worker Dashboard">
+                    <Badge variant={t.status === 'Completed' ? 'completed' : t.overdue ? 'overdue' : t.status === 'In Progress' ? 'in-progress' : 'pending'}>
+                      {t.overdue ? 'Overdue' : t.status}
+                    </Badge>
+                  </div>
 
                   {/* Edit Task Action Button */}
                   <button
@@ -643,17 +644,11 @@ function Tasks() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Status</label>
-                  <select
-                    value={editingTask.status}
-                    onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value })}
-                    className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold outline-none cursor-pointer"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Overdue">Overdue</option>
-                  </select>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Task Status (Worker Updated)</label>
+                  <div className="w-full bg-slate-50 border border-purple-100 rounded-2xl px-3 py-2 text-xs font-extrabold text-[#03020A] flex items-center justify-between shadow-inner">
+                    <span>{editingTask.status}</span>
+                    <span className="text-[9px] font-extrabold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full border border-purple-200">Worker Managed</span>
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">Priority</label>
