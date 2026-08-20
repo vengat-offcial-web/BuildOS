@@ -14,10 +14,11 @@ function Dashboard() {
 
   const [statusFilter, setStatusFilter] = useState('All');
 
-  // Filter projects based on search input and status filter pill
+  // Filter projects based on search input and status filter pill (excludes Cancelled projects)
   const filteredProjects = useMemo(() => {
     const term = searchTerm.toLowerCase().trim();
     return projects.filter(p => {
+      if (p.status === 'Cancelled') return false;
       const matchesSearch = !term || (
         (p.name && p.name.toLowerCase().includes(term)) ||
         (p.location && p.location.toLowerCase().includes(term)) ||

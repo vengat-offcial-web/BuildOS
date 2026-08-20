@@ -308,6 +308,58 @@ export const DataProvider = ({ children }) => {
     logActivity(`Project Deleted`, `ID #${id}`, 'Removed', 'purple');
   }, [logActivity]);
 
+  const cancelProject = useCallback((id) => {
+    const numId = Number(id);
+    let cancelledProjName = '';
+    let cancelledProjLoc = '';
+
+    setProjects(prevProjects => {
+      const updated = prevProjects.map(p => {
+        if (p.id === numId || p.id === id) {
+          cancelledProjName = p.name;
+          cancelledProjLoc = p.location;
+          return { ...p, status: 'Cancelled', progress: 0 };
+        }
+        return p;
+      });
+      safeSetStorage('buildos_projects', updated);
+      return updated;
+    });
+
+    if (cancelledProjName) {
+      const targetNameClean = cancelledProjName.toLowerCase().trim();
+
+      // Update workers assigned to this project with cancellation notice
+      setWorkers(prevWorkers => {
+        const updatedWorkers = prevWorkers.map(w => {
+          const workerSiteClean = (w.site || '').toLowerCase().trim();
+          if (workerSiteClean && (workerSiteClean.includes(targetNameClean) || targetNameClean.includes(workerSiteClean))) {
+            return {
+              ...w,
+              cancellationNotice: `your assigned project was cancelled by admin`,
+              statusNote: `your assigned project was cancelled by admin`,
+              siteStatus: `Cancelled by Admin`
+            };
+          }
+          return w;
+        });
+        safeSetStorage('buildos_workers', updatedWorkers);
+        return updatedWorkers;
+      });
+
+      // Dispatch notification for workers
+      addNotification(
+        `Project Cancelled: ${cancelledProjName}`,
+        `your assigned project was cancelled by admin. Please contact site supervisor for re-assignment.`,
+        "Project Cancellation",
+        "purple",
+        "worker"
+      );
+
+      logActivity(`Project Cancelled: ${cancelledProjName}`, cancelledProjLoc || 'Site', 'Status: Cancelled by Admin', 'purple');
+    }
+  }, [addNotification, logActivity]);
+
   const getProjectById = useCallback((id) => {
     const numId = parseInt(id, 10);
     return projects.find(p => p.id === numId) || projects[0];
@@ -863,6 +915,7 @@ const checkIsOverdue = (dueDateStr, status) => {
   }, [tasks]);
 
   const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'In Progress').length, [projects]);
+  const nonCancelledProjectsCount = useMemo(() => projects.filter(p => p.status !== 'Cancelled').length, [projects]);
   const pendingTasksCount = useMemo(() => enrichedTasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [enrichedTasks]);
   const overdueTasksCount = useMemo(() => enrichedTasks.filter(t => t.overdue).length, [enrichedTasks]);
 
@@ -883,6 +936,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     addProject,
     updateProject,
     deleteProject,
+    cancelProject,
     getProjectById,
     addWorker,
     acceptWorkerRegistration,
@@ -904,7 +958,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     approveLeaveRequest,
     rejectLeaveRequest,
     deleteLeaveRequest,
-    totalProjectsCount: projects.length,
+    totalProjectsCount: nonCancelledProjectsCount,
     activeProjectsCount,
     totalWorkersCount: workers.length + 120, // offset for 128 realistic team
     pendingTasksCount,
@@ -926,6 +980,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     addProject,
     updateProject,
     deleteProject,
+    cancelProject,
     getProjectById,
     addWorker,
     acceptWorkerRegistration,
@@ -947,6 +1002,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     approveLeaveRequest,
     rejectLeaveRequest,
     deleteLeaveRequest,
+    nonCancelledProjectsCount,
     activeProjectsCount,
     pendingTasksCount,
     overdueTasksCount

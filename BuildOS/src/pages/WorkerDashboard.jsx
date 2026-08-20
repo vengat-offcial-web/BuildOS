@@ -349,6 +349,22 @@ function WorkerDashboard() {
                 </div>
             )}
 
+            {/* Project Cancelled Notice Banner */}
+            {(currentWorker?.cancellationNotice || currentWorker?.statusNote?.includes('cancelled') || matchedProject?.status === 'Cancelled') && (
+                <div className="bg-rose-50 border-2 border-rose-300 p-5 rounded-[28px] flex items-center gap-3.5 text-rose-900 shadow-sm animate-in fade-in duration-200">
+                    <FiAlertCircle className="text-rose-600 text-2xl shrink-0" />
+                    <div>
+                        <h4 className="text-xs font-extrabold text-rose-950 uppercase tracking-wider">Project Status Update</h4>
+                        <p className="text-xs font-bold text-rose-800 mt-0.5 leading-relaxed">
+                            <span className="bg-rose-100 border border-rose-300 px-3 py-1 rounded-full text-rose-900 font-extrabold inline-block mr-2">
+                                your assigned project was cancelled by admin
+                            </span>
+                            Please check with your site supervisor for new project assignment.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {/* Hero Welcome Banner Card */}
             <div className="glass-hero-purple p-8 rounded-[32px] border border-white/90 shadow-[0_14px_36px_rgba(167,139,250,0.15)] relative overflow-hidden">
                 {/* Ambient Graphic */}
