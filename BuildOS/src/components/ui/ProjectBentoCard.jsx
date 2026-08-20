@@ -63,7 +63,7 @@ export function ProjectBentoCard({
         </div>
 
         {/* Project Title & Location */}
-        <h3 className="text-xl font-extrabold text-[#03020A] tracking-tight group-hover:text-[#7C3AED] transition-colors mb-1">
+        <h3 className="text-base md:text-lg font-extrabold text-[#03020A] tracking-tight group-hover:text-[#7C3AED] transition-colors mb-1">
           {name}
         </h3>
         <p className="text-xs font-semibold text-slate-600 flex items-center gap-1.5 mb-4">

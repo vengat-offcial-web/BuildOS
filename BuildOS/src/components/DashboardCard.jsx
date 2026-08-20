@@ -14,6 +14,14 @@ const ICON_BG_STYLES = {
     dark: "bg-[#03020A] text-white"
 };
 
+const getValueFontSize = (val) => {
+    const str = String(val || '').trim();
+    if (str.length > 20) return "text-xs sm:text-sm font-extrabold leading-snug tracking-tight";
+    if (str.length > 12) return "text-sm sm:text-base font-extrabold leading-snug tracking-tight";
+    if (str.length > 8)  return "text-base sm:text-lg font-extrabold leading-tight tracking-tight";
+    return "text-lg sm:text-xl md:text-2xl font-extrabold leading-tight tracking-tight";
+};
+
 export function DashboardCard({
     title = "Metric",
     value = "00",
@@ -27,20 +35,20 @@ export function DashboardCard({
     const iconBgStyle = ICON_BG_STYLES[accentColor] || ICON_BG_STYLES.purple;
 
     return (
-        <div className={`glass-card glass-card-hover p-6 rounded-[28px] border border-white/90 shadow-[0_10px_30px_rgba(167,139,250,0.06)] flex flex-col justify-between group ${className}`}>
-            <div className="flex items-start justify-between mb-4">
-                <div className={`w-12 h-12 rounded-2xl ${iconBgStyle} flex items-center justify-center text-xl shadow-md group-hover:scale-110 transition-transform duration-300`}>
+        <div className={`glass-card glass-card-hover p-5 sm:p-6 rounded-[28px] border border-white/90 shadow-[0_10px_30px_rgba(167,139,250,0.06)] flex flex-col justify-between group ${className}`}>
+            <div className="flex items-start justify-between mb-3">
+                <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl ${iconBgStyle} flex items-center justify-center text-lg sm:text-xl shadow-md group-hover:scale-110 transition-transform duration-300`}>
                     {IconComponent ? <IconComponent /> : <FiTrendingUp />}
                 </div>
                 {subtitle && (
-                    <span className={`text-[11px] font-bold px-3 py-1 rounded-full ${badgeStyle}`}>
+                    <span className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full ${badgeStyle}`}>
                         {subtitle}
                     </span>
                 )}
             </div>
             <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{title}</p>
-                <h3 className="text-3xl font-extrabold text-[#03020A] tracking-tight group-hover:text-[#7C3AED] transition-colors">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{title}</p>
+                <h3 className={`${getValueFontSize(value)} text-[#03020A] group-hover:text-[#7C3AED] transition-colors`}>
                     {value}
                 </h3>
             </div>

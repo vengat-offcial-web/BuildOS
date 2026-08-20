@@ -405,7 +405,7 @@ function WorkerDashboard() {
                 >
                     <DashboardCard 
                         title="Assigned Site" 
-                        value={hasAssignedSite ? assignedProject.name : "not assigned on any project"} 
+                        value={hasAssignedSite ? assignedProject.name : "Not Assigned"} 
                         icon={FiMapPin} 
                         subtitle={hasAssignedSite ? "Tap for Site Details →" : "No Active Site"}
                         badgeType={hasAssignedSite ? "purple" : "yellow"}
