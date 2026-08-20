@@ -128,13 +128,17 @@ export const DataProvider = ({ children }) => {
     });
   }, []);
 
-  // Automatically sync worker sites with assigned projects whenever projects or workers change
+  // Automatically sync worker sites with assigned projects whenever projects or workers change & clear cancellation notices for assigned workers
   useEffect(() => {
     if (!projects || projects.length === 0) return;
 
+    const activeProjectNames = new Set(
+      projects.filter(p => p && p.status !== 'Cancelled').map(p => p.name?.toLowerCase().trim()).filter(Boolean)
+    );
+
     const nameToProjectMap = {};
     projects.forEach(p => {
-      if (!p.name) return;
+      if (!p.name || p.status === 'Cancelled') return;
       if (p.manager) {
         nameToProjectMap[p.manager.trim().toLowerCase()] = p.name;
       }
@@ -151,13 +155,37 @@ export const DataProvider = ({ children }) => {
       if (!prevWorkers || prevWorkers.length === 0) return prevWorkers;
       let needsUpdate = false;
       const updated = prevWorkers.map(w => {
-        if (!w.name) return w;
-        const assignedProjName = nameToProjectMap[w.name.trim().toLowerCase()];
-        if (assignedProjName && w.site !== assignedProjName) {
-          needsUpdate = true;
-          return { ...w, site: assignedProjName };
+        if (!w) return w;
+        let newWorker = w;
+
+        // Sync site from project manager / team assignment
+        if (w.name) {
+          const assignedProjName = nameToProjectMap[w.name.trim().toLowerCase()];
+          if (assignedProjName && w.site !== assignedProjName) {
+            needsUpdate = true;
+            newWorker = { ...newWorker, site: assignedProjName };
+          }
         }
-        return w;
+
+        // Automatically clear cancellation notice if worker is assigned to an active project
+        const siteClean = (newWorker.site || '').toLowerCase().trim();
+        const isAssignedToActiveProject = siteClean && 
+          siteClean !== 'not assigned yet' && 
+          siteClean !== 'unassigned' && 
+          siteClean !== 'cancelled by admin' &&
+          activeProjectNames.has(siteClean);
+
+        if (isAssignedToActiveProject && (newWorker.cancellationNotice || newWorker.statusNote || newWorker.siteStatus)) {
+          needsUpdate = true;
+          newWorker = {
+            ...newWorker,
+            cancellationNotice: null,
+            statusNote: null,
+            siteStatus: null
+          };
+        }
+
+        return newWorker;
       });
       return needsUpdate ? updated : prevWorkers;
     });
@@ -537,7 +565,19 @@ export const DataProvider = ({ children }) => {
   }, [addNotification, logActivity]);
 
   const updateWorker = useCallback((id, updatedFields) => {
-    setWorkers(prev => prev.map(w => (w.id === Number(id) || w.name?.toLowerCase() === String(id).toLowerCase()) ? { ...w, ...updatedFields } : w));
+    setWorkers(prev => prev.map(w => {
+      if (w.id === Number(id) || w.name?.toLowerCase().trim() === String(id).toLowerCase().trim()) {
+        const merged = { ...w, ...updatedFields };
+        const siteClean = (merged.site || '').toLowerCase().trim();
+        if (siteClean && siteClean !== 'not assigned yet' && siteClean !== 'unassigned' && siteClean !== 'cancelled by admin') {
+          merged.cancellationNotice = null;
+          merged.statusNote = null;
+          merged.siteStatus = null;
+        }
+        return merged;
+      }
+      return w;
+    }));
     logActivity(`Worker Updated: ${updatedFields.name || 'Worker'}`, updatedFields.site || 'Site', 'Details Saved', 'lime');
   }, [logActivity]);
 

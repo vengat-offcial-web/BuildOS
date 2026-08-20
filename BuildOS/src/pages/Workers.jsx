@@ -214,7 +214,7 @@ function Workers() {
 
             {/* Middle Info Box */}
             <div className="bg-white/80 rounded-2xl p-3 border border-white space-y-2 text-xs font-medium text-slate-600">
-              {(w.cancellationNotice || w.statusNote?.includes('cancelled')) && (
+              {(w.cancellationNotice || w.statusNote?.includes('cancelled')) && (!w.site || w.site === 'Not Assigned Yet' || w.site === 'Unassigned' || w.site === 'Cancelled by Admin') && (
                 <div className="bg-rose-50 border border-rose-200 p-2 rounded-xl text-[11px] font-bold text-rose-700 flex items-center gap-1.5">
                   <FiAlertCircle className="text-rose-500 shrink-0 text-xs" />
                   <span>your assigned project was cancelled by admin</span>
