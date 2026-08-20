@@ -130,6 +130,7 @@ export function WorkerSidebar() {
                                         src={user?.avatar || profile}
                                         alt="Worker avatar"
                                         className="w-9 h-9 rounded-full object-cover ring-2 ring-[#C4B5FD] bg-purple-100 shadow-sm"
+                                        onError={(e) => { e.target.src = profile; }}
                                     />
                                     <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-[#03020A] bg-[#BEF264]"></span>
                                 </div>
