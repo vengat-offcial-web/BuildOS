@@ -98,20 +98,26 @@ export const AuthProvider = ({ children }) => {
             return { success: false, error: 'Please enter both email and password.' };
         }
 
-        if (cleanEmail === envAdminEmail) {
+        const savedAdminUser = safeGetStorage('buildos_admin_credentials', null);
+        const adminEmail = (savedAdminUser?.email || envAdminEmail).toLowerCase();
+
+        if (cleanEmail === adminEmail || cleanEmail === envAdminEmail) {
             const savedUser = safeGetStorage('buildos_user', null);
-            const activePassword = (savedUser && savedUser.role === 'admin' && savedUser.password) ? savedUser.password : envAdminPassword;
+            const activePassword = savedAdminUser?.password || (savedUser && savedUser.role === 'admin' && savedUser.password) || envAdminPassword;
 
             if (password === activePassword) {
-                const adminUser = savedUser ? { ...savedUser, role: 'admin' } : {
+                const adminUser = savedUser ? { ...savedUser, role: 'admin', password: activePassword } : {
                     email: cleanEmail,
-                    name: 'VENGADESH V (Admin)',
+                    name: savedAdminUser?.name || 'VENGADESH V (Admin)',
                     role: 'admin',
-                    title: 'System Administrator',
-                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-                    theme: 'dark'
+                    title: savedAdminUser?.title || 'System Administrator',
+                    avatar: savedAdminUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                    theme: 'dark',
+                    password: activePassword
                 };
                 setUser(adminUser);
+                safeSetStorage('buildos_admin_credentials', adminUser);
+                safeSetStorage('buildos_user', adminUser);
                 return { success: true, role: 'admin' };
             } else {
                 return { success: false, error: 'Invalid password. Please check your admin credentials.' };
@@ -185,6 +191,10 @@ export const AuthProvider = ({ children }) => {
             const oldEmailClean = (prevUser.email || '').toLowerCase().trim();
             const newEmailClean = (updated.email || oldEmailClean).toLowerCase().trim();
 
+            if (updated.role === 'admin' || oldEmailClean === envAdminEmail || newEmailClean === envAdminEmail) {
+                safeSetStorage('buildos_admin_credentials', updated);
+            }
+
             if (updated.role === 'worker') {
                 const profileKey = `buildos_worker_profile_${oldEmailClean}`;
                 safeSetStorage(profileKey, updated);
@@ -218,7 +228,7 @@ export const AuthProvider = ({ children }) => {
             return updated;
         });
         return { success: true };
-    }, []);
+    }, [envAdminEmail]);
 
     const contextValue = useMemo(() => ({
         user,
