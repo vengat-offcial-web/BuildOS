@@ -276,7 +276,7 @@ function Materials() {
                     required
                     value={newOrder.category}
                     onChange={(e) => setNewOrder({ ...newOrder, category: e.target.value })}
-                    placeholder="Enter material category"
+                    placeholder="e.g. Concrete & Cement"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -303,7 +303,7 @@ function Materials() {
                   required
                   value={newOrder.name}
                   onChange={(e) => setNewOrder({ ...newOrder, name: e.target.value })}
-                  placeholder="Enter material name"
+                  placeholder="e.g. Ready-Mix Concrete Grade 40"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
@@ -317,7 +317,7 @@ function Materials() {
                     required
                     value={newOrder.totalStock}
                     onChange={(e) => setNewOrder({ ...newOrder, totalStock: e.target.value })}
-                    placeholder="Enter total stock on-hand"
+                    placeholder="e.g. 1,200 cu.m"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -329,7 +329,7 @@ function Materials() {
                     required
                     value={newOrder.unitCost}
                     onChange={(e) => setNewOrder({ ...newOrder, unitCost: e.target.value })}
-                    placeholder="Enter unit cost"
+                    placeholder="e.g. $85/cu.m"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -343,7 +343,7 @@ function Materials() {
                   required
                   value={newOrder.siteAllocated}
                   onChange={(e) => setNewOrder({ ...newOrder, siteAllocated: e.target.value })}
-                  placeholder="Enter allocated site & quantity"
+                  placeholder="e.g. Marina Tower (450 cu.m)"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
@@ -403,7 +403,7 @@ function Materials() {
                     required
                     value={editForm.category}
                     onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                    placeholder="Enter material category"
+                    placeholder="e.g. Concrete & Cement"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -430,7 +430,7 @@ function Materials() {
                   required
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  placeholder="Enter material name"
+                  placeholder="e.g. Ready-Mix Concrete Grade 40"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
@@ -444,7 +444,7 @@ function Materials() {
                     required
                     value={editForm.totalStock}
                     onChange={(e) => setEditForm({ ...editForm, totalStock: e.target.value })}
-                    placeholder="Enter total stock on-hand"
+                    placeholder="e.g. 1,200 cu.m"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -456,7 +456,7 @@ function Materials() {
                     required
                     value={editForm.unitCost}
                     onChange={(e) => setEditForm({ ...editForm, unitCost: e.target.value })}
-                    placeholder="Enter unit cost"
+                    placeholder="e.g. $85/cu.m"
                     className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                   />
                 </div>
@@ -470,7 +470,7 @@ function Materials() {
                   required
                   value={editForm.siteAllocated}
                   onChange={(e) => setEditForm({ ...editForm, siteAllocated: e.target.value })}
-                  placeholder="Enter allocated site & quantity"
+                  placeholder="e.g. Marina Tower (450 cu.m)"
                   className="w-full bg-white border border-purple-100 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#7C3AED] outline-none transition-all"
                 />
               </div>
