@@ -833,8 +833,40 @@ const checkIsOverdue = (dueDateStr, status) => {
   }, [logActivity]);
 
   const deleteTask = useCallback((taskId) => {
-    setTasks(prev => prev.filter(t => t.id !== Number(taskId) && t.id !== taskId));
-    logActivity(`Task Removed`, `ID #${taskId}`, 'Deleted', 'purple');
+    let deletedTask = null;
+
+    setTasks(prev => {
+      deletedTask = prev.find(t => t.id === Number(taskId) || t.id === taskId);
+      const remaining = prev.filter(t => t.id !== Number(taskId) && t.id !== taskId);
+      safeSetStorage('buildos_tasks', remaining);
+      return remaining;
+    });
+
+    // Purge deleted task from project.tasks in projects state
+    setProjects(prevProjects => {
+      let changed = false;
+      const updatedProjects = prevProjects.map(p => {
+        if (!p || !p.tasks || !Array.isArray(p.tasks)) return p;
+        const targetTitleClean = (deletedTask?.title || deletedTask?.name || '').toLowerCase().trim();
+        const filteredTasks = p.tasks.filter(t => {
+          const titleClean = (t.title || t.name || '').toLowerCase().trim();
+          if (t.id === Number(taskId) || t.id === taskId || (targetTitleClean && titleClean === targetTitleClean)) {
+            changed = true;
+            return false;
+          }
+          return true;
+        });
+        return { ...p, tasks: filteredTasks };
+      });
+      if (changed) safeSetStorage('buildos_projects', updatedProjects);
+      return changed ? updatedProjects : prevProjects;
+    });
+
+    if (deletedTask) {
+      logActivity(`Task Removed: ${deletedTask.title}`, deletedTask.site || `ID #${taskId}`, 'Deleted from Site Roster', 'purple');
+    } else {
+      logActivity(`Task Removed`, `ID #${taskId}`, 'Deleted', 'purple');
+    }
   }, [logActivity]);
 
   const updateTask = useCallback((taskId, updatedFields) => {

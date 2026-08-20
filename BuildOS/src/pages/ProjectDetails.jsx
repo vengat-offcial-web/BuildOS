@@ -340,14 +340,31 @@ function ProjectDetails() {
     setIsMilestoneModalOpen(false);
   };
 
-  const defaultTasks = [
-    { id: 1, title: "Glass facade panel alignment on Floor 18", priority: "High", status: "In Progress" },
-    { id: 2, title: "Structural core concrete compression testing", priority: "High", status: "Completed" },
-    { id: 3, title: "Track signaling cable laying Pier 42–48", priority: "High", status: "In Progress" },
-    { id: 4, title: "Basement 2 main electrical transformer wiring", priority: "High", status: "Overdue" }
-  ];
+  const projectTasks = useMemo(() => {
+    if (!project) return [];
+    const projNameClean = (project.name || '').toLowerCase().trim();
+    const projLocClean = (project.location || '').toLowerCase().trim();
 
-  const projectTasks = (project && project.tasks && project.tasks.length > 0) ? project.tasks : defaultTasks;
+    // 1. Get live site tasks from global tasks context matching this project name or location
+    const matchingGlobalTasks = (tasks || []).filter(t => {
+      if (!t) return false;
+      const siteClean = (t.site || '').toLowerCase().trim();
+      return (projNameClean && (siteClean.includes(projNameClean) || projNameClean.includes(siteClean))) ||
+             (projLocClean && (siteClean.includes(projLocClean) || projLocClean.includes(siteClean)));
+    });
+
+    if (matchingGlobalTasks.length > 0) {
+      return matchingGlobalTasks;
+    }
+
+    // 2. If project.tasks is defined, filter out any task that was deleted from global tasks
+    if (project.tasks && Array.isArray(project.tasks) && project.tasks.length > 0) {
+      const globalTaskTitles = new Set((tasks || []).map(t => (t.title || t.name || '').toLowerCase().trim()));
+      return project.tasks.filter(t => t && t.title && globalTaskTitles.has(t.title.toLowerCase().trim()));
+    }
+
+    return [];
+  }, [project, tasks]);
 
   const handleOpenTasksModal = () => {
     setEditTasks(JSON.parse(JSON.stringify(projectTasks)));
