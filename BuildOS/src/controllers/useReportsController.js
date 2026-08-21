@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useData } from '../context/useData';
 import ReportModel from '../models/reportModel';
 
 export const useReportsController = () => {
     const { projects = [], workers = [], materials = [], tasks = [] } = useData() || {};
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedProject, setSelectedProject] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     // Filter projects list to ONLY include Completed projects
     const completedProjects = useMemo(() => {
@@ -18,16 +18,24 @@ export const useReportsController = () => {
         return ReportModel.filterCompletedProjects(completedProjects, searchTerm);
     }, [completedProjects, searchTerm]);
 
-    // Open detailed completed project report modal
+    // Resolve active selected completed project strictly from URL searchParams (e.g. ?projectId=4)
+    const activeProjectId = searchParams.get('projectId');
+
+    const selectedProject = useMemo(() => {
+        if (!activeProjectId) return null;
+        return completedProjects.find(p => String(p.id) === String(activeProjectId)) || null;
+    }, [completedProjects, activeProjectId]);
+
+    // Open detailed completed project report view by updating URL searchParams (pushes to browser history)
     const openReportModal = (project) => {
-        setSelectedProject(project);
-        setIsModalOpen(true);
+        if (project && project.id) {
+            setSearchParams({ projectId: String(project.id) });
+        }
     };
 
-    // Close detailed report modal
+    // Close detailed report view by clearing URL searchParams
     const closeReportModal = () => {
-        setSelectedProject(null);
-        setIsModalOpen(false);
+        setSearchParams({});
     };
 
     // Computed detailed report details for the currently selected completed project
@@ -56,7 +64,6 @@ export const useReportsController = () => {
         completedProjects,
         filteredCompletedProjects,
         selectedProject,
-        isModalOpen,
         openReportModal,
         closeReportModal,
         selectedReportDetails
