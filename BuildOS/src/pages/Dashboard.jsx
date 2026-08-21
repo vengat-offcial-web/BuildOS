@@ -97,9 +97,11 @@ function Dashboard() {
   return (
     <div className="space-y-8 pb-8">
       {/* Welcome Banner Card */}
-      <div className="glass-hero-purple p-8 rounded-[32px] border border-white/90 shadow-[0_14px_36px_rgba(167,139,250,0.15)] relative overflow-hidden">
-        {/* Ambient Glow Graphic */}
-        <div className="absolute top-[-30%] right-[-10%] w-80 h-80 bg-white/40 rounded-full blur-2xl pointer-events-none"></div>
+      <div className="glass-hero-purple p-8 rounded-[32px] border border-white/90 shadow-[0_14px_36px_rgba(167,139,250,0.15)] relative z-20">
+        {/* Ambient Glow Graphic - isolated clipping */}
+        <div className="absolute inset-0 rounded-[32px] overflow-hidden pointer-events-none">
+          <div className="absolute top-[-30%] right-[-10%] w-80 h-80 bg-white/40 rounded-full blur-2xl"></div>
+        </div>
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-2xl space-y-2">
@@ -112,11 +114,19 @@ function Dashboard() {
           </div>
 
           <div className="relative shrink-0 flex items-center">
+            {/* Click-outside backdrop */}
+            {showDatePickerPopover && (
+              <div 
+                className="fixed inset-0 z-40" 
+                onClick={() => setShowDatePickerPopover(false)} 
+              />
+            )}
+
             {/* Interactive Calendar Date Button */}
             <button 
               type="button"
               onClick={() => setShowDatePickerPopover(!showDatePickerPopover)}
-              className="bg-white/90 hover:bg-white text-[#03020A] border border-white/90 text-xs font-extrabold px-5 py-3 rounded-full transition-all flex items-center gap-2.5 shadow-sm hover:shadow-md cursor-pointer group"
+              className="bg-white/90 hover:bg-white text-[#03020A] border border-white/90 text-xs font-extrabold px-5 py-3 rounded-full transition-all flex items-center gap-2.5 shadow-sm hover:shadow-md cursor-pointer group relative z-50"
               title="Click to select or change date"
             >
               <FiCalendar className="text-[#7C3AED] text-sm group-hover:scale-110 transition-transform" />
@@ -126,7 +136,7 @@ function Dashboard() {
 
             {/* Interactive Date Picker Popover */}
             {showDatePickerPopover && (
-              <div className="absolute top-14 right-0 z-50 w-72 bg-white/95 backdrop-blur-xl border border-purple-100 p-4 rounded-3xl shadow-2xl space-y-3.5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute top-full mt-2 right-0 z-50 w-72 bg-white/95 backdrop-blur-xl border border-purple-100 p-4 rounded-3xl shadow-2xl space-y-3.5 animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex items-center justify-between border-b border-purple-100 pb-2.5">
                   <span className="text-xs font-extrabold text-[#03020A] flex items-center gap-1.5">
                     <FiCalendar className="text-[#7C3AED]" /> Select Dashboard Date
