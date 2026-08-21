@@ -424,7 +424,8 @@ function ProjectDetails() {
           updateTask(t.id, {
             title: t.title.trim(),
             priority: t.priority || 'Medium',
-            status: t.status || 'Pending'
+            status: t.status || 'Pending',
+            assignee: t.assignee || project.manager || 'Mathan'
           });
         }
       } else {
@@ -434,7 +435,7 @@ function ProjectDetails() {
             site: project.name,
             priority: t.priority || 'Medium',
             status: t.status || 'Pending',
-            assignee: project.manager || 'General Team'
+            assignee: t.assignee || project.manager || 'Mathan'
           });
         }
       }
@@ -660,28 +661,37 @@ function ProjectDetails() {
                 projectTasks.map((t, index) => (
                   <div 
                     key={t.id || index}
-                    onClick={() => t.id && toggleTaskStatus && toggleTaskStatus(t.id)}
-                    className="bg-white/80 hover:bg-white p-4 rounded-2xl border border-white flex items-center justify-between gap-4 cursor-pointer transition-all shadow-xs group"
-                    title="Click task to toggle status & dynamically update project progress"
+                    className="bg-white/80 p-4 rounded-2xl border border-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 transition-all ${
+                    <div className="flex items-start sm:items-center gap-3">
+                      <div className={`w-7 h-7 rounded-xl border flex items-center justify-center shrink-0 transition-all ${
                         t.status === "Completed" 
-                          ? "bg-[#7C3AED] border-[#7C3AED] text-white" 
-                          : "border-purple-200 bg-white group-hover:border-purple-400"
+                          ? "bg-[#7C3AED] border-[#7C3AED] text-white font-bold" 
+                          : t.overdue || t.status === "Overdue"
+                          ? "bg-rose-100 border-rose-300 text-rose-700 font-bold"
+                          : "border-purple-200 bg-purple-50 text-[#7C3AED] font-bold"
                       }`}>
-                        {t.status === "Completed" && <FiCheckCircle className="text-xs" />}
+                        {t.status === "Completed" ? <FiCheckCircle className="text-xs" /> : <FiCheckSquare className="text-xs" />}
                       </div>
-                      <div>
-                        <h4 className={`text-xs font-bold ${t.status === 'Completed' ? 'line-through text-slate-400' : 'text-[#03020A]'}`}>{t.title || t.name}</h4>
-                        <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md mt-1 inline-block">
-                          Priority: {t.priority || 'Medium'}
-                        </span>
+                      <div className="space-y-1">
+                        <h4 className={`text-xs font-extrabold ${t.status === 'Completed' ? 'line-through text-slate-400' : 'text-[#03020A]'}`}>
+                          {t.title || t.name}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
+                            Priority: {t.priority || 'Medium'}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                            Assigned to: <strong className="text-purple-800 font-extrabold">{t.assignee || project?.manager || 'Mathan'}</strong>
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <Badge variant={t.status === 'Completed' ? 'completed' : t.status === 'In Progress' ? 'in-progress' : t.status === 'Overdue' ? 'overdue' : 'pending'}>
-                      {t.status}
-                    </Badge>
+                    <div className="shrink-0 flex items-center gap-2">
+                      <Badge variant={t.status === 'Completed' ? 'completed' : t.status === 'In Progress' ? 'in-progress' : t.overdue || t.status === 'Overdue' ? 'overdue' : 'pending'}>
+                        {t.overdue || t.status === 'Overdue' ? 'Overdue' : t.status}
+                      </Badge>
+                    </div>
                   </div>
                 ))
               )}
@@ -1142,17 +1152,11 @@ function ProjectDetails() {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Status</label>
-                        <select
-                          value={t.status}
-                          onChange={(e) => handleUpdateTaskField(idx, 'status', e.target.value)}
-                          className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-xl p-2.5 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] cursor-pointer"
-                        >
-                          <option value="In Progress">In Progress</option>
-                          <option value="Completed">Completed</option>
-                          <option value="Pending">Pending</option>
-                          <option value="Overdue">Overdue</option>
-                        </select>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Status (Worker Updated)</label>
+                        <div className="w-full bg-slate-100 border border-slate-200 text-xs font-extrabold rounded-xl px-3 py-2.5 text-slate-700 flex items-center justify-between select-none">
+                          <span>{t.overdue || t.status === 'Overdue' ? 'Overdue' : (t.status || 'Pending')}</span>
+                          <span className="text-[9px] font-extrabold uppercase text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded-md">Read-Only</span>
+                        </div>
                       </div>
                     </div>
                   </div>

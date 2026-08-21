@@ -40,6 +40,16 @@ function WorkerDashboard() {
         deleteWorkerNote 
     } = useData();
 
+    const [toastNotif, setToastNotif] = useState(null);
+
+    const triggerToast = (title, message = '') => {
+        setToastNotif({ title, message });
+        const timer = setTimeout(() => {
+            setToastNotif(null);
+        }, 5000);
+        return () => clearTimeout(timer);
+    };
+
     // Automatically trigger notification toast banner when worker logs in / visits dashboard if a new task was assigned
     React.useEffect(() => {
         if (!user?.name || !notifications || !Array.isArray(notifications)) return;
@@ -57,10 +67,15 @@ function WorkerDashboard() {
         });
 
         if (latestTaskNotif) {
-            setToastMessage(`🔔 ${latestTaskNotif.title}: ${latestTaskNotif.message}`);
+            setToastNotif({
+                title: latestTaskNotif.title,
+                message: latestTaskNotif.message
+            });
+
             // Auto mark as read after worker sees the notification toast
             const timer = setTimeout(() => {
                 markNotificationAsRead(latestTaskNotif.id);
+                setToastNotif(null);
             }, 6000);
             return () => clearTimeout(timer);
         }
@@ -150,8 +165,7 @@ function WorkerDashboard() {
 
     const handleClockToggle = () => {
         if (currentWorker && currentWorker.approvalStatus === 'Pending Approval') {
-            setToastMessage('Account Pending Approval! You cannot clock in until Admin accepts your registration.');
-            setTimeout(() => setToastMessage(''), 4000);
+            triggerToast('Account Pending Approval', 'You cannot clock in until Admin accepts your registration.');
             return;
         }
 
@@ -176,8 +190,10 @@ function WorkerDashboard() {
             "admin"
         );
 
-        setToastMessage(`Clocked ${nextState ? 'IN' : 'OUT'}! Notification sent to Admin Workers page.`);
-        setTimeout(() => setToastMessage(''), 4000);
+        triggerToast(
+            `Shift Clock ${nextState ? 'IN' : 'OUT'}`,
+            `Status updated to ${nextState ? 'On Duty' : 'Off Duty'}. Notification sent to Admin.`
+        );
     };
 
     // Evaluate worker's assigned tasks from global context
@@ -259,8 +275,10 @@ function WorkerDashboard() {
             "admin"
         );
 
-        setToastMessage(`Daily shift checklist (${doneCount}/${totalCount} Done) submitted to Admin Workers Page!`);
-        setTimeout(() => setToastMessage(''), 4000);
+        triggerToast(
+            'Shift Checklist Submitted',
+            `Daily shift report (${doneCount}/${totalCount} Tasks Done) sent to Admin.`
+        );
     };
 
     const handleLeaveSubmit = (e) => {
@@ -282,8 +300,10 @@ function WorkerDashboard() {
         setShowLeaveModal(false);
         setLeaveForm({ date: '', reason: 'Medical Leave', notes: '' });
 
-        setToastMessage('Leave request sent! Dispatched to Admin Workers page for approval.');
-        setTimeout(() => setToastMessage(''), 4000);
+        triggerToast(
+            'Leave Request Submitted',
+            'Your leave application was sent to Admin for approval.'
+        );
     };
 
     const handleSafetySubmit = (e) => {
@@ -291,8 +311,10 @@ function WorkerDashboard() {
         setShowSafetyModal(false);
         setSafetyForm({ hazardType: 'Scaffolding Hazard', description: '' });
 
-        setToastMessage('Safety issue reported to Site Safety Officer & Supervisor!');
-        setTimeout(() => setToastMessage(''), 4000);
+        triggerToast(
+            'Safety Hazard Reported',
+            'Alert sent to Site Safety Officer & Supervisor immediately.'
+        );
     };
 
     const handleSendWorkerChatMessage = (e) => {
@@ -319,8 +341,10 @@ function WorkerDashboard() {
         );
 
         setWorkerChatInput('');
-        setToastMessage(`Message sent to Admin (${chatRecipient.split(' ')[0]})!`);
-        setTimeout(() => setToastMessage(''), 3000);
+        triggerToast(
+            'Message Sent to Lead Engineer',
+            `Your note was delivered to ${chatRecipient.split(' ')[0]}.`
+        );
     };
 
     const completedCount = displayTasks.filter(t => t.status === "Completed").length;
@@ -328,11 +352,35 @@ function WorkerDashboard() {
 
     return (
         <div className="space-y-8 pb-8">
-            {/* Toast Notification Banner */}
-            {toastMessage && (
-                <div className="fixed top-20 right-6 z-50 bg-[#03020A] text-white border border-[#BEF264] px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in duration-200">
-                    <FiCheckCircle className="text-[#BEF264] text-lg shrink-0" />
-                    <span className="text-xs font-bold">{toastMessage}</span>
+            {/* Structured Premium Notification Toast Card */}
+            {toastNotif && (
+                <div className="fixed top-20 right-6 z-50 max-w-md w-full bg-[#03020A]/95 backdrop-blur-2xl text-white border border-purple-500/30 rounded-3xl p-4 shadow-[0_20px_50px_rgba(124,58,237,0.3)] animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-2xl bg-[#7C3AED] text-[#BEF264] flex items-center justify-center text-base font-extrabold shrink-0 shadow-inner">
+                            <FiBell />
+                        </div>
+
+                        <div className="flex-1 space-y-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                                <h4 className="text-xs font-extrabold text-white tracking-wide truncate">
+                                    {toastNotif.title}
+                                </h4>
+                                <button
+                                    type="button"
+                                    onClick={() => setToastNotif(null)}
+                                    className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+                                    title="Dismiss Notification"
+                                >
+                                    <FiX className="text-xs" />
+                                </button>
+                            </div>
+                            {toastNotif.message && (
+                                <p className="text-[11px] font-semibold text-slate-300 leading-relaxed line-clamp-2">
+                                    {toastNotif.message}
+                                </p>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
 
