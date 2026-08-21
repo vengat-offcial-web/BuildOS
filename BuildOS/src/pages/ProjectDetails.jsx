@@ -20,6 +20,17 @@ function ProjectDetails() {
 
   // Cancel Project Modal State
   const [showCancelModal, setShowCancelModal] = useState(false);
+
+  // Edit Modal State
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editLocation, setEditLocation] = useState('');
+  const [editManager, setEditManager] = useState('');
+  const [editBudget, setEditBudget] = useState('');
+  const [editStartDate, setEditStartDate] = useState('');
+  const [editDeadline, setEditDeadline] = useState('');
+  const [editWorkers, setEditWorkers] = useState('');
+
   const [showEngineerSuggestions, setShowEngineerSuggestions] = useState(false);
   const [engineerSearchQuery, setEngineerSearchQuery] = useState('');
   const [workerSearchQuery, setWorkerSearchQuery] = useState('');
@@ -265,15 +276,7 @@ function ProjectDetails() {
     setIsMaterialModalOpen(false);
   };
 
-  // Edit Modal State
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState('');
-  const [editLocation, setEditLocation] = useState('');
-  const [editManager, setEditManager] = useState('');
-  const [editBudget, setEditBudget] = useState('');
-  const [editStartDate, setEditStartDate] = useState('');
-  const [editDeadline, setEditDeadline] = useState('');
-  const [editWorkers, setEditWorkers] = useState('');
+
 
   const calcEditDurationDays = useMemo(() => {
     if (!editStartDate || !editDeadline) return null;
