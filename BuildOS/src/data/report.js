@@ -1,94 +1,144 @@
-const reports = [
-{
-    ReportID: "R001",
-    Project: "Mall Build",
-    Type: "Weekly",
-    GeneratedBy: "Admin",
-    Date: "25 Jul 2026",
+export const initialReportsData = [
+  {
+    id: "REP-2026-001",
+    ReportID: "REP-2026-001",
+    title: "Monthly Site Audit & Executive Budget Summary",
+    name: "Monthly Site Audit & Executive Budget Summary",
+    project: "Marina Tower",
+    Type: "Financial & Budget",
+    type: "Financial & Budget",
+    period: "August 2026",
+    GeneratedBy: "Vengadesh (Director)",
+    author: "Vengadesh (Director)",
+    date: "2026-08-15",
+    Date: "15 Aug 2026",
     Status: "Completed",
-    Action: "View"
-},
-{
-    ReportID: "R002",
-    Project: "Hospital",
-    Type: "Monthly",
-    GeneratedBy: "Manager",
-    Date: "28 Jul 2026",
-    Status: "Completed",
-    Action: "View"
-},
-{
-    ReportID: "R003",
-    Project: "Bridge",
-    Type: "Weekly",
-    GeneratedBy: "Admin",
-    Date: "30 Jul 2026",
-    Status: "Pending",
-    Action: "View"
-},
-{
-    ReportID: "R004",
-    Project: "Villa A",
-    Type: "Daily",
-    GeneratedBy: "Supervisor",
-    Date: "31 Jul 2026",
+    status: "Completed",
+    format: "PDF",
+    fileSize: "4.2 MB",
+    size: "4.2 MB PDF",
+    summary: "Comprehensive breakdown of site expenditures, contractor payments, and monthly budget variance for Marina Tower.",
+    metrics: {
+      budgetSpent: 850,
+      budgetTotal: 1000,
+      variancePct: 5.7,
+      safetyIndex: 99.4,
+      velocityPct: 14.2,
+      laborAttendancePct: 96.8
+    }
+  },
+  {
+    id: "REP-2026-002",
+    ReportID: "REP-2026-002",
+    title: "Safety Compliance & Zero Incident Protocol Log",
+    name: "Safety Compliance & Zero Incident Protocol Log",
+    project: "Metro Line Extension",
+    Type: "Safety Compliance",
+    type: "Safety Compliance",
+    period: "Q2 2026",
+    GeneratedBy: "Srinivasan M. (Safety)",
+    author: "Srinivasan M. (Safety)",
+    date: "2026-08-10",
+    Date: "10 Aug 2026",
     Status: "Approved",
-    Action: "View"
-},
-{
-    ReportID: "R005",
-    Project: "Apartment",
-    Type: "Monthly",
-    GeneratedBy: "Manager",
-    Date: "01 Aug 2026",
-    Status: "Completed",
-    Action: "View"
-},
-{
-    ReportID: "R006",
-    Project: "School",
-    Type: "Weekly",
-    GeneratedBy: "Admin",
-    Date: "02 Aug 2026",
-    Status: "Pending",
-    Action: "View"
-},
-{
-    ReportID: "R007",
-    Project: "Office Complex",
-    Type: "Monthly",
-    GeneratedBy: "Manager",
-    Date: "03 Aug 2026",
-    Status: "Completed",
-    Action: "View"
-},
-{
-    ReportID: "R008",
-    Project: "Factory",
-    Type: "Daily",
-    GeneratedBy: "Supervisor",
-    Date: "04 Aug 2026",
-    Status: "Approved",
-    Action: "View"
-},
-{
-    ReportID: "R009",
-    Project: "Warehouse",
-    Type: "Weekly",
-    GeneratedBy: "Admin",
+    status: "Approved",
+    format: "PDF",
+    fileSize: "2.8 MB",
+    size: "2.8 MB PDF",
+    summary: "Quarterly site safety inspection record documenting 0 lost-time incidents and 100% PPE compliance across shift teams.",
+    metrics: {
+      budgetSpent: 1200,
+      budgetTotal: 1250,
+      variancePct: 3.8,
+      safetyIndex: 100.0,
+      velocityPct: 12.0,
+      laborAttendancePct: 98.2
+    }
+  },
+  {
+    id: "REP-2026-003",
+    ReportID: "REP-2026-003",
+    title: "Logistics & Site Resource Supply Audit",
+    name: "Logistics & Site Resource Supply Audit",
+    project: "SkyView Apartments",
+    Type: "Resource & Material Audit",
+    type: "Resource & Material Audit",
+    period: "July 2026",
+    GeneratedBy: "Site Supervisor",
+    author: "Site Supervisor",
+    date: "2026-08-05",
     Date: "05 Aug 2026",
     Status: "Completed",
-    Action: "View"
-},
-{
-    ReportID: "R010",
-    Project: "Metro Extension",
-    Type: "Monthly",
-    GeneratedBy: "Manager",
-    Date: "06 Aug 2026",
-    Status: "Pending",
-    Action: "View"
-}
+    status: "Completed",
+    format: "CSV",
+    fileSize: "1.5 MB",
+    size: "1.5 MB CSV",
+    summary: "Detailed material dispatch tracking for steel rebar, OPC cement bags, ready-mix concrete, and tower crane operations.",
+    metrics: {
+      budgetSpent: 420,
+      budgetTotal: 600,
+      variancePct: 8.2,
+      safetyIndex: 98.6,
+      velocityPct: 16.5,
+      laborAttendancePct: 95.4
+    }
+  },
+  {
+    id: "REP-2026-004",
+    ReportID: "REP-2026-004",
+    title: "Milestone Task Progress & QA Check Report",
+    name: "Milestone Task Progress & QA Check Report",
+    project: "Apex Tech Park Phase 2",
+    Type: "Task Progress",
+    type: "Task Progress",
+    period: "August 2026",
+    GeneratedBy: "Karthik R. (Project Manager)",
+    author: "Karthik R. (Project Manager)",
+    date: "2026-08-18",
+    Date: "18 Aug 2026",
+    Status: "Pending Review",
+    status: "Pending Review",
+    format: "PDF",
+    fileSize: "3.1 MB",
+    size: "3.1 MB PDF",
+    summary: "Task completion velocity analysis and structural concrete pour inspection logs for Apex Tech Park Phase 2.",
+    metrics: {
+      budgetSpent: 680,
+      budgetTotal: 700,
+      variancePct: 2.9,
+      safetyIndex: 99.1,
+      velocityPct: 11.8,
+      laborAttendancePct: 96.0
+    }
+  },
+  {
+    id: "REP-2026-005",
+    ReportID: "REP-2026-005",
+    title: "All Sites Executive Operations Monthly Report",
+    name: "All Sites Executive Operations Monthly Report",
+    project: "All Projects",
+    Type: "Executive Summary",
+    type: "Executive Summary",
+    period: "August 2026",
+    GeneratedBy: "Vengadesh (Director)",
+    author: "Vengadesh (Director)",
+    date: "2026-08-01",
+    Date: "01 Aug 2026",
+    Status: "Approved",
+    status: "Approved",
+    format: "PDF",
+    fileSize: "5.4 MB",
+    size: "5.4 MB PDF",
+    summary: "High-level director dashboard summary consolidating total expenditures, safety indexes, and worker attendance across all active sites.",
+    metrics: {
+      budgetSpent: 3150,
+      budgetTotal: 3550,
+      variancePct: 5.7,
+      safetyIndex: 99.4,
+      velocityPct: 14.2,
+      laborAttendancePct: 96.8
+    }
+  }
 ];
 
-export default reports;
+export default initialReportsData;

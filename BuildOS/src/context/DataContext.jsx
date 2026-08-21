@@ -6,7 +6,8 @@ import {
   initialTasksData,
   initialActivityData,
   initialNotificationsData,
-  initialWorkerNotesData
+  initialWorkerNotesData,
+  initialReportsData
 } from '../data';
 
 export const DataContext = createContext(null);
@@ -72,6 +73,7 @@ export const DataProvider = ({ children }) => {
   const [notifications, setNotifications] = useState(() => safeGetStorage('buildos_notifications', initialNotificationsData));
   const [workerNotes, setWorkerNotes] = useState(() => safeGetStorage('buildos_worker_notes', initialWorkerNotesData));
   const [leaveRequests, setLeaveRequests] = useState(() => safeGetStorage('buildos_leave_requests', initialLeaveRequestsData));
+  const [reports, setReports] = useState(() => safeGetStorage('buildos_reports', initialReportsData));
 
   // Sync state changes to localStorage
   useEffect(() => { safeSetStorage('buildos_projects', projects); }, [projects]);
@@ -82,6 +84,7 @@ export const DataProvider = ({ children }) => {
   useEffect(() => { safeSetStorage('buildos_notifications', notifications); }, [notifications]);
   useEffect(() => { safeSetStorage('buildos_worker_notes', workerNotes); }, [workerNotes]);
   useEffect(() => { safeSetStorage('buildos_leave_requests', leaveRequests); }, [leaveRequests]);
+  useEffect(() => { safeSetStorage('buildos_reports', reports); }, [reports]);
 
   // Automatically purge Theme Park project and its connected details if present
   useEffect(() => {
@@ -1178,6 +1181,51 @@ const checkIsOverdue = (dueDateStr, status) => {
   const pendingTasksCount = useMemo(() => enrichedTasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [enrichedTasks]);
   const overdueTasksCount = useMemo(() => enrichedTasks.filter(t => t.overdue).length, [enrichedTasks]);
 
+  const addReport = useCallback((newReport) => {
+    const formatted = {
+      id: newReport.id || `REP-2026-${String(Math.floor(100 + Math.random() * 900))}`,
+      ReportID: newReport.ReportID || newReport.id || `REP-2026-${String(Math.floor(100 + Math.random() * 900))}`,
+      title: newReport.title || newReport.name || "Custom Site Audit Report",
+      name: newReport.title || newReport.name || "Custom Site Audit Report",
+      project: newReport.project || "All Projects",
+      type: newReport.type || newReport.Type || "Executive Summary",
+      Type: newReport.type || newReport.Type || "Executive Summary",
+      period: newReport.period || "August 2026",
+      author: newReport.author || newReport.GeneratedBy || "Vengadesh (Director)",
+      GeneratedBy: newReport.author || newReport.GeneratedBy || "Vengadesh (Director)",
+      date: newReport.date || new Date().toISOString().split('T')[0],
+      Date: newReport.Date || new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }),
+      status: newReport.status || newReport.Status || "Completed",
+      Status: newReport.status || newReport.Status || "Completed",
+      format: newReport.format || "PDF",
+      fileSize: newReport.fileSize || newReport.size || "2.4 MB",
+      size: newReport.fileSize || newReport.size || "2.4 MB PDF",
+      summary: newReport.summary || "Generated executive summary report.",
+      metrics: newReport.metrics || {
+        budgetSpent: 850,
+        budgetTotal: 1000,
+        variancePct: 5.7,
+        safetyIndex: 99.4,
+        velocityPct: 14.2,
+        laborAttendancePct: 96.8
+      }
+    };
+    setReports(prev => [formatted, ...prev]);
+    if (typeof addNotification === 'function') {
+      addNotification({
+        title: "New Report Generated",
+        message: `Report "${formatted.title}" was generated for ${formatted.project}.`,
+        type: "report",
+        timestamp: "Just now"
+      });
+    }
+    return formatted;
+  }, [addNotification]);
+
+  const deleteReport = useCallback((reportId) => {
+    setReports(prev => prev.filter(r => r.id !== reportId && r.ReportID !== reportId));
+  }, []);
+
   const contextValue = useMemo(() => ({
     projects: enrichedProjects,
     workers,
@@ -1187,6 +1235,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     notifications,
     workerNotes,
     leaveRequests,
+    reports,
     addNotification,
     markNotificationAsRead,
     markAllNotificationsAsRead,
@@ -1217,6 +1266,8 @@ const checkIsOverdue = (dueDateStr, status) => {
     approveLeaveRequest,
     rejectLeaveRequest,
     deleteLeaveRequest,
+    addReport,
+    deleteReport,
     totalProjectsCount: nonCancelledProjectsCount,
     activeProjectsCount,
     pendingProjectsCount,
@@ -1232,6 +1283,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     notifications,
     workerNotes,
     leaveRequests,
+    reports,
     addNotification,
     markNotificationAsRead,
     markAllNotificationsAsRead,
@@ -1262,6 +1314,8 @@ const checkIsOverdue = (dueDateStr, status) => {
     approveLeaveRequest,
     rejectLeaveRequest,
     deleteLeaveRequest,
+    addReport,
+    deleteReport,
     nonCancelledProjectsCount,
     activeProjectsCount,
     pendingProjectsCount,
