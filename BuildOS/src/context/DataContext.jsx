@@ -1137,12 +1137,16 @@ const checkIsOverdue = (dueDateStr, status) => {
       const totalTasks = siteTasks.length;
       const completedTasks = siteTasks.filter(t => t.status === 'Completed').length;
 
-      const totalItems = totalMilestones + totalTasks;
-      const totalCompleted = completedMilestones + completedTasks;
-
       let calcProgress = p.progress;
-      if (totalItems > 0) {
-        calcProgress = Math.round((totalCompleted / totalItems) * 100);
+      if (totalMilestones > 0 && totalTasks > 0) {
+        // Base milestones contribute up to 60%, each active site task adds EXACTLY +10%
+        const milestoneBasePct = Math.round((completedMilestones / totalMilestones) * 60);
+        const taskPct = completedTasks * 10;
+        calcProgress = Math.min(100, milestoneBasePct + taskPct);
+      } else if (totalTasks > 0) {
+        calcProgress = Math.min(100, completedTasks * 10);
+      } else if (totalMilestones > 0) {
+        calcProgress = Math.round((completedMilestones / totalMilestones) * 100);
       }
 
       // Automatically sync project status based on dynamic progress
