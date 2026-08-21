@@ -1018,7 +1018,8 @@ const checkIsOverdue = (dueDateStr, status) => {
         "Leave Request",
         "lime",
         "worker",
-        numId
+        numId,
+        approvedItem.workerName
       );
       logActivity(`Leave Approved: ${approvedItem.workerName}`, approvedItem.site, 'Status: Approved', 'lime');
     }
@@ -1050,7 +1051,8 @@ const checkIsOverdue = (dueDateStr, status) => {
         "Leave Request",
         "purple",
         "worker",
-        numId
+        numId,
+        rejectedItem.workerName
       );
       logActivity(`Leave Declined: ${rejectedItem.workerName}`, rejectedItem.site, 'Status: Declined', 'purple');
     }
