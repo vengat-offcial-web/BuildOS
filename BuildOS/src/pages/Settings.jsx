@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Card } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
+import { useData } from '../context/useData';
 import { 
   FiSettings, 
   FiUser, 
@@ -12,13 +13,17 @@ import {
   FiLock,
   FiEye,
   FiEyeOff,
-  FiAlertCircle
+  FiAlertCircle,
+  FiDatabase,
+  FiRefreshCw
 } from 'react-icons/fi';
 import profileFallback from '../assets/profile.png';
 
 function Settings() {
   const { user, updateProfile } = useAuth();
+  const { clearAllData, restoreSampleData, projects = [], workers = [], tasks = [] } = useData() || {};
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [dataMessage, setDataMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const fileInputRef = useRef(null);
 
@@ -35,6 +40,22 @@ function Settings() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleClearData = () => {
+    if (window.confirm("Are you sure you want to clear all demo mock data? This will set BuildOS to a clean slate so you can enter your real construction projects, engineers, and site tasks.")) {
+      clearAllData && clearAllData();
+      setDataMessage('Demo mock data cleared! BuildOS is now set to a 100% Clean Slate for real data entry.');
+      setTimeout(() => setDataMessage(''), 4500);
+    }
+  };
+
+  const handleRestoreSample = () => {
+    if (window.confirm("Restore default demo sample data?")) {
+      restoreSampleData && restoreSampleData();
+      setDataMessage('Default demo sample data restored successfully!');
+      setTimeout(() => setDataMessage(''), 4500);
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -303,6 +324,55 @@ function Settings() {
             </button>
           </div>
         </form>
+      </Card>
+
+      {/* System Data & Production Workspace Mode Card */}
+      <Card hover={false} className="max-w-2xl space-y-5 border border-purple-100">
+        <div className="pb-3 border-b border-purple-100 flex items-center justify-between">
+          <h3 className="text-base font-extrabold text-[#03020A] flex items-center gap-2">
+            <FiDatabase className="text-[#7C3AED]" />
+            Workspace Data Mode & Reset
+          </h3>
+          <span className="text-[10px] font-extrabold uppercase bg-purple-50 text-purple-700 px-3 py-1 rounded-full border border-purple-100">
+            {projects.length === 0 ? 'Clean Slate Mode' : 'Demo Sample Mode'}
+          </span>
+        </div>
+
+        {dataMessage && (
+          <div className="p-3.5 rounded-2xl text-xs font-bold bg-[#F0FDC2] border border-[#BEF264] text-[#3F6212] flex items-center gap-2 animate-in fade-in">
+            <FiCheck className="text-base shrink-0" />
+            <span>{dataMessage}</span>
+          </div>
+        )}
+
+        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200 space-y-2">
+          <h4 className="text-xs font-extrabold text-[#03020A]">
+            Current Roster Status: <span className="text-purple-700 font-extrabold">{projects.length} Active Projects</span> | <span className="text-purple-700 font-extrabold">{workers.length} Personnel</span> | <span className="text-purple-700 font-extrabold">{tasks.length} Tasks</span>
+          </h4>
+          <p className="text-xs text-slate-500 font-medium leading-relaxed">
+            Switch BuildOS from demo mock mode to clean slate mode. Clearing demo mock data allows you to start fresh with 100% real construction projects, real site engineers, real site tasks, and real materials.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          <button
+            type="button"
+            onClick={handleClearData}
+            className="px-5 py-2.5 rounded-full text-xs font-bold bg-rose-600 text-white shadow-md hover:bg-rose-700 transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <FiTrash2 className="text-sm" />
+            <span>Clear Demo Data & Start Fresh (Real Data Mode)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleRestoreSample}
+            className="px-5 py-2.5 rounded-full text-xs font-bold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <FiRefreshCw className="text-sm" />
+            <span>Restore Default Sample Data</span>
+          </button>
+        </div>
       </Card>
     </div>
   );

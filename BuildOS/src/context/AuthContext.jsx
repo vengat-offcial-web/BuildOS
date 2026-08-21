@@ -43,8 +43,8 @@ export const AuthProvider = ({ children }) => {
         ];
     });
 
-    const envAdminEmail = (import.meta.env.ADMIN_EMAIL || import.meta.env.VITE_ADMIN_EMAIL || 'admin@gmail.com').toLowerCase();
-    const envAdminPassword = import.meta.env.ADMIN_PASSWORD || import.meta.env.VITE_ADMIN_PASSWORD || '123456';
+    const envAdminEmail = (import.meta.env.VITE_ADMIN_EMAIL).toLowerCase();
+    const envAdminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
 
     useEffect(() => {
         safeSetStorage('buildos_user', user);
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = useCallback((email, password) => {
         const cleanEmail = (email || '').trim().toLowerCase();
-        
+
         if (!cleanEmail || !password) {
             return { success: false, error: 'Please enter both email and password.' };
         }
@@ -160,7 +160,7 @@ export const AuthProvider = ({ children }) => {
                     if (w.email) {
                         try {
                             localStorage.removeItem(`buildos_worker_profile_${w.email.toLowerCase()}`);
-                        } catch {}
+                        } catch { }
                     }
                     return false;
                 }

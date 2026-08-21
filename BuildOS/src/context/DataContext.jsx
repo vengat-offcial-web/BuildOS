@@ -1201,7 +1201,56 @@ const checkIsOverdue = (dueDateStr, status) => {
   const pendingTasksCount = useMemo(() => enrichedTasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [enrichedTasks]);
   const overdueTasksCount = useMemo(() => enrichedTasks.filter(t => t.overdue).length, [enrichedTasks]);
 
+  const clearAllData = useCallback(() => {
+    setProjects([]);
+    setWorkers([]);
+    setMaterials([]);
+    setTasks([]);
+    setActivityLogs([]);
+    setNotifications([]);
+    setWorkerNotes([]);
+    setLeaveRequests([]);
+
+    const keysToClear = [
+      'buildos_projects',
+      'buildos_workers',
+      'buildos_materials',
+      'buildos_tasks',
+      'buildos_activities',
+      'buildos_notifications',
+      'buildos_worker_notes',
+      'buildos_leave_requests'
+    ];
+    keysToClear.forEach(k => {
+      try { localStorage.removeItem(k); } catch {}
+    });
+  }, []);
+
+  const restoreSampleData = useCallback(() => {
+    setProjects(initialProjectsData);
+    setWorkers(initialWorkersData);
+    setMaterials(initialMaterialsData);
+    setTasks(initialTasksData);
+    setActivityLogs(initialActivityData);
+    setNotifications(initialNotificationsData);
+    setWorkerNotes(initialWorkerNotesData);
+    setLeaveRequests(initialLeaveRequestsData);
+
+    try {
+      localStorage.setItem('buildos_projects', JSON.stringify(initialProjectsData));
+      localStorage.setItem('buildos_workers', JSON.stringify(initialWorkersData));
+      localStorage.setItem('buildos_materials', JSON.stringify(initialMaterialsData));
+      localStorage.setItem('buildos_tasks', JSON.stringify(initialTasksData));
+      localStorage.setItem('buildos_activities', JSON.stringify(initialActivityData));
+      localStorage.setItem('buildos_notifications', JSON.stringify(initialNotificationsData));
+      localStorage.setItem('buildos_worker_notes', JSON.stringify(initialWorkerNotesData));
+      localStorage.setItem('buildos_leave_requests', JSON.stringify(initialLeaveRequestsData));
+    } catch {}
+  }, []);
+
   const contextValue = useMemo(() => ({
+    clearAllData,
+    restoreSampleData,
     projects: enrichedProjects,
     workers,
     materials,
@@ -1247,6 +1296,8 @@ const checkIsOverdue = (dueDateStr, status) => {
     pendingTasksCount,
     overdueTasksCount
   }), [
+    clearAllData,
+    restoreSampleData,
     enrichedProjects,
     workers,
     materials,
