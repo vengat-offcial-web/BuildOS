@@ -278,6 +278,44 @@ function ProjectDetails() {
 
 
 
+// Helper to parse any date format into YYYY-MM-DD for native HTML date input
+const formatToISOInputDate = (dateStr) => {
+  if (!dateStr) return '';
+  const trimmed = String(dateStr).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  try {
+    if (trimmed.includes('/')) {
+      const parts = trimmed.split('/');
+      if (parts.length === 3) {
+        const d = String(parts[0]).padStart(2, '0');
+        const m = String(parts[1]).padStart(2, '0');
+        const y = parts[2];
+        return `${y}-${m}-${d}`;
+      }
+    }
+    const parsed = new Date(trimmed);
+    if (!isNaN(parsed.getTime())) {
+      const yyyy = parsed.getFullYear();
+      const mm = String(parsed.getMonth() + 1).padStart(2, '0');
+      const dd = String(parsed.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+  } catch {}
+  return '';
+};
+
+// Helper to convert ISO date YYYY-MM-DD to human readable "Feb 15, 2027"
+const formatToHumanReadableDate = (isoStr) => {
+  if (!isoStr) return '';
+  try {
+    const parsed = new Date(isoStr);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  } catch {}
+  return isoStr;
+};
+
   const calcEditDurationDays = useMemo(() => {
     if (!editStartDate || !editDeadline) return null;
     try {
@@ -935,25 +973,49 @@ function ProjectDetails() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Project Start Date</label>
-                  <input
-                    type="text"
-                    value={editStartDate}
-                    onChange={(e) => setEditStartDate(e.target.value)}
-                    className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                    placeholder="e.g. Feb 15, 2026 or YYYY-MM-DD"
-                  />
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span>Project Start Date</span>
+                    <span className="text-[10px] text-[#7C3AED] font-extrabold bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
+                      {editStartDate || 'Select Date'}
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7C3AED]">
+                      <FiCalendar className="text-sm" />
+                    </span>
+                    <input
+                      type="date"
+                      value={formatToISOInputDate(editStartDate)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditStartDate(val ? formatToHumanReadableDate(val) : '');
+                      }}
+                      className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl py-3 pl-10 pr-4 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all cursor-pointer"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Target Completion Date</label>
-                  <input
-                    type="text"
-                    value={editDeadline}
-                    onChange={(e) => setEditDeadline(e.target.value)}
-                    className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                    placeholder="e.g. Feb 15, 2027 or YYYY-MM-DD"
-                  />
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span>Target Completion Date</span>
+                    <span className="text-[10px] text-[#7C3AED] font-extrabold bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
+                      {editDeadline || 'Select Date'}
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7C3AED]">
+                      <FiCalendar className="text-sm" />
+                    </span>
+                    <input
+                      type="date"
+                      value={formatToISOInputDate(editDeadline)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditDeadline(val ? formatToHumanReadableDate(val) : '');
+                      }}
+                      className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl py-3 pl-10 pr-4 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all cursor-pointer"
+                    />
+                  </div>
                 </div>
               </div>
 
