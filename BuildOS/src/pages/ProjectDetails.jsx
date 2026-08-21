@@ -396,13 +396,6 @@ function ProjectDetails() {
     });
   };
 
-  const handleAddTask = () => {
-    setEditTasks(prev => [
-      ...prev,
-      { title: "New On-Site Task Inspection", priority: "Medium", status: "Pending" }
-    ]);
-  };
-
   const handleRemoveTask = (index) => {
     setEditTasks(prev => prev.filter((_, i) => i !== index));
   };
@@ -1148,15 +1141,6 @@ function ProjectDetails() {
                   </div>
                 ))}
               </div>
-
-              <button
-                type="button"
-                onClick={handleAddTask}
-                className="w-full py-3 border-2 border-dashed border-purple-200 hover:border-[#7C3AED] bg-purple-50/40 hover:bg-purple-50 text-[#7C3AED] text-xs font-extrabold rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <FiPlus className="text-sm" />
-                <span>Add New Task</span>
-              </button>
 
               {/* Action Buttons */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-purple-100 shrink-0">
