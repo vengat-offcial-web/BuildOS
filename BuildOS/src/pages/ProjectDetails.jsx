@@ -336,11 +336,8 @@ function ProjectDetails() {
   const handleSaveMilestones = (e) => {
     e.preventDefault();
     const validMilestones = editMilestones.filter(m => m.name.trim() !== '');
-    const completedCount = validMilestones.filter(m => m.status === 'Completed').length;
-    const calcProgress = validMilestones.length > 0 ? Math.round((completedCount / validMilestones.length) * 100) : (project ? project.progress : 0);
     updateProject(project.id, {
-      milestones: validMilestones,
-      progress: calcProgress
+      milestones: validMilestones
     });
     setIsMilestoneModalOpen(false);
   };

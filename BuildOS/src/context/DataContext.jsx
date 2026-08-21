@@ -1154,20 +1154,27 @@ const checkIsOverdue = (dueDateStr, status) => {
 
       let calcProgress = p.progress;
       if (totalMilestones > 0 && totalTasks > 0) {
-        // Base milestones contribute up to 60%, each active site task adds EXACTLY +10%
-        const milestoneBasePct = Math.round((completedMilestones / totalMilestones) * 60);
-        const taskPct = completedTasks * 10;
-        calcProgress = Math.min(100, milestoneBasePct + taskPct);
+        if (completedMilestones === totalMilestones && completedTasks === totalTasks) {
+          calcProgress = 100;
+        } else {
+          const milestoneRatio = completedMilestones / totalMilestones;
+          const taskRatio = completedTasks / totalTasks;
+          calcProgress = Math.min(100, Math.round(milestoneRatio * 60 + taskRatio * 40));
+        }
       } else if (totalTasks > 0) {
-        calcProgress = Math.min(100, completedTasks * 10);
+        calcProgress = Math.min(100, Math.round((completedTasks / totalTasks) * 100));
       } else if (totalMilestones > 0) {
         calcProgress = Math.round((completedMilestones / totalMilestones) * 100);
       }
 
-      // Automatically sync project status based on dynamic progress
+      // Automatically sync project status and completion date based on dynamic progress
       let updatedStatus = p.status;
+      let completedDate = p.completedDate;
       if (calcProgress === 100 && p.status !== 'Cancelled') {
         updatedStatus = 'Completed';
+        if (!completedDate) {
+          completedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
       } else if (calcProgress > 0 && calcProgress < 100 && p.status !== 'Cancelled' && p.status !== 'Planning') {
         updatedStatus = 'In Progress';
       }
@@ -1177,7 +1184,8 @@ const checkIsOverdue = (dueDateStr, status) => {
         milestones,
         siteTasks,
         progress: calcProgress,
-        status: updatedStatus
+        status: updatedStatus,
+        completedDate
       };
     });
   }, [projects, enrichedTasks, defaultProjectMilestonesMap]);
