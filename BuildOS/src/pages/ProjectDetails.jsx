@@ -15,7 +15,7 @@ function ProjectDetails() {
   }
 
   const navigate = useNavigate();
-  const { getProjectById, updateProject, cancelProject, toggleTaskStatus, workers, materials, tasks } = useData();
+  const { getProjectById, updateProject, cancelProject, toggleTaskStatus, addTask, updateTask, deleteTask, workers, materials, tasks } = useData();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Cancel Project Modal State
@@ -410,9 +410,44 @@ function ProjectDetails() {
   const handleSaveTasks = (e) => {
     e.preventDefault();
     const validTasks = editTasks.filter(t => t.title.trim() !== '');
-    updateProject(project.id, {
-      tasks: validTasks
+
+    // 1. Identify removed tasks and delete them from global tasks
+    const editedTaskIds = new Set(validTasks.filter(t => t.id).map(t => t.id));
+    projectTasks.forEach(pt => {
+      if (pt.id && !editedTaskIds.has(pt.id)) {
+        if (deleteTask) deleteTask(pt.id);
+      }
     });
+
+    // 2. Update existing tasks or add new tasks in global tasks context
+    validTasks.forEach(t => {
+      if (t.id) {
+        if (updateTask) {
+          updateTask(t.id, {
+            title: t.title.trim(),
+            priority: t.priority || 'Medium',
+            status: t.status || 'Pending'
+          });
+        }
+      } else {
+        if (addTask) {
+          addTask({
+            title: t.title.trim(),
+            site: project.name,
+            priority: t.priority || 'Medium',
+            status: t.status || 'Pending',
+            assignee: project.manager || 'General Team'
+          });
+        }
+      }
+    });
+
+    // 3. Save tasks to project object state as well
+    updateProject(project.id, {
+      tasks: validTasks,
+      siteTasks: validTasks
+    });
+
     setIsTaskModalOpen(false);
   };
 
