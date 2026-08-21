@@ -1,32 +1,65 @@
 import { useState, useMemo } from 'react';
+import { useData } from '../context/useData';
 import ReportModel from '../models/reportModel';
 
 export const useReportsController = () => {
+    const { projects = [], workers = [], materials = [], tasks = [] } = useData() || {};
     const [searchTerm, setSearchTerm] = useState("");
-    const allReports = useMemo(() => ReportModel.getAll(), []);
+    const [selectedProject, setSelectedProject] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const filteredReports = useMemo(() => {
-        return ReportModel.filterByTerm(allReports, searchTerm);
-    }, [allReports, searchTerm]);
+    // Filter projects list to ONLY include Completed projects
+    const completedProjects = useMemo(() => {
+        return ReportModel.getCompletedProjects(projects);
+    }, [projects]);
 
-    const getStatusVariant = (status) => {
-        const s = status.toLowerCase();
-        if (s.includes("completed") || s.includes("approved")) return "success";
-        if (s.includes("pending") || s.includes("review")) return "warning";
-        return "info";
+    // Filter completed projects based on search query
+    const filteredCompletedProjects = useMemo(() => {
+        return ReportModel.filterCompletedProjects(completedProjects, searchTerm);
+    }, [completedProjects, searchTerm]);
+
+    // Open detailed completed project report modal
+    const openReportModal = (project) => {
+        setSelectedProject(project);
+        setIsModalOpen(true);
     };
 
-    const handleGenerateReport = () => {
-        alert("Generate Report modal trigger");
+    // Close detailed report modal
+    const closeReportModal = () => {
+        setSelectedProject(null);
+        setIsModalOpen(false);
     };
+
+    // Computed detailed report details for the currently selected completed project
+    const selectedReportDetails = useMemo(() => {
+        if (!selectedProject) return null;
+
+        const completionDays = ReportModel.calculateCompletionDays(selectedProject);
+        const engineer = ReportModel.getProjectEngineer(selectedProject);
+        const teamMembers = ReportModel.getWorkedTeamMembers(selectedProject, workers);
+        const materialsSpent = ReportModel.getMaterialsSpent(selectedProject, materials);
+        const completedTasks = ReportModel.getCompletedTasks(selectedProject, tasks);
+
+        return {
+            project: selectedProject,
+            completionDays,
+            engineer,
+            teamMembers,
+            materialsSpent,
+            completedTasks
+        };
+    }, [selectedProject, workers, materials, tasks]);
 
     return {
         searchTerm,
         setSearchTerm,
-        allReports,
-        filteredReports,
-        getStatusVariant,
-        handleGenerateReport
+        completedProjects,
+        filteredCompletedProjects,
+        selectedProject,
+        isModalOpen,
+        openReportModal,
+        closeReportModal,
+        selectedReportDetails
     };
 };
 
