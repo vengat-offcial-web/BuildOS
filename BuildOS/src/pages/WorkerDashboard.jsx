@@ -125,15 +125,6 @@ function WorkerDashboard() {
 
     const handleClockToggle = () => {
         if (currentWorker && currentWorker.approvalStatus === 'Pending Approval') {
-            addNotification(
-                "Account Pending Approval",
-                "You cannot clock in until Admin accepts your registration from the Admin Portal.",
-                "Account Alert",
-                "purple",
-                "worker",
-                null,
-                user?.name
-            );
             return;
         }
 
@@ -152,21 +143,10 @@ function WorkerDashboard() {
         // Dispatch notification to Admin Workers page & header bell
         addNotification(
             `Worker Shift ${nextState ? 'Clock In' : 'Clock Out'}`,
-            `Worker ${workerName} (Site Specialist) clocked ${nextState ? 'IN to' : 'OUT of'} shift at ${timeStr} for Metro Link – B4`,
+            `Worker ${workerName} (${assignedProject.workerRole}) clocked ${nextState ? 'IN to' : 'OUT of'} shift at ${timeStr} for site ${assignedProject.name}`,
             "Shift Check-In",
             nextState ? "lime" : "purple",
             "admin"
-        );
-
-        // Dispatch notification to Worker's own Bell Icon Drawer
-        addNotification(
-            `Shift Clock ${nextState ? 'IN' : 'OUT'} Confirmed`,
-            `Your shift status was updated to ${nextState ? 'On Duty' : 'Off Duty'} at ${timeStr}.`,
-            "Shift Status",
-            nextState ? "lime" : "purple",
-            "worker",
-            null,
-            user?.name
         );
     };
 
@@ -248,17 +228,6 @@ function WorkerDashboard() {
             isAllDone ? "lime" : "purple",
             "admin"
         );
-
-        // Send confirmation notification to Worker Bell Icon Drawer
-        addNotification(
-            `Shift Checklist Submitted ${isAllDone ? '✓' : ''}`,
-            `Daily shift report (${doneCount}/${totalCount} Tasks Completed) recorded and sent to Admin.`,
-            "Shift Report",
-            isAllDone ? "lime" : "purple",
-            "worker",
-            null,
-            user?.name
-        );
     };
 
     const handleLeaveSubmit = (e) => {
@@ -279,34 +248,23 @@ function WorkerDashboard() {
 
         setShowLeaveModal(false);
         setLeaveForm({ date: '', reason: 'Medical Leave', notes: '' });
-
-        // Send notification to Worker Bell Icon Drawer
-        addNotification(
-            "Leave Request Submitted",
-            `Your ${leaveForm.reason} request for ${leaveForm.date} was sent to Admin for manager approval.`,
-            "Leave Request",
-            "purple",
-            "worker",
-            null,
-            user?.name
-        );
     };
 
     const handleSafetySubmit = (e) => {
         e.preventDefault();
-        setShowSafetyModal(false);
-        setSafetyForm({ hazardType: 'Scaffolding Hazard', description: '' });
+        const workerName = user?.name || 'Marcoo';
 
-        // Send notification to Worker Bell Icon Drawer
+        // Send safety hazard notification to Admin & Safety Officer
         addNotification(
-            "Safety Hazard Reported Alert",
-            `Alert for ${safetyForm.hazardType} submitted to Site Safety Officer & Supervisor immediately.`,
+            `Safety Hazard Reported by ${workerName}`,
+            `Worker ${workerName} reported safety hazard: ${safetyForm.hazardType} ("${safetyForm.description || 'Immediate inspection requested'}") for site ${assignedProject.name}.`,
             "Safety Alert",
             "purple",
-            "worker",
-            null,
-            user?.name
+            "admin"
         );
+
+        setShowSafetyModal(false);
+        setSafetyForm({ hazardType: 'Scaffolding Hazard', description: '' });
     };
 
     const handleSendWorkerChatMessage = (e) => {
@@ -330,17 +288,6 @@ function WorkerDashboard() {
             "Worker Chat",
             "purple",
             "admin"
-        );
-
-        // Send notification to Worker Bell Icon Drawer
-        addNotification(
-            "Message Sent to Lead Engineer",
-            `Your note was delivered to ${chatRecipient.split(' ')[0]}.`,
-            "Worker Chat",
-            "purple",
-            "worker",
-            null,
-            user?.name
         );
 
         setWorkerChatInput('');
