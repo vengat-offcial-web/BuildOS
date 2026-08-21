@@ -30,12 +30,12 @@ export function Navbar({
     const visibleNotifications = notifications ? notifications.filter(n => {
         if (isWorkerPortal) {
             if (n.target !== 'worker') return false;
-            if (n.recipient && user?.name) {
-                return n.recipient.toLowerCase().trim() === user.name.toLowerCase().trim();
+            if (n.recipient) {
+                return user?.name && n.recipient.toLowerCase().trim() === user.name.toLowerCase().trim();
             }
             return true;
         }
-        return n.target === 'admin';
+        return !n.target || n.target === 'admin' || n.target === 'all';
     }) : [];
 
     const unreadCount = visibleNotifications.filter(n => n.unread).length;

@@ -820,17 +820,30 @@ const checkIsOverdue = (dueDateStr, status) => {
   }, [logActivity, addNotification]);
 
   const toggleTaskStatus = useCallback((taskId) => {
+    let updatedTask = null;
+
     setTasks(prev => prev.map(t => {
       if (t.id === taskId) {
         const nextStatus = t.status === 'Completed' ? 'Pending' : 'Completed';
         const isOver = checkIsOverdue(t.dueDate, nextStatus);
         const finalStatus = (nextStatus === 'Pending' && isOver) ? 'Overdue' : nextStatus;
         logActivity(`Task Status Changed`, t.site, finalStatus, 'lime');
-        return { ...t, status: finalStatus, overdue: finalStatus === 'Completed' ? false : isOver };
+        updatedTask = { ...t, status: finalStatus, overdue: finalStatus === 'Completed' ? false : isOver };
+        return updatedTask;
       }
       return t;
     }));
-  }, [logActivity]);
+
+    if (updatedTask && updatedTask.status === 'Completed') {
+      addNotification(
+        `Task Completed by Worker ✓`,
+        `Worker ${updatedTask.assignee || 'Assigned Worker'} marked task '${updatedTask.title}' as COMPLETED for site ${updatedTask.site}.`,
+        "Task Completion",
+        "lime",
+        "admin"
+      );
+    }
+  }, [logActivity, addNotification]);
 
   const deleteTask = useCallback((taskId) => {
     let deletedTask = null;

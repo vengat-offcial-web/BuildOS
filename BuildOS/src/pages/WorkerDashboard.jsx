@@ -41,47 +41,6 @@ function WorkerDashboard() {
         deleteWorkerNote 
     } = useData();
 
-    const [toastNotif, setToastNotif] = useState(null);
-
-    const triggerToast = (title, message = '') => {
-        setToastNotif({ title, message });
-        const timer = setTimeout(() => {
-            setToastNotif(null);
-        }, 5000);
-        return () => clearTimeout(timer);
-    };
-
-    // Automatically trigger notification toast banner when worker logs in / visits dashboard if a new task was assigned
-    React.useEffect(() => {
-        if (!user?.name || !notifications || !Array.isArray(notifications)) return;
-
-        const userNameClean = user.name.toLowerCase().trim();
-
-        // Find unread notification targeted specifically to this logged-in worker
-        const latestTaskNotif = notifications.find(n => {
-            if (!n || !n.unread) return false;
-            if (n.target !== 'worker') return false;
-            if (n.recipient && n.recipient.toLowerCase().trim() === userNameClean) {
-                return true;
-            }
-            return false;
-        });
-
-        if (latestTaskNotif) {
-            setToastNotif({
-                title: latestTaskNotif.title,
-                message: latestTaskNotif.message
-            });
-
-            // Auto mark as read after worker sees the notification toast
-            const timer = setTimeout(() => {
-                markNotificationAsRead(latestTaskNotif.id);
-                setToastNotif(null);
-            }, 6000);
-            return () => clearTimeout(timer);
-        }
-    }, [user, notifications, markNotificationAsRead]);
-
     // Check if current logged in worker is already clocked in from context roster
     const currentWorker = workers?.find(w => w.name?.toLowerCase().trim() === user?.name?.toLowerCase().trim());
     const [clockedIn, setClockedIn] = useState(() => currentWorker ? currentWorker.status === 'On Duty' : false);
@@ -166,7 +125,15 @@ function WorkerDashboard() {
 
     const handleClockToggle = () => {
         if (currentWorker && currentWorker.approvalStatus === 'Pending Approval') {
-            triggerToast('Account Pending Approval', 'You cannot clock in until Admin accepts your registration.');
+            addNotification(
+                "Account Pending Approval",
+                "You cannot clock in until Admin accepts your registration from the Admin Portal.",
+                "Account Alert",
+                "purple",
+                "worker",
+                null,
+                user?.name
+            );
             return;
         }
 
@@ -191,9 +158,15 @@ function WorkerDashboard() {
             "admin"
         );
 
-        triggerToast(
-            `Shift Clock ${nextState ? 'IN' : 'OUT'}`,
-            `Status updated to ${nextState ? 'On Duty' : 'Off Duty'}. Notification sent to Admin.`
+        // Dispatch notification to Worker's own Bell Icon Drawer
+        addNotification(
+            `Shift Clock ${nextState ? 'IN' : 'OUT'} Confirmed`,
+            `Your shift status was updated to ${nextState ? 'On Duty' : 'Off Duty'} at ${timeStr}.`,
+            "Shift Status",
+            nextState ? "lime" : "purple",
+            "worker",
+            null,
+            user?.name
         );
     };
 
@@ -276,9 +249,15 @@ function WorkerDashboard() {
             "admin"
         );
 
-        triggerToast(
-            'Shift Checklist Submitted',
-            `Daily shift report (${doneCount}/${totalCount} Tasks Done) sent to Admin.`
+        // Send confirmation notification to Worker Bell Icon Drawer
+        addNotification(
+            `Shift Checklist Submitted ${isAllDone ? '✓' : ''}`,
+            `Daily shift report (${doneCount}/${totalCount} Tasks Completed) recorded and sent to Admin.`,
+            "Shift Report",
+            isAllDone ? "lime" : "purple",
+            "worker",
+            null,
+            user?.name
         );
     };
 
@@ -301,9 +280,15 @@ function WorkerDashboard() {
         setShowLeaveModal(false);
         setLeaveForm({ date: '', reason: 'Medical Leave', notes: '' });
 
-        triggerToast(
-            'Leave Request Submitted',
-            'Your leave application was sent to Admin for approval.'
+        // Send notification to Worker Bell Icon Drawer
+        addNotification(
+            "Leave Request Submitted",
+            `Your ${leaveForm.reason} request for ${leaveForm.date} was sent to Admin for manager approval.`,
+            "Leave Request",
+            "purple",
+            "worker",
+            null,
+            user?.name
         );
     };
 
@@ -312,9 +297,15 @@ function WorkerDashboard() {
         setShowSafetyModal(false);
         setSafetyForm({ hazardType: 'Scaffolding Hazard', description: '' });
 
-        triggerToast(
-            'Safety Hazard Reported',
-            'Alert sent to Site Safety Officer & Supervisor immediately.'
+        // Send notification to Worker Bell Icon Drawer
+        addNotification(
+            "Safety Hazard Reported Alert",
+            `Alert for ${safetyForm.hazardType} submitted to Site Safety Officer & Supervisor immediately.`,
+            "Safety Alert",
+            "purple",
+            "worker",
+            null,
+            user?.name
         );
     };
 
@@ -341,11 +332,18 @@ function WorkerDashboard() {
             "admin"
         );
 
-        setWorkerChatInput('');
-        triggerToast(
-            'Message Sent to Lead Engineer',
-            `Your note was delivered to ${chatRecipient.split(' ')[0]}.`
+        // Send notification to Worker Bell Icon Drawer
+        addNotification(
+            "Message Sent to Lead Engineer",
+            `Your note was delivered to ${chatRecipient.split(' ')[0]}.`,
+            "Worker Chat",
+            "purple",
+            "worker",
+            null,
+            user?.name
         );
+
+        setWorkerChatInput('');
     };
 
     const completedCount = displayTasks.filter(t => t.status === "Completed").length;
@@ -353,37 +351,6 @@ function WorkerDashboard() {
 
     return (
         <div className="space-y-8 pb-8">
-            {/* Structured Premium Notification Toast Card */}
-            {toastNotif && (
-                <div className="fixed top-20 right-6 z-50 max-w-md w-full bg-[#03020A]/95 backdrop-blur-2xl text-white border border-purple-500/30 rounded-3xl p-4 shadow-[0_20px_50px_rgba(124,58,237,0.3)] animate-in fade-in slide-in-from-top-4 duration-300">
-                    <div className="flex items-start gap-3">
-                        <div className="w-9 h-9 rounded-2xl bg-[#7C3AED] text-[#BEF264] flex items-center justify-center text-base font-extrabold shrink-0 shadow-inner">
-                            <FiBell />
-                        </div>
-
-                        <div className="flex-1 space-y-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                                <h4 className="text-xs font-extrabold text-white tracking-wide truncate">
-                                    {toastNotif.title}
-                                </h4>
-                                <button
-                                    type="button"
-                                    onClick={() => setToastNotif(null)}
-                                    className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
-                                    title="Dismiss Notification"
-                                >
-                                    <FiX className="text-xs" />
-                                </button>
-                            </div>
-                            {toastNotif.message && (
-                                <p className="text-[11px] font-semibold text-slate-300 leading-relaxed line-clamp-2">
-                                    {toastNotif.message}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Pending Approval Notice Banner */}
             {currentWorker && currentWorker.approvalStatus === 'Pending Approval' && (
