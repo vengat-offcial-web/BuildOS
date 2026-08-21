@@ -33,26 +33,45 @@ export class ReportModel {
     }
 
     /**
+     * Helper to parse any date format safely (ISO, DD/MM/YYYY, Month DD YYYY)
+     */
+    static parseAnyDate(dateStr) {
+        if (!dateStr) return null;
+        try {
+            if (typeof dateStr === 'string' && dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const year = parseInt(parts[2], 10);
+                    const d = new Date(year, month, day);
+                    if (!isNaN(d.getTime())) return d;
+                }
+            }
+            const parsed = new Date(dateStr);
+            if (!isNaN(parsed.getTime())) return parsed;
+        } catch {}
+        return null;
+    }
+
+    /**
      * Calculates total days taken to complete a project from start date / creation to deadline
      */
     static calculateCompletionDays(project = {}) {
-        if (!project) return 0;
+        if (!project) return 365;
         
-        const startStr = project.startDate || "2026-01-15";
-        const endStr = project.completedDate || project.deadline || "2026-07-10";
+        const startStr = project.startDate || "Feb 15, 2026";
+        const endStr = project.completedDate || project.deadline || "Feb 15, 2027";
 
-        try {
-            const start = new Date(startStr);
-            const end = new Date(endStr);
-            if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
-                const diffTime = Math.abs(end.getTime() - start.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays > 0 ? diffDays : 176;
-            }
-        } catch {
-            // fallback
+        const start = ReportModel.parseAnyDate(startStr);
+        const end = ReportModel.parseAnyDate(endStr);
+
+        if (start && end) {
+            const diffTime = Math.abs(end.getTime() - start.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 0) return diffDays;
         }
-        return 176;
+        return 365;
     }
 
     /**

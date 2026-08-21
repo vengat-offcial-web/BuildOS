@@ -20,15 +20,6 @@ function ProjectDetails() {
 
   // Cancel Project Modal State
   const [showCancelModal, setShowCancelModal] = useState(false);
-
-  // Edit Modal State
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState('');
-  const [editLocation, setEditLocation] = useState('');
-  const [editManager, setEditManager] = useState('');
-  const [editBudget, setEditBudget] = useState('');
-  const [editDeadline, setEditDeadline] = useState('');
-  const [editWorkers, setEditWorkers] = useState('');
   const [showEngineerSuggestions, setShowEngineerSuggestions] = useState(false);
   const [engineerSearchQuery, setEngineerSearchQuery] = useState('');
   const [workerSearchQuery, setWorkerSearchQuery] = useState('');
@@ -274,6 +265,30 @@ function ProjectDetails() {
     setIsMaterialModalOpen(false);
   };
 
+  // Edit Modal State
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editLocation, setEditLocation] = useState('');
+  const [editManager, setEditManager] = useState('');
+  const [editBudget, setEditBudget] = useState('');
+  const [editStartDate, setEditStartDate] = useState('');
+  const [editDeadline, setEditDeadline] = useState('');
+  const [editWorkers, setEditWorkers] = useState('');
+
+  const calcEditDurationDays = useMemo(() => {
+    if (!editStartDate || !editDeadline) return null;
+    try {
+      const start = new Date(editStartDate);
+      const end = new Date(editDeadline);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        const diffTime = Math.abs(end.getTime() - start.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays > 0 ? diffDays : null;
+      }
+    } catch {}
+    return null;
+  }, [editStartDate, editDeadline]);
+
   const handleOpenEdit = () => {
     if (!project) return;
     setEditName(project.name || '');
@@ -281,6 +296,7 @@ function ProjectDetails() {
     setEditManager(project.manager || '');
     const currentBudget = project.budget ? project.budget.replace(/^\$/, '₹') : '₹1.5 Cr / ₹5.0 Cr';
     setEditBudget(currentBudget);
+    setEditStartDate(project.startDate || 'Feb 15, 2026');
     setEditDeadline(project.deadline || 'Feb 15, 2027');
     setEditWorkers(project.workforceRequired !== undefined && project.workforceRequired !== null ? String(project.workforceRequired) : String(siteWorkers.length || 4));
     setIsEditing(true);
@@ -294,6 +310,7 @@ function ProjectDetails() {
       location: editLocation.trim(),
       manager: editManager.trim(),
       budget: editBudget.trim(),
+      startDate: editStartDate.trim(),
       deadline: editDeadline.trim(),
       workforceRequired: parseInt(editWorkers, 10) || 0
     });
@@ -913,16 +930,40 @@ function ProjectDetails() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">Target Completion Date</label>
-                <input
-                  type="text"
-                  value={editDeadline}
-                  onChange={(e) => setEditDeadline(e.target.value)}
-                  className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
-                  placeholder="DD/MM/YYYY"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Project Start Date</label>
+                  <input
+                    type="text"
+                    value={editStartDate}
+                    onChange={(e) => setEditStartDate(e.target.value)}
+                    className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+                    placeholder="e.g. Feb 15, 2026 or YYYY-MM-DD"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Target Completion Date</label>
+                  <input
+                    type="text"
+                    value={editDeadline}
+                    onChange={(e) => setEditDeadline(e.target.value)}
+                    className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+                    placeholder="e.g. Feb 15, 2027 or YYYY-MM-DD"
+                  />
+                </div>
               </div>
+
+              {calcEditDurationDays !== null && (
+                <div className="p-3 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-between text-xs font-bold text-purple-900">
+                  <span className="flex items-center gap-1.5">
+                    <FiClock className="text-[#7C3AED]" /> Calculated Report Execution Duration:
+                  </span>
+                  <span className="bg-[#7C3AED] text-white px-3 py-1 rounded-full text-xs font-extrabold shadow-xs">
+                    {calcEditDurationDays} Days
+                  </span>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
