@@ -15,7 +15,7 @@ function ProjectDetails() {
   }
 
   const navigate = useNavigate();
-  const { getProjectById, updateProject, cancelProject, workers, materials, tasks } = useData();
+  const { getProjectById, updateProject, cancelProject, toggleTaskStatus, workers, materials, tasks } = useData();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Cancel Project Modal State
@@ -340,6 +340,23 @@ function ProjectDetails() {
     setIsMilestoneModalOpen(false);
   };
 
+  const handleToggleMilestoneStatus = (index) => {
+    if (!project || !projectMilestones) return;
+    const nextStatusMap = {
+      'Pending': 'In Progress',
+      'In Progress': 'Completed',
+      'Completed': 'Pending'
+    };
+    const updatedMilestones = projectMilestones.map((m, i) => {
+      if (i === index) {
+        const nextStatus = nextStatusMap[m.status] || 'Completed';
+        return { ...m, status: nextStatus };
+      }
+      return m;
+    });
+    updateProject(project.id, { milestones: updatedMilestones });
+  };
+
   const projectTasks = useMemo(() => {
     if (!project) return [];
     const projNameClean = (project.name || '').toLowerCase().trim();
@@ -561,15 +578,20 @@ function ProjectDetails() {
             </div>
             <div className="space-y-3">
               {projectMilestones.map((m, index) => (
-                <div key={index} className="bg-white/80 p-4 rounded-2xl border border-white flex items-center justify-between gap-4">
+                <div 
+                  key={index} 
+                  onClick={() => handleToggleMilestoneStatus(index)}
+                  className="bg-white/80 hover:bg-white p-4 rounded-2xl border border-white flex items-center justify-between gap-4 cursor-pointer transition-all shadow-xs group"
+                  title="Click to cycle milestone status & update project progress"
+                >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition-all ${
                       m.status === 'Completed' ? 'bg-[#F0FDC2] text-[#3F6212]' : m.status === 'In Progress' ? 'bg-[#E9D5FF] text-[#6B21A8]' : 'bg-slate-100 text-slate-500'
                     }`}>
-                      {index + 1}
+                      {m.status === 'Completed' ? <FiCheckCircle className="text-sm text-[#3F6212]" /> : index + 1}
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-[#03020A]">{m.name}</h4>
+                      <h4 className={`text-xs font-bold ${m.status === 'Completed' ? 'line-through text-slate-400' : 'text-[#03020A]'}`}>{m.name}</h4>
                       <p className="text-[11px] text-slate-500 font-semibold">{m.date}</p>
                     </div>
                   </div>
@@ -597,19 +619,39 @@ function ProjectDetails() {
               </button>
             </div>
             <div className="space-y-3">
-              {projectTasks.map((t, index) => (
-                <div key={index} className="bg-white/80 p-4 rounded-2xl border border-white flex items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-xs font-bold text-[#03020A]">{t.title}</h4>
-                    <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md mt-1 inline-block">
-                      Priority: {t.priority}
-                    </span>
-                  </div>
-                  <Badge variant={t.status === 'Completed' ? 'completed' : t.status === 'In Progress' ? 'in-progress' : t.status === 'Overdue' ? 'overdue' : 'pending'}>
-                    {t.status}
-                  </Badge>
+              {projectTasks.length === 0 ? (
+                <div className="p-6 rounded-2xl bg-white/60 text-center text-xs font-semibold text-slate-500">
+                  No active site tasks assigned to this project site yet. Click "Edit" to add a site task.
                 </div>
-              ))}
+              ) : (
+                projectTasks.map((t, index) => (
+                  <div 
+                    key={t.id || index}
+                    onClick={() => t.id && toggleTaskStatus && toggleTaskStatus(t.id)}
+                    className="bg-white/80 hover:bg-white p-4 rounded-2xl border border-white flex items-center justify-between gap-4 cursor-pointer transition-all shadow-xs group"
+                    title="Click task to toggle status & dynamically update project progress"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 transition-all ${
+                        t.status === "Completed" 
+                          ? "bg-[#7C3AED] border-[#7C3AED] text-white" 
+                          : "border-purple-200 bg-white group-hover:border-purple-400"
+                      }`}>
+                        {t.status === "Completed" && <FiCheckCircle className="text-xs" />}
+                      </div>
+                      <div>
+                        <h4 className={`text-xs font-bold ${t.status === 'Completed' ? 'line-through text-slate-400' : 'text-[#03020A]'}`}>{t.title || t.name}</h4>
+                        <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md mt-1 inline-block">
+                          Priority: {t.priority || 'Medium'}
+                        </span>
+                      </div>
+                    </div>
+                    <Badge variant={t.status === 'Completed' ? 'completed' : t.status === 'In Progress' ? 'in-progress' : t.status === 'Overdue' ? 'overdue' : 'pending'}>
+                      {t.status}
+                    </Badge>
+                  </div>
+                ))
+              )}
             </div>
           </Card>
         </div>

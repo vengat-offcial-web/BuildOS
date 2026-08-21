@@ -1047,7 +1047,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     setLeaveRequests(prev => prev.filter(r => r.id !== Number(reqId)));
   }, []);
 
-  // Derived Dynamic Tasks & Counts
+  // Derived Dynamic Tasks, Dynamic Project Progress & Counts
   const enrichedTasks = useMemo(() => {
     return tasks.map(t => {
       if (t.status === 'Completed') {
@@ -1061,14 +1061,121 @@ const checkIsOverdue = (dueDateStr, status) => {
     });
   }, [tasks]);
 
-  const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'In Progress').length, [projects]);
-  const pendingProjectsCount = useMemo(() => projects.filter(p => p.status === 'Pending' || p.status === 'Planning').length, [projects]);
-  const nonCancelledProjectsCount = useMemo(() => projects.filter(p => p.status !== 'Cancelled').length, [projects]);
+  const defaultProjectMilestonesMap = useMemo(() => ({
+    "Marina Tower": [
+      { name: "Foundation & Excavation", status: "Completed", date: "Feb 2026" },
+      { name: "Structural Superstructure", status: "Completed", date: "May 2026" },
+      { name: "Exterior Glass Panel Fitting", status: "In Progress", date: "Aug 2026" },
+      { name: "Final MEP Inspection & Handover", status: "Pending", date: "Oct 2026" }
+    ],
+    "Metro Line Extension": [
+      { name: "Viaduct Pier & Foundation Construction", status: "Completed", date: "Jan 2026" },
+      { name: "Elevated Track Bed & Rail Laying", status: "Completed", date: "Apr 2026" },
+      { name: "Station Terminal Canopy & Signaling", status: "In Progress", date: "Jul 2026" },
+      { name: "Trial Run & Safety Inspection Certification", status: "Pending", date: "Oct 2026" }
+    ],
+    "SkyView Luxury Apartments": [
+      { name: "Site Clearance & Deep Piling", status: "Completed", date: "Mar 2026" },
+      { name: "Tower 1 & 2 Concrete Frame", status: "In Progress", date: "Jun 2026" },
+      { name: "Plumbing & Electrical Rough-in", status: "Pending", date: "Sep 2026" },
+      { name: "Interior Finishing & Elevator Fitment", status: "Pending", date: "Dec 2026" }
+    ],
+    "Apex Tech Park Phase 2": [
+      { name: "Basement Excavation & Retaining Walls", status: "Completed", date: "Jan 2026" },
+      { name: "Steel Skeleton & Decking", status: "Completed", date: "Mar 2026" },
+      { name: "Glass Facade & HVAC System", status: "Completed", date: "May 2026" },
+      { name: "Occupancy Certification & Handover", status: "Completed", date: "Jul 2026" }
+    ],
+    "Green Valley Smart Township": [
+      { name: "Land Survey & Zone Layout", status: "Completed", date: "Apr 2026" },
+      { name: "Underground Drainage & Water Piping", status: "Pending", date: "Aug 2026" },
+      { name: "Road Sub-base & Paving", status: "Pending", date: "Nov 2026" },
+      { name: "Solar Grid & Street Lighting Install", status: "Pending", date: "Jan 2027" }
+    ],
+    "Hyper Mall": [
+      { name: "Foundation & Excavation", status: "Completed", date: "Feb 2026" },
+      { name: "Structural Superstructure", status: "In Progress", date: "May 2026" },
+      { name: "Exterior Glass Panel Fitting", status: "In Progress", date: "Aug 2026" }
+    ],
+    "Smart Industrial Hub": [
+      { name: "Site Grading & Foundation Slab", status: "Completed", date: "Feb 2026" },
+      { name: "Structural Steel Frame Assembly", status: "Completed", date: "May 2026" },
+      { name: "Automated Conveyor & Electrical Fitment", status: "In Progress", date: "Aug 2026" },
+      { name: "Safety & Logistics Trial Handover", status: "Pending", date: "Nov 2026" }
+    ]
+  }), []);
+
+  // Dynamically calculate project progress based on active site tasks & construction milestones
+  const enrichedProjects = useMemo(() => {
+    return projects.map(p => {
+      if (!p) return p;
+      if (p.status === 'Cancelled') return p;
+
+      const pNameClean = (p.name || '').toLowerCase().trim();
+      const pLocClean = (p.location || '').toLowerCase().trim();
+
+      // Get active site tasks for this project
+      const siteTasks = enrichedTasks.filter(t => {
+        if (!t || !t.site) return false;
+        const siteClean = t.site.toLowerCase().trim();
+        return (pNameClean && (siteClean.includes(pNameClean) || pNameClean.includes(siteClean))) ||
+               (pLocClean && (siteClean.includes(pLocClean) || pLocClean.includes(siteClean)));
+      });
+
+      // Get milestones for this project
+      const milestones = (p.milestones && Array.isArray(p.milestones) && p.milestones.length > 0)
+        ? p.milestones
+        : (defaultProjectMilestonesMap[p.name] || [
+            { name: "Foundation & Excavation", status: (p.progress || 0) > 50 ? "Completed" : "In Progress", date: "Feb 2026" },
+            { name: "Structural Superstructure", status: (p.progress || 0) > 75 ? "Completed" : "In Progress", date: "May 2026" },
+            { name: "Final Inspection & Handover", status: (p.progress || 0) === 100 ? "Completed" : "Pending", date: "Oct 2026" }
+          ]);
+
+      const totalMilestones = milestones.length;
+      const completedMilestones = milestones.filter(m => m.status === 'Completed').length;
+
+      const totalTasks = siteTasks.length;
+      const completedTasks = siteTasks.filter(t => t.status === 'Completed').length;
+
+      const totalItems = totalMilestones + totalTasks;
+      const totalCompleted = completedMilestones + completedTasks;
+
+      let calcProgress = p.progress;
+      if (totalItems > 0) {
+        calcProgress = Math.round((totalCompleted / totalItems) * 100);
+      }
+
+      // Automatically sync project status based on dynamic progress
+      let updatedStatus = p.status;
+      if (calcProgress === 100 && p.status !== 'Cancelled') {
+        updatedStatus = 'Completed';
+      } else if (calcProgress > 0 && calcProgress < 100 && p.status !== 'Cancelled' && p.status !== 'Planning') {
+        updatedStatus = 'In Progress';
+      }
+
+      return {
+        ...p,
+        milestones,
+        siteTasks,
+        progress: calcProgress,
+        status: updatedStatus
+      };
+    });
+  }, [projects, enrichedTasks, defaultProjectMilestonesMap]);
+
+  const dynamicGetProjectById = useCallback((id) => {
+    const numId = parseInt(id, 10);
+    return enrichedProjects.find(p => p.id === numId) || enrichedProjects[0];
+  }, [enrichedProjects]);
+
+  const activeProjectsCount = useMemo(() => enrichedProjects.filter(p => p.status === 'In Progress').length, [enrichedProjects]);
+  const pendingProjectsCount = useMemo(() => enrichedProjects.filter(p => p.status === 'Pending' || p.status === 'Planning').length, [enrichedProjects]);
+  const nonCancelledProjectsCount = useMemo(() => enrichedProjects.filter(p => p.status !== 'Cancelled').length, [enrichedProjects]);
   const pendingTasksCount = useMemo(() => enrichedTasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length, [enrichedTasks]);
   const overdueTasksCount = useMemo(() => enrichedTasks.filter(t => t.overdue).length, [enrichedTasks]);
 
   const contextValue = useMemo(() => ({
-    projects,
+    projects: enrichedProjects,
     workers,
     materials,
     tasks: enrichedTasks,
@@ -1085,7 +1192,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     updateProject,
     deleteProject,
     cancelProject,
-    getProjectById,
+    getProjectById: dynamicGetProjectById,
     addWorker,
     acceptWorkerRegistration,
     rejectWorkerRegistration,
@@ -1113,7 +1220,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     pendingTasksCount,
     overdueTasksCount
   }), [
-    projects,
+    enrichedProjects,
     workers,
     materials,
     enrichedTasks,
@@ -1130,7 +1237,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     updateProject,
     deleteProject,
     cancelProject,
-    getProjectById,
+    dynamicGetProjectById,
     addWorker,
     acceptWorkerRegistration,
     rejectWorkerRegistration,
@@ -1153,6 +1260,7 @@ const checkIsOverdue = (dueDateStr, status) => {
     deleteLeaveRequest,
     nonCancelledProjectsCount,
     activeProjectsCount,
+    pendingProjectsCount,
     pendingTasksCount,
     overdueTasksCount
   ]);
