@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { FiCalendar, FiPlus, FiArrowRight, FiCheckCircle, FiSearch, FiX, FiFilter, FiInbox } from 'react-icons/fi';
+import { FiCalendar, FiChevronDown, FiArrowRight, FiCheckCircle, FiSearch, FiX, FiFilter, FiInbox } from 'react-icons/fi';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { DashboardCards, Table, ProjectBentoCard } from '../components';
 import { useData } from '../context/useData';
+import { useAuth } from '../context/AuthContext';
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const outletContext = useOutletContext() || {};
   const searchTerm = outletContext.searchTerm || '';
   const setSearchTerm = outletContext.setSearchTerm || (() => {});
@@ -13,6 +15,48 @@ function Dashboard() {
   const { projects = [] } = useData() || {};
 
   const [statusFilter, setStatusFilter] = useState('All');
+
+  // Date Picker State & Formatting
+  const formatFriendlyDate = (d = new Date()) => {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const [selectedDate, setSelectedDate] = useState(() => formatFriendlyDate(new Date()));
+  const [showDatePickerPopover, setShowDatePickerPopover] = useState(false);
+  const [isoDateInput, setIsoDateInput] = useState(() => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  });
+
+  const handleCustomDateChange = (e) => {
+    const val = e.target.value;
+    setIsoDateInput(val);
+    if (val) {
+      const parts = val.split('-');
+      if (parts.length === 3) {
+        const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        setSelectedDate(formatFriendlyDate(d));
+      }
+    }
+  };
+
+  const handleApplyPreset = (presetType) => {
+    const d = new Date();
+    if (presetType === 'yesterday') {
+      d.setDate(d.getDate() - 1);
+    } else if (presetType === 'tomorrow') {
+      d.setDate(d.getDate() + 1);
+    }
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    setIsoDateInput(`${yyyy}-${mm}-${dd}`);
+    setSelectedDate(formatFriendlyDate(d));
+    setShowDatePickerPopover(false);
+  };
 
   // Filter projects based on search input and status filter pill (excludes Cancelled projects)
   const filteredProjects = useMemo(() => {
@@ -48,6 +92,8 @@ function Dashboard() {
 
   const isFilteringActive = searchTerm.trim() !== '' || statusFilter !== 'All';
 
+  const userName = user?.name ? user.name.split(' ')[0] : 'Vengadesh';
+
   return (
     <div className="space-y-8 pb-8">
       {/* Welcome Banner Card */}
@@ -58,29 +104,94 @@ function Dashboard() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-2xl space-y-2">
             <h1 className="text-3xl md:text-4xl font-extrabold text-[#03020A] tracking-tight">
-              Good Morning, <span className="text-[#7C3AED]">Vengadesh</span>
+              Good Morning, <span className="text-[#7C3AED]">{userName}</span>
             </h1>
             <p className="text-sm font-semibold text-slate-700 leading-relaxed">
               Manage your construction projects, workers, materials and tasks from one place.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="relative shrink-0 flex items-center">
+            {/* Interactive Calendar Date Button */}
             <button 
               type="button"
-              className="bg-white/80 hover:bg-white text-[#03020A] border border-white/90 text-xs font-bold px-4 py-3 rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+              onClick={() => setShowDatePickerPopover(!showDatePickerPopover)}
+              className="bg-white/90 hover:bg-white text-[#03020A] border border-white/90 text-xs font-extrabold px-5 py-3 rounded-full transition-all flex items-center gap-2.5 shadow-sm hover:shadow-md cursor-pointer group"
+              title="Click to select or change date"
             >
-              <FiCalendar className="text-[#7C3AED] text-sm" />
-              <span>Aug 14, 2026</span>
+              <FiCalendar className="text-[#7C3AED] text-sm group-hover:scale-110 transition-transform" />
+              <span>{selectedDate}</span>
+              <FiChevronDown className={`text-slate-400 text-xs transition-transform duration-200 ${showDatePickerPopover ? 'rotate-180 text-[#7C3AED]' : ''}`} />
             </button>
-            <button 
-              type="button"
-              onClick={() => navigate('/projects/new')}
-              className="dark-nav-pill hover:bg-black text-white text-xs font-extrabold px-5 py-3 rounded-full transition-all flex items-center gap-2 shadow-lg shadow-black/20 cursor-pointer"
-            >
-              <FiPlus className="text-[#BEF264] text-sm" />
-              <span>New Project</span>
-            </button>
+
+            {/* Interactive Date Picker Popover */}
+            {showDatePickerPopover && (
+              <div className="absolute top-14 right-0 z-50 w-72 bg-white/95 backdrop-blur-xl border border-purple-100 p-4 rounded-3xl shadow-2xl space-y-3.5 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between border-b border-purple-100 pb-2.5">
+                  <span className="text-xs font-extrabold text-[#03020A] flex items-center gap-1.5">
+                    <FiCalendar className="text-[#7C3AED]" /> Select Dashboard Date
+                  </span>
+                  <button 
+                    type="button"
+                    onClick={() => setShowDatePickerPopover(false)}
+                    className="w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 text-xs flex items-center justify-center cursor-pointer"
+                  >
+                    <FiX />
+                  </button>
+                </div>
+
+                {/* Custom Date Input */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Custom Date</label>
+                  <input
+                    type="date"
+                    value={isoDateInput}
+                    onChange={handleCustomDateChange}
+                    className="w-full bg-slate-50 border border-purple-100 rounded-xl px-3 py-2 text-xs font-bold text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] cursor-pointer"
+                  />
+                </div>
+
+                {/* Quick Presets */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Quick Presets</label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('yesterday')}
+                      className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-extrabold transition-all text-center cursor-pointer"
+                    >
+                      Yesterday
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('today')}
+                      className="px-2.5 py-1.5 rounded-xl bg-[#7C3AED] text-white text-[11px] font-extrabold transition-all text-center cursor-pointer shadow-xs"
+                    >
+                      Today
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('tomorrow')}
+                      className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-extrabold transition-all text-center cursor-pointer"
+                    >
+                      Tomorrow
+                    </button>
+                  </div>
+                </div>
+
+                {/* Footer Action */}
+                <div className="pt-2 border-t border-purple-100 flex items-center justify-between">
+                  <span className="text-[10px] font-semibold text-slate-400">Selected: {selectedDate}</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowDatePickerPopover(false)}
+                    className="dark-nav-pill px-3.5 py-1.5 rounded-full text-[11px] font-extrabold text-white shadow-xs cursor-pointer hover:bg-black transition-all"
+                  >
+                    Done ✓
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
