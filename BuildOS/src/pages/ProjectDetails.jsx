@@ -30,6 +30,7 @@ function ProjectDetails() {
   const [editDeadline, setEditDeadline] = useState('');
   const [editWorkers, setEditWorkers] = useState('');
   const [showEngineerSuggestions, setShowEngineerSuggestions] = useState(false);
+  const [engineerSearchQuery, setEngineerSearchQuery] = useState('');
   const [workerSearchQuery, setWorkerSearchQuery] = useState('');
   const [matSearchQuery, setMatSearchQuery] = useState('');
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
@@ -37,19 +38,23 @@ function ProjectDetails() {
   const [showWorkerSearchDropdown, setShowWorkerSearchDropdown] = useState(false);
 
   const filteredEngineers = useMemo(() => {
-    const term = (editManager || '').toLowerCase().trim();
-    const activeEngineers = (workers || []).map(w => ({
+    const activeEngineers = (workers || []).map((w, idx) => ({
+      id: w.id || idx + 1,
       name: w.name,
       role: w.trade || 'Site Lead',
       phone: w.phone || '+91 98765 00000'
     }));
 
-    if (!term) return activeEngineers;
+    const query = (engineerSearchQuery || '').toLowerCase().trim();
+    if (!query || query === (editManager || '').toLowerCase().trim()) {
+      return activeEngineers;
+    }
+
     return activeEngineers.filter(eng =>
-      eng.name.toLowerCase().includes(term) ||
-      eng.role.toLowerCase().includes(term)
+      eng.name.toLowerCase().includes(query) ||
+      eng.role.toLowerCase().includes(query)
     );
-  }, [editManager, workers]);
+  }, [engineerSearchQuery, editManager, workers]);
 
   // Combined catalog of saved personnel derived strictly from active workers
   const savedPersonnelCatalog = useMemo(() => {
@@ -834,9 +839,13 @@ function ProjectDetails() {
                   value={editManager}
                   onChange={(e) => {
                     setEditManager(e.target.value);
+                    setEngineerSearchQuery(e.target.value);
                     setShowEngineerSuggestions(true);
                   }}
-                  onFocus={() => setShowEngineerSuggestions(true)}
+                  onFocus={() => {
+                    setEngineerSearchQuery('');
+                    setShowEngineerSuggestions(true);
+                  }}
                   className="w-full bg-white border border-purple-100 text-xs font-semibold rounded-2xl p-3 text-[#03020A] focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
                   placeholder="Enter or select Site Engineer Name"
                   required
@@ -844,32 +853,40 @@ function ProjectDetails() {
 
                 {/* Autocomplete Suggestions Dropdown */}
                 {showEngineerSuggestions && filteredEngineers.length > 0 && (
-                  <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-white/95 backdrop-blur-xl border border-purple-100 rounded-2xl shadow-xl max-h-48 overflow-y-auto p-1.5 animate-in fade-in duration-150">
+                  <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-white/95 backdrop-blur-xl border border-purple-100 rounded-2xl shadow-xl max-h-56 overflow-y-auto p-1.5 animate-in fade-in duration-150">
                     <div className="text-[10px] font-extrabold text-purple-700 px-3 py-1 uppercase tracking-wider flex items-center justify-between border-b border-purple-100/60 mb-1">
                       <span>Saved Site Engineers ({filteredEngineers.length})</span>
                       <button
                         type="button"
                         onClick={() => setShowEngineerSuggestions(false)}
-                        className="text-slate-400 hover:text-slate-600 text-xs"
+                        className="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
                       >
                         ✕
                       </button>
                     </div>
                     {filteredEngineers.map((eng) => (
                       <button
-                        key={eng.id}
+                        key={eng.id || eng.name}
                         type="button"
                         onClick={() => {
                           setEditManager(eng.name);
+                          setEngineerSearchQuery('');
                           setShowEngineerSuggestions(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded-xl hover:bg-purple-50 transition-all flex items-center justify-between gap-2 cursor-pointer group"
+                        className={`w-full text-left px-3 py-2 rounded-xl hover:bg-purple-50 transition-all flex items-center justify-between gap-2 cursor-pointer group ${
+                          editManager.toLowerCase().trim() === eng.name.toLowerCase().trim() ? 'bg-purple-50/80 border border-purple-200' : ''
+                        }`}
                       >
                         <div>
-                          <p className="text-xs font-extrabold text-[#03020A] group-hover:text-[#7C3AED]">{eng.name}</p>
+                          <p className="text-xs font-extrabold text-[#03020A] group-hover:text-[#7C3AED] flex items-center gap-1.5">
+                            {eng.name}
+                            {editManager.toLowerCase().trim() === eng.name.toLowerCase().trim() && (
+                              <span className="text-[9px] font-extrabold text-[#3F6212] bg-[#F0FDC2] px-1.5 py-0.5 rounded-md">Selected</span>
+                            )}
+                          </p>
                           <p className="text-[10px] font-semibold text-slate-500">{eng.role}</p>
                         </div>
-                        <span className="text-[10px] font-extrabold text-purple-700 bg-purple-100 px-2.5 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[10px] font-extrabold text-purple-700 bg-purple-100 px-2.5 py-1 rounded-full group-hover:bg-[#7C3AED] group-hover:text-white transition-all">
                           Select
                         </span>
                       </button>
