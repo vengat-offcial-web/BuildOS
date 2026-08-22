@@ -37,7 +37,24 @@ const defaultWorkers = [
 ];
 
 export const useAuthStore = create((set, get) => ({
-    user: safeGetStorage('buildos_user', null),
+    user: (() => {
+        // Clean up any legacy admin credentials stored in localStorage
+        try {
+            localStorage.removeItem('buildos_admin_credentials');
+        } catch { }
+
+        const saved = safeGetStorage('buildos_user', null);
+        if (saved) {
+            delete saved.password;
+            if (saved.role === 'admin') {
+                return {
+                    ...saved,
+                    email: envAdminEmail
+                };
+            }
+        }
+        return saved;
+    })(),
     registeredWorkers: (() => {
         const saved = safeGetStorage('buildos_worker_accounts', null);
         if (saved && Array.isArray(saved) && saved.length > 0) return saved;
@@ -51,26 +68,41 @@ export const useAuthStore = create((set, get) => ({
             return { success: false, error: 'Please enter both email and password.' };
         }
 
-        const savedAdminUser = safeGetStorage('buildos_admin_credentials', null);
-        const adminEmail = (savedAdminUser?.email || envAdminEmail).toLowerCase();
+        if (cleanEmail === envAdminEmail) {
+            if (password === envAdminPassword) {
+                const savedUser = safeGetStorage('buildos_user', null);
+                const savedAdminProfile = safeGetStorage('buildos_admin_profile', null);
 
-        if (cleanEmail === adminEmail || cleanEmail === envAdminEmail) {
-            const savedUser = safeGetStorage('buildos_user', null);
-            const activePassword = savedAdminUser?.password || (savedUser && savedUser.role === 'admin' && savedUser.password) || envAdminPassword;
-
-            if (password === activePassword) {
-                const adminUser = savedUser ? { ...savedUser, role: 'admin', password: activePassword } : {
-                    email: cleanEmail,
-                    name: savedAdminUser?.name || 'VENGADESH V (Admin)',
+                const adminUser = {
+                    name: savedAdminProfile?.name || (savedUser?.role === 'admin' ? savedUser.name : null) || 'VENGADESH V (Admin)',
                     role: 'admin',
-                    title: savedAdminUser?.title || 'System Administrator',
-                    avatar: savedAdminUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-                    theme: 'dark',
-                    password: activePassword
+                    email: envAdminEmail,
+                    title: savedAdminProfile?.title || (savedUser?.role === 'admin' ? savedUser.title : null) || 'System Administrator',
+                    avatar: savedAdminProfile?.avatar || (savedUser?.role === 'admin' ? savedUser.avatar : null) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                    theme: savedAdminProfile?.theme || (savedUser?.role === 'admin' ? savedUser.theme : null) || 'dark',
+                    phone: savedAdminProfile?.phone || (savedUser?.role === 'admin' ? savedUser.phone : null) || '',
+                    company: savedAdminProfile?.company || (savedUser?.role === 'admin' ? savedUser.company : null) || ''
                 };
+
                 set({ user: adminUser });
-                safeSetStorage('buildos_admin_credentials', adminUser);
-                safeSetStorage('buildos_user', adminUser);
+
+                // Remove legacy credentials key from localStorage
+                try {
+                    localStorage.removeItem('buildos_admin_credentials');
+                } catch { }
+
+                // Save active session in localStorage WITHOUT email or password for admin
+                const storageUser = {
+                    name: adminUser.name,
+                    role: 'admin',
+                    title: adminUser.title,
+                    avatar: adminUser.avatar,
+                    theme: adminUser.theme,
+                    phone: adminUser.phone,
+                    company: adminUser.company
+                };
+                safeSetStorage('buildos_user', storageUser);
+
                 return { success: true, role: 'admin' };
             } else {
                 return { success: false, error: 'Invalid password. Please check your admin credentials.' };
@@ -85,8 +117,10 @@ export const useAuthStore = create((set, get) => ({
                 const activeAccount = profileCache ? { ...existingWorker, ...profileCache } : existingWorker;
 
                 if (activeAccount.password === password || existingWorker.password === password) {
-                    set({ user: activeAccount });
-                    safeSetStorage('buildos_user', activeAccount);
+                    const sessionWorker = { ...activeAccount };
+                    delete sessionWorker.password;
+                    set({ user: sessionWorker });
+                    safeSetStorage('buildos_user', sessionWorker);
                     return { success: true, role: 'worker' };
                 } else {
                     return { success: false, error: 'Incorrect password for this worker account.' };
@@ -124,19 +158,25 @@ export const useAuthStore = create((set, get) => ({
         };
 
         const updatedList = [newWorkerAccount, ...registeredWorkers];
-        set({ registeredWorkers: updatedList, user: newWorkerAccount });
+        const sessionWorker = { ...newWorkerAccount };
+        delete sessionWorker.password;
+
+        set({ registeredWorkers: updatedList, user: sessionWorker });
         safeSetStorage('buildos_worker_accounts', updatedList);
-        safeSetStorage('buildos_user', newWorkerAccount);
+        safeSetStorage('buildos_user', sessionWorker);
 
         const profileKey = `buildos_worker_profile_${cleanEmail}`;
         safeSetStorage(profileKey, newWorkerAccount);
 
-        return { success: true, role: 'worker', user: newWorkerAccount };
+        return { success: true, role: 'worker', user: sessionWorker };
     },
 
     logout: () => {
         set({ user: null });
         safeSetStorage('buildos_user', null);
+        try {
+            localStorage.removeItem('buildos_admin_credentials');
+        } catch { }
     },
 
     deleteWorkerAccount: (identifier) => {
@@ -182,14 +222,33 @@ export const useAuthStore = create((set, get) => ({
         if (!prevUser) return { success: false };
 
         const updated = { ...prevUser, ...updatedFields };
-        const oldEmailClean = (prevUser.email || '').toLowerCase().trim();
-        const newEmailClean = (updated.email || oldEmailClean).toLowerCase().trim();
+        delete updated.password;
 
-        if (updated.role === 'admin' || oldEmailClean === envAdminEmail || newEmailClean === envAdminEmail) {
-            safeSetStorage('buildos_admin_credentials', updated);
-        }
+        if (updated.role === 'admin') {
+            const adminProfileToSave = {
+                name: updated.name,
+                title: updated.title,
+                avatar: updated.avatar,
+                phone: updated.phone,
+                company: updated.company,
+                theme: updated.theme
+            };
+            safeSetStorage('buildos_admin_profile', adminProfileToSave);
 
-        if (updated.role === 'worker') {
+            try {
+                localStorage.removeItem('buildos_admin_credentials');
+            } catch { }
+
+            // Save active user session WITHOUT email or password for admin
+            const storageUser = {
+                role: 'admin',
+                ...adminProfileToSave
+            };
+            safeSetStorage('buildos_user', storageUser);
+        } else {
+            const oldEmailClean = (prevUser.email || '').toLowerCase().trim();
+            const newEmailClean = (updated.email || oldEmailClean).toLowerCase().trim();
+
             const profileKey = `buildos_worker_profile_${oldEmailClean}`;
             safeSetStorage(profileKey, updated);
             if (oldEmailClean !== newEmailClean) {
@@ -214,10 +273,10 @@ export const useAuthStore = create((set, get) => ({
             const finalList = matchFound ? updatedList : [updated, ...updatedList];
             set({ registeredWorkers: finalList });
             safeSetStorage('buildos_worker_accounts', finalList);
+            safeSetStorage('buildos_user', updated);
         }
 
         set({ user: updated });
-        safeSetStorage('buildos_user', updated);
         return { success: true };
     }
 }));

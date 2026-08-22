@@ -57,7 +57,8 @@ export const useDataStore = () => {
       'buildos_activity',
       'buildos_notifications',
       'buildos_worker_notes',
-      'buildos_leave_requests'
+      'buildos_leave_requests',
+      'buildos_admin_credentials'
     ];
     keysToClear.forEach(k => {
       try { localStorage.removeItem(k); } catch {}
