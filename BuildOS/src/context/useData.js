@@ -1,12 +1,12 @@
-import { useContext } from 'react';
-import { DataContext } from './DataContext';
+import { useDataStore } from '../store/useDataStore';
 
 export const useData = () => {
-  const context = useContext(DataContext);
-  if (!context) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
+  const store = useDataStore();
+  return {
+    ...store,
+    projects: store.enrichedProjects,
+    tasks: store.enrichedTasks
+  };
 };
 
 export default useData;

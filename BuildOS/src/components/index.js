@@ -6,4 +6,15 @@ export { default as Sidebar, Sidebar as Side } from './Sidebar';
 export { default as Table } from './Table';
 export { default as WorkerSidebar } from './WorkerSidebar';
 
+export * from './AssignProject';
+export * from './Dashboard';
+export * from './Materials';
+export * from './ProjectDetails';
+export * from './Projects';
+export * from './Reports';
+export * from './Settings';
+export * from './Tasks';
+export * from './WorkerDashboard';
+export * from './Workers';
+export * from './WorkerSettings';
 export * from './ui';
